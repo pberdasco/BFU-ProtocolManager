@@ -3,12 +3,12 @@ import {createPool} from "mysql2/promise";
 process.loadEnvFile();
 
 export const pool = createPool({
-    host: DB_HOST,
-    user: DB_USER,
-    password: DB_PASSWORD,  //Nota: tuve que generar un nuevo usuario administrador que usa seguridad
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,  //Nota: tuve que generar un nuevo usuario administrador que usa seguridad
                             // estandar y no SHA?? porque el cliente no lo soporta
-    database: DB_DATABASE,
-    port: DB_PORT
+    database: process.env.DB_DATABASE,
+    port: process.env.DB_PORT
 })
 
 //todo: debeia usar logger para dejar registro de errores?

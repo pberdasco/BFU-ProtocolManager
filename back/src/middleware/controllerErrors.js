@@ -1,4 +1,4 @@
-import logger from "../utils/logger";
+import logger from "../utils/logger.js";
 
 /**
  * Convierte un error en una respuesta de error de la api y deja un log del error
