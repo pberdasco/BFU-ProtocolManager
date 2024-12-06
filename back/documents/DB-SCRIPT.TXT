@@ -1,0 +1,210 @@
+
+
+CREATE TABLE `bfu-project-db`.`Usuarios` (
+  `Id` INT NOT NULL AUTO_INCREMENT,
+  `Mail` VARCHAR(60) NOT NULL,
+  `Nombre` VARCHAR(30) NOT NULL,
+  `Password` VARCHAR(64) NOT NULL,
+  PRIMARY KEY (`Id`),
+  UNIQUE INDEX `Id_UNIQUE` (`Id` ASC) VISIBLE);
+  
+CREATE TABLE `bfu-project-db`.`Proyectos` (
+  `Id` INT NOT NULL AUTO_INCREMENT,
+  `Nombre` VARCHAR(45) NOT NULL,
+  `Empresa` VARCHAR(45) NULL,
+  PRIMARY KEY (`Id`),
+  UNIQUE INDEX `Id_UNIQUE` (`Id` ASC) VISIBLE);
+  
+CREATE TABLE `bfu-project-db`.`AutAplicacion` (
+  `Id` INT NOT NULL AUTO_INCREMENT,
+  `Nombre` VARCHAR(45) NOT NULL,
+  `SitioWeb` VARCHAR(60) NULL,
+  PRIMARY KEY (`Id`),
+  UNIQUE INDEX `Id_UNIQUE` (`Id` ASC) VISIBLE);
+  
+  
+CREATE TABLE `bfu-project-db`.`SubProyectos` (
+  `Id` INT NOT NULL AUTO_INCREMENT,
+  `ProyectoId` INT NOT NULL,
+  `Codigo` VARCHAR(10) NOT NULL,
+  `NombreLocacion` VARCHAR(45) NULL,
+  `Ubicacion` VARCHAR(45) NULL,
+  `AutAplicacionId` INT NOT NULL,
+  PRIMARY KEY (`Id`),
+  UNIQUE INDEX `Id_UNIQUE` (`Id` ASC) VISIBLE);
+  
+ALTER TABLE `bfu-project-db`.`SubProyectos` 
+ADD INDEX `SubProyecto-Proyecto_idx` (`ProyectoId` ASC) VISIBLE,
+ADD INDEX `SupProyecto-AutAplicacion_idx` (`AutAplicacionId` ASC) VISIBLE;
+;
+ALTER TABLE `bfu-project-db`.`SubProyectos` 
+ADD CONSTRAINT `SubProyecto-Proyecto`
+  FOREIGN KEY (`ProyectoId`)
+  REFERENCES `bfu-project-db`.`Proyectos` (`Id`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION,
+ADD CONSTRAINT `SupProyecto-AutAplicacion`
+  FOREIGN KEY (`AutAplicacionId`)
+  REFERENCES `bfu-project-db`.`AutAplicacion` (`Id`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION;
+  
+CREATE TABLE `bfu-project-db`.`Pozos` (
+  `Id` INT NOT NULL AUTO_INCREMENT,
+  `SubProyectoId` INT NOT NULL,
+  `Nombre` VARCHAR(20) NOT NULL,
+  `Estado` INT NOT NULL DEFAULT 1,
+  `Tipo` INT NOT NULL DEFAULT 1,
+  PRIMARY KEY (`Id`),
+  UNIQUE INDEX `Id_UNIQUE` (`Id` ASC) VISIBLE,
+  INDEX `Pozos-SubProyecto_idx` (`SubProyectoId` ASC) VISIBLE,
+  CONSTRAINT `Pozos-SubProyecto`
+    FOREIGN KEY (`SubProyectoId`)
+    REFERENCES `bfu-project-db`.`SubProyectos` (`Id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+
+CREATE TABLE `bfu-project-db`.`Compuestos` (
+  `Id` INT NOT NULL AUTO_INCREMENT,
+  `Nombre` VARCHAR(30) NOT NULL,
+  `Sinonimo` VARCHAR(30) NOT NULL,
+  `AgrupaEn` INT NULL,
+  PRIMARY KEY (`Id`),
+  UNIQUE INDEX `Id_UNIQUE` (`Id` ASC) VISIBLE);
+
+CREATE TABLE `bfu-project-db`.`Laboratorios` (
+  `Id` INT NOT NULL AUTO_INCREMENT,
+  `Nombre` VARCHAR(45) NOT NULL,
+  `Domicilio` VARCHAR(60) NULL,
+  `Formato` VARCHAR(60) NULL,
+  PRIMARY KEY (`Id`),
+  UNIQUE INDEX `Id_UNIQUE` (`Id` ASC) VISIBLE);
+
+CREATE TABLE `bfu-project-db`.`LQs` (
+  `Id` INT NOT NULL AUTO_INCREMENT,
+  `LaboratorioId` INT NOT NULL,
+  `CompuestoId` INT NOT NULL,
+  `ValorLQ` DECIMAL(8,5) NOT NULL,
+  PRIMARY KEY (`Id`),
+  UNIQUE INDEX `Id_UNIQUE` (`Id` ASC) VISIBLE,
+  INDEX `LQs-Laboratorio_idx` (`LaboratorioId` ASC) VISIBLE,
+  INDEX `LQs-Cmpuesto_idx` (`CompuestoId` ASC) VISIBLE,
+  CONSTRAINT `LQs-Laboratorio`
+    FOREIGN KEY (`LaboratorioId`)
+    REFERENCES `bfu-project-db`.`Laboratorios` (`Id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `LQs-Cmpuesto`
+    FOREIGN KEY (`CompuestoId`)
+    REFERENCES `bfu-project-db`.`Compuestos` (`Id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+	
+CREATE TABLE `bfu-project-db`.`Regulaciones` (
+  `Id` INT NOT NULL AUTO_INCREMENT,
+  `AutAplicacionId` INT NOT NULL,
+  `FechaVigencia` DATE NOT NULL,
+  `CompuestoId` INT NOT NULL,
+  `Norma` VARCHAR(45) NULL,
+  `ValorReferencia` DECIMAL(8,3) NOT NULL,
+  PRIMARY KEY (`Id`),
+  UNIQUE INDEX `Id_UNIQUE` (`Id` ASC) VISIBLE,
+  INDEX `Regulacion-AutAplicacion_idx` (`AutAplicacionId` ASC) VISIBLE,
+  INDEX `Regulacion-Compuesto_idx` (`CompuestoId` ASC) VISIBLE,
+  CONSTRAINT `Regulacion-AutAplicacion`
+    FOREIGN KEY (`AutAplicacionId`)
+    REFERENCES `bfu-project-db`.`AutAplicacion` (`Id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `Regulacion-Compuesto`
+    FOREIGN KEY (`CompuestoId`)
+    REFERENCES `bfu-project-db`.`Compuestos` (`Id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+	
+CREATE TABLE `bfu-project-db`.`EventoMuestreo` (
+  `Id` INT NOT NULL AUTO_INCREMENT,
+  `Fecha` DATE NOT NULL,
+  `SubProyectoId` INT NOT NULL,
+  `Nombre` VARCHAR(45) NOT NULL,
+  `CadenaCustodiaLink` VARCHAR(60) NULL,
+  PRIMARY KEY (`Id`),
+  UNIQUE INDEX `Id_UNIQUE` (`Id` ASC) VISIBLE,
+  INDEX `Evento-SubProyecto_idx` (`SubProyectoId` ASC) VISIBLE,
+  CONSTRAINT `Evento-SubProyecto`
+    FOREIGN KEY (`SubProyectoId`)
+    REFERENCES `bfu-project-db`.`SubProyectos` (`Id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+	
+CREATE TABLE `bfu-project-db`.`Muestras` (
+  `Id` INT NOT NULL AUTO_INCREMENT,
+  `PozoId` INT NOT NULL,
+  `EventoMuestreoId` INT NOT NULL,
+  `Nombre` VARCHAR(45) NULL,
+  `Tipo` INT NOT NULL DEFAULT 1,
+  `CantViales` INT NULL DEFAULT 0,
+  `CantBotellas05` INT NULL DEFAULT 0,
+  `CantBotellas1` INT NULL DEFAULT 0,
+  `CantBotellas2` INT NULL DEFAULT 0,
+  PRIMARY KEY (`Id`),
+  UNIQUE INDEX `Id_UNIQUE` (`Id` ASC) VISIBLE,
+  INDEX `Muestras-Pozo_idx` (`PozoId` ASC) VISIBLE,
+  INDEX `Muestras-Evento_idx` (`EventoMuestreoId` ASC) VISIBLE,
+  CONSTRAINT `Muestras-Pozo`
+    FOREIGN KEY (`PozoId`)
+    REFERENCES `bfu-project-db`.`Pozos` (`Id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `Muestras-Evento`
+    FOREIGN KEY (`EventoMuestreoId`)
+    REFERENCES `bfu-project-db`.`EventoMuestreo` (`Id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+	
+CREATE TABLE `bfu-project-db`.`Protocolos` (
+  `Id` INT NOT NULL AUTO_INCREMENT,
+  `Numero` VARCHAR(10) NULL,
+  `Fecha` DATE NOT NULL,
+  `LaboratorioId` INT NOT NULL,
+  PRIMARY KEY (`Id`),
+  UNIQUE INDEX `Id_UNIQUE` (`Id` ASC) VISIBLE,
+  INDEX `Protocolo-Laboratorio_idx` (`LaboratorioId` ASC) VISIBLE,
+  CONSTRAINT `Protocolo-Laboratorio`
+    FOREIGN KEY (`LaboratorioId`)
+    REFERENCES `bfu-project-db`.`Laboratorios` (`Id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+	
+CREATE TABLE `bfu-project-db`.`ItemsProtocolo` (
+  `Id` INT NOT NULL AUTO_INCREMENT,
+  `ProtocoloId` INT NOT NULL,
+  `MuestraId` INT NOT NULL,
+  `CompuestoId` INT NOT NULL,
+  `Valor` DECIMAL(8,5) NOT NULL,
+  `UM` INT NOT NULL DEFAULT 1,
+  PRIMARY KEY (`Id`),
+  UNIQUE INDEX `Id_UNIQUE` (`Id` ASC) VISIBLE,
+  INDEX `Item-Protocolo_idx` (`ProtocoloId` ASC) VISIBLE,
+  INDEX `Item-Muestra_idx` (`MuestraId` ASC) VISIBLE,
+  INDEX `Item-Compuesto_idx` (`CompuestoId` ASC) VISIBLE,
+  CONSTRAINT `Item-Protocolo`
+    FOREIGN KEY (`ProtocoloId`)
+    REFERENCES `bfu-project-db`.`Protocolos` (`Id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `Item-Muestra`
+    FOREIGN KEY (`MuestraId`)
+    REFERENCES `bfu-project-db`.`Muestras` (`Id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `Item-Compuesto`
+    FOREIGN KEY (`CompuestoId`)
+    REFERENCES `bfu-project-db`.`Compuestos` (`Id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+	
+
+	
+
+
