@@ -1,4 +1,3 @@
-import { showError } from "../middleware/controllerErrors.js";
 import UsuariosService from "../services/usuarios_service.js";
 
 
@@ -15,13 +14,14 @@ export default class UsuariosController{
      *                     - status: errorstatus + message: string (si falló)
      */
     static async userRegister(req, res, next) {
-        const {nombre, mail, password} = req.body;   
+        const {nombre, mail, password} = req.body;
         try{
             const usuario = await UsuariosService.userRegister({nombre, mail, password});
             res.status(200).send(usuario.toJson());
-        } catch (error){
-            showError(req, res, error);
-        }
+        } catch (error) {
+            showError(req, res, error); 
+        }  
+            
     }
 
     /**
@@ -35,11 +35,11 @@ export default class UsuariosController{
      */
     static async userLogin(req, res, next) {
         const {mail, password} = req.body;  
-        try {
+        try{
             const data = await UsuariosService.userLogin(mail, password);
             res.status(200).send(data);                  
         } catch (error) {
-            showError(req, res, error);    
-        }
+            showError(req, res, error); 
+        }  
     }
 }

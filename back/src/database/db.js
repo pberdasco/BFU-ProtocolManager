@@ -20,7 +20,7 @@ export const pool = createPool({
  * @param {*} message - mensaje de error
  */
 export function dbErrorMsg(code, message){
-    const error = new Error(message);
-    error.status = code;
-    throw error;
+    const error = new Error(message || "Error interno de la base de datos");
+    error.status = code || 500;
+    return error;
 }

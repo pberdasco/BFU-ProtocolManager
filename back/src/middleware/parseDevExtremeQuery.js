@@ -1,3 +1,4 @@
+import logger from '../utils/logger.js';
 /**
  * Factoria de parseDevExtremeQuery
  * @param {Array} allowedFields 
@@ -18,7 +19,10 @@ export function createParseDevExtremeQuery(allowedFields) {
      * @param {Function} next - Función para pasar al siguiente middleware.
      */
     return function parseDevExtremeQuery(req, res, next) {
-        const { filter, sort, skip, take } = req.query;
+        const { $filter: filter, $sort: sort, $skip: skip, $take: take } = req.query;
+        if (filter || sort || skip){
+            logger.info(`$filter: ${filter}  $sort: ${sort}   $skip/take: ${skip}/${take}`);
+        }
 
         let where = "";
         let values = [];
@@ -29,6 +33,7 @@ export function createParseDevExtremeQuery(allowedFields) {
                 where = result.where;
                 values = result.values;
             } catch (error) {
+                logger.error(error);
                 return res.status(400).send({ error: "Invalid filter format" });
             }
         }
@@ -42,6 +47,7 @@ export function createParseDevExtremeQuery(allowedFields) {
                     .filter((s) => allowedFields.includes(s.selector)) // Ignorar campos no permitidos
                     .map((s) => `${s.selector} ${s.desc ? "DESC" : "ASC"}`);
             } catch (error) {
+                logger.error(error);
                 return res.status(400).send({ error: "Invalid sort format" });
             }
         }
@@ -63,72 +69,89 @@ export function createParseDevExtremeQuery(allowedFields) {
  * @param {Array} allowedFields - Lista de campos permitidos para esta entidad.
  * @returns {{ where: string, values: Array }} Objeto con la cláusula SQL y los valores.
  */
-const parseFilter = (filter, allowedFields) => {
+function parseFilter(filter, allowedFields) {
+    const { where, values } = parseFilterRecursive(filter, allowedFields);
+    return { where, values };
+}
+
+function parseFilterRecursive(filt, allowedFields) {
     let where = "";
     let values = [];
 
-    const buildCondition = (filter) => {
-        if (Array.isArray(filter)) {
-            const [field, operator, value] = filter;
-
-            // Validar si el campo está permitido
-            if (!allowedFields.includes(field)) {
-                return; // Ignorar este filtro si no está permitido
-            }
-
-            switch (operator) {
-                case "contains":
-                    where += `${field} LIKE ?`;
-                    values.push(`%${value}%`);
-                    break;
-                case "startswith":
-                    where += `${field} LIKE ?`;
-                    values.push(`${value}%`);
-                    break;
-                case "endswith":
-                    where += `${field} LIKE ?`;
-                    values.push(`%${value}`);
-                    break;
-                case "=":
-                    where += `${field} = ?`;
-                    values.push(value);
-                    break;
-                case "!=":
-                    where += `${field} != ?`;
-                    values.push(value);
-                    break;
-                case ">":
-                case "<":
-                case ">=":
-                case "<=":
-                    where += `${field} ${operator} ?`;
-                    values.push(value);
-                    break;
-                default:
-                    throw new Error(`Unsupported operator: ${operator}`);
-            }
-        } else if (filter === "and" || filter === "or") {
-            where += ` ${filter.toUpperCase()} `;
+    if (Array.isArray(filt)) {
+        // Caso 1: Filtro simple de la forma ["Campo","Operador","Valor"]
+        if (filt.length === 3 && typeof filt[0] === 'string') {
+            const [field, operator, value] = filt;
+            const { where: w, values: v } = processCondition(field, operator, value, allowedFields);
+            where += w;
+            values.push(...v);
+            return { where, values };
         } else {
-            throw new Error(`Unsupported filter format: ${filter}`);
-        }
-    };
-
-    const parseRecursive = (filter) => {
-        where += "(";
-        filter.forEach((f, index) => {
-            if (Array.isArray(f)) {
-                parseRecursive(f); // Subfiltros
-            } else {
-                buildCondition(f); // Condición simple o lógica
+            // Caso 2: Filtro compuesto: puede tener subarrays y operadores lógicos
+            where += "(";
+            for (let i = 0; i < filt.length; i++) {
+                const element = filt[i];
+                if (Array.isArray(element)) {
+                    const { where: w, values: v } = parseFilterRecursive(element, allowedFields);
+                    where += w;
+                    values.push(...v);
+                } else if (element === "and" || element === "or") {
+                    where += ` ${element.toUpperCase()} `;
+                } else {
+                    logger.error(`Unsupported filter format: ${JSON.stringify(element)}`);
+                    throw new Error(`Unsupported filter format: ${JSON.stringify(element)}`);
+                }
             }
-            if (index < filter.length - 1) where += " ";
-        });
-        where += ")";
-    };
+            where += ")";
+            return { where, values };
+        }
+    } else {
+        logger.error(`Unsupported filter format: ${JSON.stringify(filt)}`);
+        throw new Error(`Unsupported filter format: ${JSON.stringify(filt)}`);
+    }
+}
 
-    parseRecursive(filter);
+function processCondition(field, operator, value, allowedFields) {
+    if (!allowedFields.includes(field)) {
+        // Campo no permitido, no lanzar error fatídico, pero devolver vacío
+        logger.warn(`Campo no permitido: ${field}`);
+        return { where: "1=0", values: [] }; 
+        // Esto forza a que no devuelva resultados si el campo no es permitido.
+    }
 
-    return { where, values };
-};
-
+    let w = "";
+    const v = [];
+    switch (operator) {
+        case "contains":
+            w = `${field} LIKE ?`;
+            v.push(`%${value}%`);
+            break;
+        case "startswith":
+            w = `${field} LIKE ?`;
+            v.push(`${value}%`);
+            break;
+        case "endswith":
+            w = `${field} LIKE ?`;
+            v.push(`%${value}`);
+            break;
+        case "=":
+            w = `${field} = ?`;
+            v.push(value);
+            break;
+        case "!=":
+            w = `${field} != ?`;
+            v.push(value);
+            break;
+        case ">":
+        case "<":
+        case ">=":
+        case "<=":
+            w = `${field} ${operator} ?`;
+            v.push(value);
+            break;
+        default:
+            logger.error(`Unsupported operator: ${operator}`);
+            throw new Error(`Unsupported operator: ${operator}`);
+    }
+    return { where: w, values: v };
+}

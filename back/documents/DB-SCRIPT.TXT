@@ -206,5 +206,7 @@ CREATE TABLE `bfu-project-db`.`ItemsProtocolo` (
 	
 
 	
-
+INSERT INTO `bfu-project-db`.`Proyectos` (`Codigo`, `Nombre`, `Empresa`) VALUES ('200111', 'Proyecto 200111', 'YPF');
+INSERT INTO `bfu-project-db`.`Proyectos` (`Codigo`, `Nombre`, `Empresa`) VALUES ('200115', 'Otro proyecto', 'YPF');
+INSERT INTO `bfu-project-db`.`Proyectos` (`Codigo`, `Nombre`, `Empresa`) VALUES ('200119', 'Proyecto 119', 'VISTA');
 

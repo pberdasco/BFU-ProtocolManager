@@ -11,3 +11,15 @@ y un script dev: node --watch server.js
 
 en los static create dentro de cada clase
 - validar con zod
+
+=======
+--> 1 testeear un poco mas la api con filtros y agregar udate y create y delete
+
+-> completar las apis. (antes ver uso de validacion con zod)
+-> (pensar un pocoo cuales)
+
+-> antes de completar, probar un front conectandose con 1 api   ===> iriamos por esto.
+-> hoy tengo: solo una grilla que lee directo Odata....
+-->  hacer el cambio en el front de odata a rest   (consulta)
+
+--> seguir mirando el front para agregar un formulario de modificacion y alta
