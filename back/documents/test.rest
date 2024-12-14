@@ -30,7 +30,7 @@ PUT http://localhost:5001/proyectos/9
 Content-Type: application/json
 
 {
-  "codigo": "200125",
+  "codigo": "200115",
   "nombre": "Proyecto 200115 actualizado 1",
   "empresa": "YPF"
 }

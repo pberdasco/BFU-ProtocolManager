@@ -1,7 +1,7 @@
 import ProyectosService from "../services/proyectos_service.js";
 import { showError } from "../middleware/controllerErrors.js";
 import { proyectoCreateSchema, proyectoUpdateSchema } from "../models/proyectos_schema.js";
-
+import { z } from "zod";
 
 export default class ProyectosController{
 

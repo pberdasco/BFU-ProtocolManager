@@ -1,10 +1,3 @@
-npm i standard -D  (linter, como dependencia de desarrollo)
-
-en el package.json agregar:
-"esLintConfig":{
-    "extends": "standard"
-}
-
 
 node --run script
 y un script dev: node --watch server.js
