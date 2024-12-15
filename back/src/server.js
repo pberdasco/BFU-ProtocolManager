@@ -6,6 +6,7 @@ import { logRequest } from './middleware/logRequest.js';
 import { fileURLToPath } from 'url';
 import { usuariosRouter } from './routers/usuarios_router.js';
 import { proyectosRouter } from './routers/proyectos_router.js';
+import { subproyectosRouter } from './routers/subproyectos_router.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -21,6 +22,7 @@ app.use(cors());
 // APIs
 app.use("/usuarios", usuariosRouter);
 app.use("/proyectos", proyectosRouter);
+app.use("/subproyectos", subproyectosRouter);
 
 // Servir archivos estáticos del frontend
 app.use(express.static(path.join(__dirname, '../../public')));

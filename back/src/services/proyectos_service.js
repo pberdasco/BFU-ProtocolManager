@@ -2,7 +2,7 @@ import { pool, dbErrorMsg } from "../database/db.js";
 import Proyecto from "../models/proyectos_model.js";
 
 const table = "Proyectos";
-const selectBase = "SELECT id, codigo, nombre, empresa FROM Proyectos ";
+const selectBase = "SELECT p.id, p.codigo, p.nombre, p.empresa FROM Proyectos p ";
 const noExiste = "El proyecto no existe";
 const yaExiste = "El proyecto ya existe"
 
@@ -14,7 +14,7 @@ export default class ProyectosService{
         try{
             //Select para el totalCount
             const countValues = [...values];
-            const countSql = `SELECT COUNT(*) as total FROM Proyectos
+            const countSql = `SELECT COUNT(*) as total FROM Proyectos p
                               ${where ? `WHERE ${where}` : ""}`;
             const [countResult] = await pool.query(countSql, countValues);
             const totalCount = countResult[0].total;

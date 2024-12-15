@@ -44,8 +44,14 @@ export function createParseDevExtremeQuery(allowedFields) {
             try {
                 const sortArray = JSON.parse(sort);
                 order = sortArray
-                    .filter((s) => allowedFields.includes(s.selector)) // Ignorar campos no permitidos
-                    .map((s) => `${s.selector} ${s.desc ? "DESC" : "ASC"}`);
+                    .map((s) => {
+                        const resolvedField = resolveField(s.selector, allowedFields);
+                        if (!resolvedField) {
+                            console.warn(`Orden no agregado para campo no permitido: ${s.selector}`);
+                            return null; // Ignorar campos no permitidos
+                        }
+                        return `${resolvedField} ${s.desc ? "DESC" : "ASC"}`;
+                    })
             } catch (error) {
                 logger.error(error);
                 return res.status(400).send({ error: "Invalid sort format" });
@@ -59,6 +65,22 @@ export function createParseDevExtremeQuery(allowedFields) {
         req.devExtremeQuery = { where, values, order, limit, offset };
         next();
     };
+}
+
+/**
+ * Verifica si un campo acepta filter o sort (porque esta en la consulta general)
+ * y en caso de que si se acepte devuelve el nombre con el que debe incluirse
+ * por ejemplo si el select dice a.nombre as autoridad, resolveFieds recibe autoridad, lo da por valido y devuelve a.nombre
+ * @param {string} field - campo a analizar 
+ * @param {Object} allowedFields - objeto con {campoPermitido: "tabla.campo"} es decir como debe quedar en el where o sort 
+ * @returns el campo a usar o null si no es permitido
+ */
+function resolveField(field, allowedFields) {
+    if (allowedFields[field]) {
+        return allowedFields[field]; 
+    }
+    console.warn(`Campo no permitido: ${field}`);
+    return null; // Ignorar campos no permitidos
 }
 
 /**
@@ -82,7 +104,8 @@ function parseFilterRecursive(filt, allowedFields) {
         // Caso 1: Filtro simple de la forma ["Campo","Operador","Valor"]
         if (filt.length === 3 && typeof filt[0] === 'string') {
             const [field, operator, value] = filt;
-            const { where: w, values: v } = processCondition(field, operator, value, allowedFields);
+            const resolvedField = resolveField(field, allowedFields);
+            const { where: w, values: v } = processCondition(resolvedField, operator, value);
             where += w;
             values.push(...v);
             return { where, values };
@@ -111,12 +134,10 @@ function parseFilterRecursive(filt, allowedFields) {
     }
 }
 
-function processCondition(field, operator, value, allowedFields) {
-    if (!allowedFields.includes(field)) {
-        // Campo no permitido, no lanzar error fatídico, pero devolver vacío
-        logger.warn(`Campo no permitido: ${field}`);
-        return { where: "1=0", values: [] }; 
-        // Esto forza a que no devuelva resultados si el campo no es permitido.
+function processCondition(field, operator, value) {
+    if (!field) {
+        console.warn(`Condición no procesada porque el campo no es válido.`);
+        return { where: "1=0", values: [] }; // No agrega nada al WHERE
     }
 
     let w = "";
@@ -151,7 +172,7 @@ function processCondition(field, operator, value, allowedFields) {
             break;
         default:
             logger.error(`Unsupported operator: ${operator}`);
-            throw new Error(`Unsupported operator: ${operator}`);
+            return { where: "1=0", values: [] };
     }
     return { where: w, values: v };
 }

@@ -1,0 +1,26 @@
+### subproyectos
+#* allowedFields = ["id", "codigo", "nombreLocacion", "ubicacion", "autAplicacionId", "proyectoId"];
+#* getFields = allowedFields + "proyecto" + "autoridad"
+
+### GET 
+### ? Todos los proyectos
+GET http://localhost:5001/subproyectos/
+
+### ? Todos los subproyectos cn filtro simple
+# Este request filtra subproyectos que comienzan con 
+# Formato interno: ["codigo","startswith","300115"]
+GET http://localhost:5001/subproyectos?$filter=%5B%22codigo%22%2C%22startswith%22%2C%22300115%22%5D
+
+
+
+### Create
+POST http://localhost:5001/subproyectos/
+Content-Type: application/json
+
+{
+  "proyectoId": 1,
+  "autAplicacionId": 3,
+  "codigo": "SUBP1234",
+  "nombreLocacion": "Locación Norte",
+  "ubicacion": "Argentina - Neuquén - Vaca Muerta"
+}
