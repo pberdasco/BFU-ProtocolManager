@@ -1,2 +1,4 @@
 back/node_modules
 back/.env
+back/logs/
+./.gitignore

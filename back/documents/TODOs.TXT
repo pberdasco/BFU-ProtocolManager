@@ -1,18 +1,30 @@
 
-node --run script
-y un script dev: node --watch server.js
+Proximos:
+mover allowedFields a capa de servicio? (hoy esta en el router)
+                1)      class SubproyectosService {
+                            static getAllowedFields() {return allowedFields;}
 
-en los static create dentro de cada clase
-- validar con zod
+                2)      class SubproyectosController {
+                            static getAllowedFields(req, res, next) {
+                                req.allowedFields = SubproyectosService.getAllowedFields();
+                                next();
+                            }
+                
+                3)      function parseDevExtremeQuery(req, res, next) {
+                            const allowedFields = req.allowedFields;
 
-=======
---> 1 testeear un poco mas la api con filtros y agregar udate y create y delete
+                4)      subproyectosRouter:
+                        subproyectosRouter.get("/", SubproyectosController.getAllowedFields,
+                                               parseDevExtremeQuery,  SubproyectosController.getAll);
 
--> completar las apis. (antes ver uso de validacion con zod)
--> (pensar un pocoo cuales)
+grabar fecha de modificacion
+usar tocken y grabar usuario
 
--> antes de completar, probar un front conectandose con 1 api   ===> iriamos por esto.
--> hoy tengo: solo una grilla que lee directo Odata....
--->  hacer el cambio en el front de odata a rest   (consulta)
 
---> seguir mirando el front para agregar un formulario de modificacion y alta
+Commits realizados:
+Endpoint Subproyectos (con join) + ajuste parseDevExtremeQuery para armado de where cuando hay joins  (15/12)
+Bug import {z} (14/12)
+Endpoints getById, post, put, delete en proyectos + validacion con zod + ajuste handling errors (12/12)
+Primera version que ejecuta la consulta de proyects (6/12)
+Inicio (5/12)
+
