@@ -11,7 +11,7 @@ GET http://localhost:5001/proyectos/
 GET http://localhost:5001/proyectos?$filter=[%22empresa%22%2C%22%3D%22%2C%22YPF%22]
 
 ### ? Proyectos entre 200111 y 200115 ambos inclusive
-# Este request filtra proyectos con Codigo entre 200111 y 200115 (inclusive)
+# Este request filtra proyectos con Codigo entre 200111 y 200999 (inclusive)
 # Formato interno: [["codigo",">=","200111"],"and",["codigo","<=","200999"]]
 GET http://localhost:5001/proyectos?$filter=%5B%5B%22codigo%22%2C%22%3E%3D%22%2C%22200111%22%5D%2C%22and%22%2C%5B%22codigo%22%2C%22%3C%3D%22%2C%22200999%22%5D%5D
 

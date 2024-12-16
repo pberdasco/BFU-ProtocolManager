@@ -5,6 +5,11 @@ import { z } from "zod";
 
 export default class ProyectosController{
 
+    static getAllowedFields(req, res, next) {
+        req.allowedFields = ProyectosService.getAllowedFields();
+        next();
+    }
+
     static async getAll(req, res, next){
         try{
             const devExtremeQuery = req.devExtremeQuery;

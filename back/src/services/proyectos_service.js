@@ -1,6 +1,13 @@
 import { pool, dbErrorMsg } from "../database/db.js";
 import Proyecto from "../models/proyectos_model.js";
 
+const allowedFields = {
+    id: "p.id", 
+    codigo: "p.codigo",
+    nombre: "p.nombre",
+    empresa: "p.empresa"
+};
+
 const table = "Proyectos";
 const selectBase = "SELECT p.id, p.codigo, p.nombre, p.empresa FROM Proyectos p ";
 const noExiste = "El proyecto no existe";
@@ -8,6 +15,10 @@ const yaExiste = "El proyecto ya existe"
 
 export default class ProyectosService{
     
+    static getAllowedFields() {
+        return allowedFields;
+    }
+
     static async getAll(devExtremeQuery) {
         const { where, values, order, limit, offset } = devExtremeQuery;
 

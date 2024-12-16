@@ -5,6 +5,10 @@ export default class Subproyecto {
     codigo;           // string(10)
     nombreLocacion;   // string(45)
     ubicacion;        // string(45)
+    apies;            // string(10)
+    objetivo;         // string(45)
+    notas;            // string(60)
+
 
     constructor(row) {
         this.id = row.id;
@@ -13,6 +17,9 @@ export default class Subproyecto {
         this.codigo = row.codigo;
         this.nombreLocacion = row.nombreLocacion;
         this.ubicacion = row.ubicacion;
+        this.apies = row.apies;
+        this.objetivo = row.objetivo;
+        this.notas = row.notas;
     }
 
     toJson() {
@@ -23,6 +30,9 @@ export default class Subproyecto {
             codigo: this.codigo,
             nombreLocacion: this.nombreLocacion,
             ubicacion: this.ubicacion,
+            apies: this.apies,
+            objetivo: this.objetivo,
+            notas: this.notas,
         };
     }
 }

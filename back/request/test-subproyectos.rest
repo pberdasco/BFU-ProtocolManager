@@ -20,7 +20,10 @@ Content-Type: application/json
 {
   "proyectoId": 1,
   "autAplicacionId": 3,
-  "codigo": "SUBP1234",
+  "codigo": "300115",
   "nombreLocacion": "Locación Norte",
-  "ubicacion": "Argentina - Neuquén - Vaca Muerta"
+  "ubicacion": "Argentina - Neuquén - LLL",
+  "apies": "COD-YPF",
+  "objetivo": "Vactor + GeoRadar",
+  "notas": "exProyecto 197115"
 }

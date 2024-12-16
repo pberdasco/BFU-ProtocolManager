@@ -4,7 +4,7 @@ import logger from '../utils/logger.js';
  * @param {Array} allowedFields 
  * @returns {Function} parseDevExtremeQuery() - middleware
  */
-export function createParseDevExtremeQuery(allowedFields) {
+export function createParseDevExtremeQuery() {
     /**
      * Middleware para parsear los parámetros de filtro, orden y paginación 
      * enviados por DevExtreme en una solicitud HTTP.
@@ -19,6 +19,7 @@ export function createParseDevExtremeQuery(allowedFields) {
      * @param {Function} next - Función para pasar al siguiente middleware.
      */
     return function parseDevExtremeQuery(req, res, next) {
+        const allowedFields = req.allowedFields;
         const { $filter: filter, $sort: sort, $skip: skip, $take: take } = req.query;
         if (filter || sort || skip){
             logger.info(`$filter: ${filter}  $sort: ${sort}   $skip/take: ${skip}/${take}`);

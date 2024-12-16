@@ -4,19 +4,9 @@ import { createParseDevExtremeQuery } from "../middleware/parseDevExtremeQuery.j
 
 export const subproyectosRouter = Router();
 
-const allowedFields = { 
-    id: "S.id", 
-    codigo: "S.codigo", 
-    nombreLocacion: "S.nombreLocacion", 
-    ubicacion: "S.ubicacion", 
-    autAplicacionId: "S.autAplicacionId", 
-    proyectoId: "S.proyectoId",
-    proyecto: "P.codigo",
-    autoridad: "A.nombre"
-}
-const parseSubproyectosQuery = createParseDevExtremeQuery(allowedFields);
+const parseSubproyectosQuery = createParseDevExtremeQuery();
 
-subproyectosRouter.get('/', parseSubproyectosQuery, SubproyectosController.getAll);
+subproyectosRouter.get('/', SubproyectosController.getAllowedFields, parseSubproyectosQuery, SubproyectosController.getAll);
 subproyectosRouter.get('/:id', SubproyectosController.getById);
 subproyectosRouter.post('/', SubproyectosController.create);
 subproyectosRouter.put('/:id', SubproyectosController.update);

@@ -1,8 +1,22 @@
 import { pool, dbErrorMsg } from "../database/db.js";
 import Subproyecto from "../models/subproyectos_model.js";
 
+const allowedFields = { 
+    id: "S.id", 
+    codigo: "S.codigo", 
+    nombreLocacion: "S.nombreLocacion", 
+    ubicacion: "S.ubicacion", 
+    autAplicacionId: "S.autAplicacionId", 
+    proyectoId: "S.proyectoId",
+    proyecto: "P.codigo",
+    autoridad: "A.nombre",
+    apies: "S.apies",
+    objetivo: "S.objetivo",
+    notas: "S.notas",
+}
+
 const table = "Subproyectos";
-const selectBase = "SELECT S.id, S.proyectoId, P.codigo as proyecto, S.codigo, S.nombreLocacion, S.ubicacion, S.autAplicacionId, A.nombre as autoridad "
+const selectBase = "SELECT S.id, S.proyectoId, P.codigo as proyecto, S.codigo, S.nombreLocacion, S.ubicacion, S.autAplicacionId, A.nombre as autoridad, S.apies, S.objetivo, S.notas "
 const selectTables = "FROM SubProyectos S " +
                      "LEFT JOIN AutAplicacion A ON S.AutAplicacionId = A.id " +
                      "LEFT JOIN Proyectos P ON S.proyectoId = P.id";
@@ -10,6 +24,10 @@ const noExiste = "El subproyecto no existe";
 const yaExiste = "El subproyecto ya existe";
 
 export default class SubproyectosService {
+
+    static getAllowedFields() {
+        return allowedFields;
+    }
 
     static async getAll(devExtremeQuery) {
         const { where, values, order, limit, offset } = devExtremeQuery;

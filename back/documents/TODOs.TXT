@@ -1,27 +1,12 @@
 
 Proximos:
-mover allowedFields a capa de servicio? (hoy esta en el router)
-                1)      class SubproyectosService {
-                            static getAllowedFields() {return allowedFields;}
-
-                2)      class SubproyectosController {
-                            static getAllowedFields(req, res, next) {
-                                req.allowedFields = SubproyectosService.getAllowedFields();
-                                next();
-                            }
-                
-                3)      function parseDevExtremeQuery(req, res, next) {
-                            const allowedFields = req.allowedFields;
-
-                4)      subproyectosRouter:
-                        subproyectosRouter.get("/", SubproyectosController.getAllowedFields,
-                                               parseDevExtremeQuery,  SubproyectosController.getAll);
-
 grabar fecha de modificacion
 usar tocken y grabar usuario
 
 
 Commits realizados:
+se paso el dominio del allowedFields a los servicios, encargandole a controller un middlewar para que los agruegue en req y a parseDevExtremeQuery que lo tome de alli. 
+Agregado campos apies, objetivos, notas en subproyectos
 Endpoint Subproyectos (con join) + ajuste parseDevExtremeQuery para armado de where cuando hay joins  (15/12)
 Bug import {z} (14/12)
 Endpoints getById, post, put, delete en proyectos + validacion con zod + ajuste handling errors (12/12)
