@@ -1,6 +1,10 @@
 ### proyectos/ 
 #* allowedFields = ["id", "codigo", "nombre", "empresa"];
 
+### GET by Id
+### ? Un proyecto
+GET http://localhost:5001/proyectos/3
+
 ### GET 
 ### ? Todos los proyectos
 GET http://localhost:5001/proyectos/
@@ -74,3 +78,7 @@ http://localhost:5001/proyectos?%24filter=%5B%22codigo%22%2C%22contains%22%2C%22
 ### GET 
 ### ? Todos los proyectos
 GET http://localhost:5001/proyectos/extended
+
+### GET by Id
+### ? Un proyecto
+GET http://localhost:5001/proyectos/3/extended

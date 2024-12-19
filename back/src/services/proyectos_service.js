@@ -12,11 +12,46 @@ const allowedFields = {
 };
 
 const table = "Proyectos";
-const selectBase = "SELECT p.id, p.codigo, p.nombre, p.empresa FROM Proyectos p ";
+const mainTable  = "p"
+// const selectBase = "SELECT p.id, p.codigo, p.nombre, p.empresa FROM Proyectos p ";
 const noExiste = "El proyecto no existe";
 const yaExiste = "El proyecto ya existe"
 
+
+
 export default class ProyectosService{
+    static getSelect(type) {
+        if (type !== 'extended'){
+            return "SELECT p.id, p.codigo, p.nombre, p.empresa FROM Proyectos p "
+        }else{
+            return `
+                SELECT 
+                    p.id, 
+                    p.codigo, 
+                    p.nombre, 
+                    p.empresa,
+                    COALESCE(JSON_ARRAYAGG(
+                        JSON_OBJECT(
+                            'id', s.id,
+                            'nombreLocacion', s.nombreLocacion,
+                            'ubicacion', s.ubicacion,
+                            'objetivo', s.objetivo,
+                            'notas', s.notas,
+                            'pozos', (
+                                SELECT COALESCE(JSON_ARRAYAGG(
+                                    JSON_OBJECT('id', po.id, 'nombre', po.nombre, 'estado', po.estado, 'tipo', po.tipo)
+                                ), JSON_ARRAY())
+                                FROM pozos po
+                                WHERE po.subproyectoId = s.id
+                            )
+                        )
+                    ), JSON_ARRAY()) AS subproyectos
+                FROM Proyectos p
+                LEFT JOIN subproyectos s ON p.id = s.proyectoId
+            `;
+        }
+    }
+    
     
     static getAllowedFields() {
         return allowedFields;
@@ -35,10 +70,13 @@ export default class ProyectosService{
     
             //Select para los datos
             values.push(limit, offset)
-            const sql = `${selectBase}
+            const sql = `${this.getSelect()}
                          ${where ? `WHERE ${where}` : ""}
                          ${order.length ? `ORDER BY ${order.join(", ")}` : ""}
                          LIMIT ? OFFSET ?`
+         
+        console.log(sql);
+        
             const [rows] = await pool.query(sql, values );
             
             return {data:rows,      // Si algo no coincidiera entre la base y el objeto seria necesario llamar a un Proyectos.toJsonArray()
@@ -64,38 +102,13 @@ export default class ProyectosService{
             // Select para los datos extendidos
             values.push(limit, offset);
             const sql = `
-                SELECT 
-                    p.id, 
-                    p.codigo, 
-                    p.nombre, 
-                    p.empresa,
-                    COALESCE(JSON_ARRAYAGG(
-                        JSON_OBJECT(
-                            'id', s.id,
-                            'nombreLocacion', s.nombreLocacion,
-                            'ubicacion', s.ubicacion,
-                            'objetivo', s.objetivo,
-                            'notas', s.notas,
-                            'pozos', (
-                                SELECT COALESCE(JSON_ARRAYAGG(
-                                    JSON_OBJECT('id', po.id, 'nombre', po.nombre, 'estado', po.estado, 'tipo', po.tipo)
-                                ), JSON_ARRAY())
-                                FROM pozos po
-                                WHERE po.subproyectoId = s.id
-                            )
-                        )
-                    ), JSON_ARRAY()) AS subproyectos
-                FROM Proyectos p
-                LEFT JOIN subproyectos s ON p.id = s.proyectoId
+                ${this.getSelect("extended")}
                 ${where ? `WHERE ${where}` : ""}
                 GROUP BY p.id
                 ${order.length ? `ORDER BY ${order.join(", ")}` : ""}
                 LIMIT ? OFFSET ?
             `;
             const [rows] = await pool.query(sql, values);
-    console.log("Filas obtendas: ", rows);
-    console.log("primer subproyecto: ", rows[0].subproyectos.length, rows[0].subproyectos[0]);
-    
     
             const proyectos = ProyectoExtended.fromRows(rows);
             return {
@@ -109,9 +122,19 @@ export default class ProyectosService{
 
     static async getById(id) {
         try{
-            const [rows] = await pool.query(selectBase + "WHERE Id = ?", [id]);
+            const [rows] = await pool.query(`${this.getSelect()} WHERE ${mainTable}.Id = ?`, [id]);
             if (rows.length === 0) throw dbErrorMsg(404, noExiste);
             return new Proyecto(rows[0]);
+        }catch(error){
+            throw dbErrorMsg(error.status, error.sqlMessage || error.message);
+        }
+    }
+
+    static async getByIdExtended(id) {
+        try{
+            const [rows] = await pool.query(`${this.getSelect("extended")} WHERE ${mainTable}.Id = ?`, [id]);
+            if (rows.length === 0) throw dbErrorMsg(404, noExiste);
+            return ProyectoExtended.fromRow(rows[0]);
         }catch(error){
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);
         }
