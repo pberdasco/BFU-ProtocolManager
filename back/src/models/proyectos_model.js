@@ -20,4 +20,25 @@ export default class Proyecto{
         };
     }
 
+    /**
+     * Transforma una fila de base de datos en un objeto Proyecto bien conformado
+     * @param {Object} row - Fila única de base de datos
+     * @returns {Proyecto}
+     */
+    static extendedFromRow(row) {
+        return new Proyecto({
+            ...row,
+            subproyectos: row.subproyectos ? JSON.parse(row.subproyectos) : [] // Parsear JSON si existe
+        });
+    }
+
+    /**
+     * Transforma múltiples filas de base de datos en una lista de Proyectos
+     * @param {Array<Object>} rows - Conjunto de filas de base de datos
+     * @returns {Array<Proyecto>}
+     */
+    static extendedFromRows(rows) {
+        return rows.map(row => Proyecto.fromRow(row));
+    }
+
 }

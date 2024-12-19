@@ -66,3 +66,11 @@ DELETE http://localhost:5001/proyectos/15
 
 ###
 http://localhost:5001/proyectos?%24filter=%5B%22codigo%22%2C%22contains%22%2C%22200222%22%5D&%24sort=%5B%7B%22selector%22%3A%22nombre%22%2C%22desc%22%3Atrue%7D%2C%7B%22selector%22%3A%22id%22%2C%22desc%22%3Afalse%7D%5D&%24skip=0&%24take=10
+
+
+
+## Extended --------------------------------------
+
+### GET 
+### ? Todos los proyectos
+GET http://localhost:5001/proyectos/extended

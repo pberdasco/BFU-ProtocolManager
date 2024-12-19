@@ -1,3 +1,4 @@
+import { subproyectoCreateSchema, subproyectoUpdateSchema } from "./subproyectos_schema.js";
 import { z } from "zod";
 
 export const proyectoCreateSchema = z.object({
@@ -7,3 +8,11 @@ export const proyectoCreateSchema = z.object({
 });
 
 export const proyectoUpdateSchema = proyectoCreateSchema.partial();
+
+export const proyectoCreateExtendedSchema = proyectoCreateSchema.extend({
+    subproyectos: z.array(subproyectoCreateSchema).optional(), 
+});
+
+export const proyectoUpdateExtendedSchema = proyectoUpdateSchema.extend({
+    subproyectos: z.array(subproyectoUpdateSchema).optional(), 
+});
