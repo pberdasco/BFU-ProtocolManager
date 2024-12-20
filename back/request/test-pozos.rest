@@ -1,0 +1,57 @@
+### pozos/ 
+#* allowedFields = ["id", "subproyectoId", "nombre", "estado", "tipo"];
+
+### GET 
+### ? Todos los pozos
+GET http://localhost:5001/pozos/
+
+### ? Filtra Pozos que se llamen PM4 
+# Este request filtra los pozos con nombre  = 'PM4'
+# Formato interno: ["subproyectoId","=","1"]
+GET http://localhost:5001/pozos?$filter=[%22nombre%22%2C%22%3D%22%2C%22PM4%22]
+
+### GET by Id
+### ? 
+GET http://localhost:5001/pozos/1
+
+### Updates
+### ? Actualizar un pozo que no existe
+PUT http://localhost:5001/pozos/9
+Content-Type: application/json
+
+{
+  "subproyectoId": 1,
+  "nombre": "PM4",
+  "estado": 1,
+  "tipo": 1
+}
+
+### ? Actualizar un pozo
+PUT http://localhost:5001/pozos/1
+Content-Type: application/json
+
+{
+  "subproyectoId": 1,
+  "nombre": "PM4",
+  "estado": 1,
+  "tipo": 3
+}
+
+### Create
+### ? Crear un proyecto 
+POST http://localhost:5001/pozos/
+Content-Type: application/json
+
+{
+  "subproyectoId": 1,
+  "nombre": "PM6",
+  "estado": 1,
+  "tipo": 1
+}
+
+### Delete
+### ? Borrar un proyecto
+DELETE http://localhost:5001/pozos/5
+
+###
+http://localhost:5001/proyectos?%24filter=%5B%22codigo%22%2C%22contains%22%2C%22200222%22%5D&%24sort=%5B%7B%22selector%22%3A%22nombre%22%2C%22desc%22%3Atrue%7D%2C%7B%22selector%22%3A%22id%22%2C%22desc%22%3Afalse%7D%5D&%24skip=0&%24take=10

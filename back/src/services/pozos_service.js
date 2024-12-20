@@ -1,30 +1,24 @@
 import { pool, dbErrorMsg } from "../database/db.js";
-import Subproyecto from "../models/subproyectos_model.js";
+import Pozo from "../models/pozos_model.js";
 
 const allowedFields = { 
-    id: "S.id", 
-    codigo: "S.codigo", 
-    nombreLocacion: "S.nombreLocacion", 
-    ubicacion: "S.ubicacion", 
-    autAplicacionId: "S.autAplicacionId", 
-    proyectoId: "S.proyectoId",
-    proyecto: "P.codigo",
-    autoridad: "A.nombre",
-    apies: "S.apies",
-    objetivo: "S.objetivo",
-    notas: "S.notas",
+    id: "P.id", 
+    nombre: "P.nombre", 
+    estado: "P.estado", 
+    tipo: "P.tipo", 
+    subProyectoId: "P.subProyectoId", 
+    subProyecto: "S.codigo",    
 }
 
-const table = "Subproyectos";
-const selectBase = "SELECT S.id, S.proyectoId, P.codigo as proyecto, S.codigo, S.nombreLocacion, S.ubicacion, S.autAplicacionId, A.nombre as autoridad, S.apies, S.objetivo, S.notas "
-const selectTables = "FROM SubProyectos S " +
-                     "LEFT JOIN AutAplicacion A ON S.AutAplicacionId = A.id " +
-                     "LEFT JOIN Proyectos P ON S.proyectoId = P.id";
-const mainTable = "S";
-const noExiste = "El subproyecto no existe";
-const yaExiste = "El subproyecto ya existe";
+const table = "Pozos";
+const selectBase = "SELECT P.id, P.subProyectoId, S.codigo as subProyecto, P.nombre, P.estado, P.tipo "
+const selectTables = "FROM Pozos P " +
+                     "LEFT JOIN Subproyectos S ON P.subProyectoId = S.id ";
+const mainTable = "P";                     
+const noExiste = "El pozo no existe";
+const yaExiste = "El pozo ya existe";
 
-export default class SubproyectosService {
+export default class PozosService {
 
     static getAllowedFields() {
         return allowedFields;
@@ -57,28 +51,28 @@ export default class SubproyectosService {
         try {
             const [rows] = await pool.query(`${selectBase} ${selectTables} WHERE ${mainTable}.id = ?`, [id]);
             if (rows.length === 0) throw dbErrorMsg(404, noExiste);
-            return new Subproyecto(rows[0]);
+            return new Pozo (rows[0]);
         } catch (error) {
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);
         }
     }
 
-    static async create(subproyectoToAdd) {
+    static async create(pozosToAdd) {
         try {
-            const [rows] = await pool.query(`INSERT INTO ${table} SET ?`, [subproyectoToAdd]);
-            subproyectoToAdd.id = rows.insertId;
-            return new Subproyecto(subproyectoToAdd);
+            const [rows] = await pool.query(`INSERT INTO ${table} SET ?`, [pozosToAdd]);
+            pozosToAdd.id = rows.insertId;
+            return new Pozo(pozosToAdd);
         } catch (error) {
             if (error?.code === "ER_DUP_ENTRY") throw dbErrorMsg(409, yaExiste);
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);
         }
     }
 
-    static async update(id, subproyecto) {
+    static async update(id, pozo) {
         try {
-            const [rows] = await pool.query(`UPDATE ${table} SET ? WHERE id = ?`, [subproyecto, id]);
+            const [rows] = await pool.query(`UPDATE ${table} SET ? WHERE id = ?`, [pozo, id]);
             if (rows.affectedRows !== 1) throw dbErrorMsg(404, noExiste);
-            return SubproyectosService.getById(id);
+            return PozosService.getById(id);
         } catch (error) {
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);
         }
