@@ -7,6 +7,9 @@ import { fileURLToPath } from 'url';
 import { usuariosRouter } from './routers/usuarios_router.js';
 import { proyectosRouter } from './routers/proyectos_router.js';
 import { subproyectosRouter } from './routers/subproyectos_router.js';
+import { pozosRouter } from './routers/pozos_router.js';
+import { laboratoriosRouter } from './routers/laboratorios_router.js';
+import { compuestosRouter } from './routers/compuestos_router.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -23,6 +26,9 @@ app.use(cors());
 app.use("/usuarios", usuariosRouter);
 app.use("/proyectos", proyectosRouter);
 app.use("/subproyectos", subproyectosRouter);
+app.use("/pozos", pozosRouter);
+app.use("/laboratorios", laboratoriosRouter);
+app.use("/compuestos", compuestosRouter);
 
 // Servir archivos estáticos del frontend
 app.use(express.static(path.join(__dirname, '../../public')));

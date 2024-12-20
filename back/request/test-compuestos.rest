@@ -1,0 +1,59 @@
+### compuestos/ 
+#* allowedFields = ["id", "nombre", "sinonimo", "funcion", "agrupacion"];
+
+### GET 
+### ? Todos los compuestos
+GET http://localhost:5001/compuestos/
+
+### ? Compuestos por el sinonimo
+# Este request filtra compuesto con sinonimo = 'gro'
+# Formato interno: ["sinonimo","=","gro"]
+GET http://localhost:5001/compuestos?$filter=[%22sinonimo%22%2C%22%3D%22%2C%22gro%22]
+
+
+### ? Get por ID
+GET http://localhost:5001/compuestos/3
+
+### Updates
+### ? Actualizar un compuestp que no existe
+PUT http://localhost:5001/compuestos/45
+Content-Type: application/json
+
+{
+  "nombre": "Hidrocarburos Totales (GRO + DRO)",
+  "sinonimo": "hidrocarburostotales",
+  "funcion": 1,
+  "agrupaEn": 1
+}
+
+### ? Actualizar un Compuesto
+PUT http://localhost:5001/compuestos/2
+Content-Type: application/json
+
+{
+  "nombre": "DRO (Diesel Range Organics) modificado",
+  "sinonimo": "dro",
+  "funcion": 2,
+  "agrupaEn": 1
+}
+
+
+### Create
+### ? Crear un Compuesto 
+POST http://localhost:5001/compuestos/
+Content-Type: application/json
+
+{
+  "nombre": "Metil ter-Butil Eter (MTBE)*",
+  "sinonimo": "mtbe",
+  "funcion": 2,
+  "agrupaEn": 0
+}
+
+### Delete
+### ? Borrar un compuesto que no existe
+DELETE http://localhost:5001/compuestos/35
+
+### Delete
+### ? Borrar un labortorio que sí existe
+DELETE http://localhost:5001/compuestos/4
