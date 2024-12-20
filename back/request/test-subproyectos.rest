@@ -11,6 +11,9 @@ GET http://localhost:5001/subproyectos/
 # Formato interno: ["codigo","startswith","300115"]
 GET http://localhost:5001/subproyectos?$filter=%5B%22codigo%22%2C%22startswith%22%2C%22300115%22%5D
 
+### GET by Id
+### ? 
+GET http://localhost:5001/subproyectos/1
 
 
 ### Create

@@ -1,0 +1,62 @@
+### laboratorios/ 
+#* allowedFields = ["id", "nombre", "domicilio", "formato"];
+
+### GET 
+### ? Todos los laboratorios
+GET http://localhost:5001/laboratorios/
+
+### ? Get por ID
+GET http://localhost:5001/laboratorios/1
+
+### ? Laboratorio por el nombre
+# Este request filtra laboratorio cuya nombre = 'LABCA'
+# Formato interno: ["nombre","=","LABCA"]
+GET http://localhost:5001/laboratorios?$filter=[%22nombre%22%2C%22%3D%22%2C%22LABCA%22]
+
+### Updates
+### ? Actualizar un laboratorio que no existe
+PUT http://localhost:5001/laboratorios/9
+Content-Type: application/json
+
+{
+  "nombre": "LABCA SA",
+  "domicilio": "Y526 N 1510 1/2, Tolosa, Bs As",
+  "formato": "1"
+}
+
+### ? Actualizar un laboratorio
+PUT http://localhost:5001/laboratorios/2
+Content-Type: application/json
+
+{
+  "nombre": "LABCA SA",
+  "domicilio": "526 N 1510 1/2, Tolosa, Bs As",
+  "formato": "1"
+}
+
+
+### Create
+### ? Crear un Laboratorio 
+POST http://localhost:5001/laboratorios/
+Content-Type: application/json
+
+{
+  "nombre": "Analisis SA",
+  "domicilio": "Potosi 3870, CABA",
+  "formato": "3"
+}
+
+
+### Delete
+### ? Borrar un labortorio que no existe
+DELETE http://localhost:5001/laboratorios/15
+
+### Delete
+### ? Borrar un labortorio que sí existe
+DELETE http://localhost:5001/laboratorios/3
+
+
+
+
+###
+http://localhost:5001/proyectos?%24filter=%5B%22codigo%22%2C%22contains%22%2C%22200222%22%5D&%24sort=%5B%7B%22selector%22%3A%22nombre%22%2C%22desc%22%3Atrue%7D%2C%7B%22selector%22%3A%22id%22%2C%22desc%22%3Afalse%7D%5D&%24skip=0&%24take=10
