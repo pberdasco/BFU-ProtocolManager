@@ -1,0 +1,90 @@
+### Regulaciones/ 
+#* allowedFields = ["id", "autAplicacionId", "fechaVigencia", "compuestoId", "norma", "valorReferencia"];
+
+### GET 
+### ? Todas las Regulaciones
+GET http://localhost:5001/regulaciones/
+
+### ? Regulaciones por autAplicacionId
+# Este request filtra compuesto con autAplicacionId = '1'
+# Formato interno: ["autAplicacionId","=","1"]
+GET http://localhost:5001/regulaciones?$filter=[%22autAplicacionId%22%2C%22%3D%22%2C%221%22]
+
+### ? Regulaciones por compuestoId
+# Este request filtra compuesto con compuestoId = '1'
+# Formato interno: ["compuestoId","=","1"]
+GET http://localhost:5001/regulaciones?$filter=[%22compuestoId%22%2C%22%3D%22%2C%221%22]
+
+### ? Regulaciones por norma
+# Este request filtra compuesto con norma = 'Ley 25.865/12'
+# Formato interno: ["norma","=","1"]
+GET http://localhost:5001/regulaciones?$filter=[%22norma%22%2C%22%3D%22%2C%22Ley 25.865/12%22]
+
+
+
+### ? Get por ID
+GET http://localhost:5001/regulaciones/1
+
+### ? Get por ID
+GET http://localhost:5001/regulaciones/10
+
+### Updates
+### ? Actualizar una Regulación que no existe
+PUT http://localhost:5001/regulaciones/45
+Content-Type: application/json
+
+{
+  "autAplicacionId": 1,
+  "fechaVigencia": "2021-10-10",
+  "compuestoId": 1,
+  "norma": "Ley 20375/15",
+  "valorReferencia": 3
+}
+
+### ? Actualizar una Regulacion
+PUT http://localhost:5001/regulaciones/7
+Content-Type: application/json
+
+{
+  "autAplicacionId": 3,
+  "fechaVigencia": "2022-11-10",
+  "compuestoId": 5,
+  "norma": "Ley 19655/22",
+  "valorReferencia": 4.34
+}
+
+
+### Create
+### ? Crear una Regulacion
+POST http://localhost:5001/regulaciones/
+Content-Type: application/json
+
+{
+  "autAplicacionId": 4,
+  "fechaVigencia": "2007-05-07",
+  "compuestoId": 5,
+  "norma": "Ley 20162/07",
+  "valorReferencia": 6.12
+}
+
+### Create
+### ? Crear una Regulacion
+POST http://localhost:5001/regulaciones/
+Content-Type: application/json
+
+{
+  "autAplicacionId": 1,
+  "fechaVigencia": "2004-05-13",
+  "compuestoId": 5,
+  "norma": "Ley 25162/04",
+  "valorReferencia": 2
+}
+
+### Delete
+### ? Borrar una Regulación que no existe
+DELETE http://localhost:5001/regulaciones/35
+
+### Delete
+### ? Borrar una Regulación que sí existe
+DELETE http://localhost:5001/regulaciones/5
+
