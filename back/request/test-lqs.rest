@@ -1,0 +1,67 @@
+### LQS/ 
+#* allowedFields = ["id", "laboratorioId", "compuestoId", "valorLQ"];
+
+### GET 
+### ? Todas los LQs
+GET http://localhost:5001/lqs/
+
+### ? LQs por el laboratorioId
+# Este request filtra compuesto con laboratorioId = '1'
+# Formato interno: ["laboratorioId","=","1"]
+GET http://localhost:5001/lqs?$filter=[%22laboratorioId%22%2C%22%3D%22%2C%221%22]
+
+
+### ? Get por ID
+GET http://localhost:5001/lqs/3
+
+### Updates
+### ? Actualizar un LQ que no existe
+PUT http://localhost:5001/lqs/45
+Content-Type: application/json
+
+{
+  "laboratorioId": 1,
+  "compuestoId": 1,
+  "valorLQ": 3
+}
+
+### ? Actualizar un LQ
+PUT http://localhost:5001/lqs/2
+Content-Type: application/json
+
+{
+  "laboratorioId": 1,
+  "compuestoId": 3,
+  "valorLQ": 3
+}
+
+
+### Create
+### ? Crear un LQ 
+POST http://localhost:5001/lqs/
+Content-Type: application/json
+
+{
+  "laboratorioId": 4,
+  "compuestoId": 3,
+  "valorLQ": 4.1
+}
+
+### Create
+### ? Crear un LQ 
+POST http://localhost:5001/lqs/
+Content-Type: application/json
+
+{
+  "laboratorioId": 4,
+  "compuestoId": 1,
+  "valorLQ": 300
+}
+
+### Delete
+### ? Borrar un LQS que no existe
+DELETE http://localhost:5001/lqs/35
+
+### Delete
+### ? Borrar una autoridad de aplicacion sí existe
+DELETE http://localhost:5001/lqs/10
