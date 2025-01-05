@@ -80,4 +80,56 @@ git push origin --delete nombre-de-rama
    - Incluir el número del issue en el mensaje (si se usa un sistema de gestión como GitHub Issues):
      ```bash
      git commit -m "Fix #123: Detalle del ajuste"
+     ```
      
+## Pasos si estas trabajando en una rama y un colaborador actualiza main
+
+### 1. **Guardar tus cambios actuales** (si no están commiteados):
+Si tienes cambios sin guardar en tu rama, puedes hacer un commit rápido:
+   ```bash
+   git add .
+   git commit -m "WIP: Cambios parciales antes de actualizar con main"
+   ```
+   Si no deseas commitear, usa git stash para guardar temporalmente tus cambios:
+   ```bash
+   git stash
+   ```
+
+### 2. **Cambiar a la rama main y actualizar los últimos cambios:**
+   ```bash
+   git checkout main
+   git pull origin main
+   ```
+
+
+### 3. **Volver a la rama de trabajo e incorporar los cambiosde `main`:**
+   Puede hacerse con merge o con rebase.
+   Con **Merge** es la opcion más simple, pero conserva el historial de commits.
+   ```bash
+   git checkout nombre-de-tu-rama
+   git merge main
+   <Resolver los conflictos del merge>
+   git add .
+   git commit -m "Merge main into nombre-de-tu-rama"
+   ```
+   Usar merge si estás colaborando con otras personas en tu rama, para evitar sobrescribir commits existentes. 
+   
+
+   Con **rebase** deja un historial mas limpio, pero requiere mas cuidado.
+   ```bash
+   git checkout nombre-de-tu-rama
+   git rebase main
+   <Resolver conflictos>
+   si se resolvieron conflictos en un archivo =>
+      git add archivo-con-conflicto
+      git rebase --continue
+   ``` 
+   Notar que este mecanismo no requiere commit.
+   Usa rebase si prefieres un historial más limpio y trabajas solo en tu rama.
+
+### 4. **Aplicar cambios guardados:**
+Si usaste stash en el paso 1, aplica tus cambios guardados:
+
+```bash
+git stash pop
+```
