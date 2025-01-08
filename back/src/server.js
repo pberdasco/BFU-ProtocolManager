@@ -10,9 +10,11 @@ import { subproyectosRouter } from './routers/subproyectos_router.js';
 import { pozosRouter } from './routers/pozos_router.js';
 import { laboratoriosRouter } from './routers/laboratorios_router.js';
 import { compuestosRouter } from './routers/compuestos_router.js';
+import { grupoCompuestosRouter } from './routers/grupoCompuestos_router.js';
 import { autaplicacionRouter } from './routers/autaplicacion_router.js';
 import { lqsRouter } from './routers/lqs_router.js';
 import { regulacionesRouter } from './routers/regulaciones_router.js';
+import { provinciasRouter } from './routers/provincias_router.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -32,9 +34,11 @@ app.use("/subproyectos", subproyectosRouter);
 app.use("/pozos", pozosRouter);
 app.use("/laboratorios", laboratoriosRouter);
 app.use("/compuestos", compuestosRouter);
+app.use("/grupoCompuestos", grupoCompuestosRouter);
 app.use("/autaplicacion", autaplicacionRouter);
 app.use("/lqs", lqsRouter);
 app.use("/regulaciones", regulacionesRouter);
+app.use("/provincias", provinciasRouter);
 
 // Servir archivos estáticos del frontend
 app.use(express.static(path.join(__dirname, '../../public')));

@@ -1,26 +1,22 @@
 import { pool, dbErrorMsg } from "../database/db.js";
-import Compuesto from "../models/compuestos_model.js";
+import GrupoCompuesto from "../models/grupoCompuestos_model.js";
 
 const allowedFields = {
     id: "c.id", 
     nombre: "c.nombre",
-    sinonimo: "c.sinonimo",
-    funcion: "c.funcion",
-    agrupaEn: "c.agrupaEn",
-    expone: "c.exponeId",
     matrizCodigo: "c.matrizCodigo",
     matriz: "m.nombre"
 };
 
-const table = "Compuestos";
-const selectBase = "SELECT c.id, c.nombre, c.sinonimo, c.funcion, c.agrupaEn, c.exponeId, c.matrizCodigo, m.nombre as matriz ";
-const selectTables = "FROM Compuestos c " +
+const table = "GrupoCompuestos";
+const selectBase = "SELECT c.id, c.nombre, c.matrizCodigo, m.nombre as matriz ";
+const selectTables = "FROM grupoCompuestos c " +
                      "LEFT JOIN Matriz m ON c.matrizCodigo = m.codigo "; 
 const mainTable  = "c";
 const noExiste = "El compuesto no existe";
-const yaExiste = "El compuesto ya existe";
+const yaExiste = "El compuesto ya existe"
 
-export default class CompuestosService{
+export default class GrupoCompuestosService{
     
     static getAllowedFields() {
         return allowedFields;
@@ -56,7 +52,7 @@ export default class CompuestosService{
         try{
             const [rows] = await pool.query(`${selectBase} ${selectTables} WHERE ${mainTable}.Id = ?`, [id]);
             if (rows.length === 0) throw dbErrorMsg(404, noExiste);
-            return new Compuesto(rows[0]);
+            return new GrupoCompuesto(rows[0]);
         }catch(error){
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);
         }
@@ -68,7 +64,7 @@ export default class CompuestosService{
             compuestoToAdd.id = rows.insertId;
             console.log(compuestoToAdd);
             
-            return new Compuesto(compuestoToAdd);
+            return new GrupoCompuesto(compuestoToAdd);
         }catch(error){
             if (error?.code === "ER_DUP_ENTRY") throw dbErrorMsg(409, yaExiste);
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);
@@ -89,7 +85,7 @@ export default class CompuestosService{
         try{
             const [rows] = await pool.query(`UPDATE ${table} SET ? WHERE id = ?`, [compuesto, id]);
             if (rows.affectedRows != 1) throw dbErrorMsg(404, noExiste);
-            return CompuestosService.getById(id);
+            return GrupoCompuestosService.getById(id);
         }catch(error){
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);
         }

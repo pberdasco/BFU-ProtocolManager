@@ -8,12 +8,16 @@ const allowedFields = {
     id: "p.id", 
     codigo: "p.codigo",
     nombre: "p.nombre",
-    empresa: "p.empresa"
+    empresa: "p.empresa",
+    estadoCodigo: "p.estadoCodigo",
+    estado: "e.nombre"
 };
 
 const table = "Proyectos";
 const mainTable  = "p"
-// const selectBase = "SELECT p.id, p.codigo, p.nombre, p.empresa FROM Proyectos p ";
+const selectBase = "SELECT p.id, p.codigo, p.nombre, p.empresa, p.estadoCodigo, e.nombre as estado "
+const selectTables = "FROM Proyectos p " +
+                     "LEFT JOIN ProyectosEstado e ON p.estadoCodigo = e.codigo"
 const noExiste = "El proyecto no existe";
 const yaExiste = "El proyecto ya existe"
 
@@ -22,7 +26,7 @@ const yaExiste = "El proyecto ya existe"
 export default class ProyectosService{
     static getSelect(type) {
         if (type !== 'extended'){
-            return "SELECT p.id, p.codigo, p.nombre, p.empresa FROM Proyectos p "
+            return "SELECT p.id, p.codigo, p.nombre, p.empresa, p.estadoCodigo FROM Proyectos p "
         }else{
             return `
                 SELECT 
@@ -30,6 +34,7 @@ export default class ProyectosService{
                     p.codigo, 
                     p.nombre, 
                     p.empresa,
+                    p.estadoCodigo,
                     COALESCE(JSON_ARRAYAGG(
                         JSON_OBJECT(
                             'id', s.id,
@@ -63,23 +68,21 @@ export default class ProyectosService{
         try{
             //Select para el totalCount
             const countValues = [...values];
-            const countSql = `SELECT COUNT(*) as total FROM Proyectos p
+            const countSql = `SELECT COUNT(*) as total ${selectTables}
                               ${where ? `WHERE ${where}` : ""}`;
             const [countResult] = await pool.query(countSql, countValues);
             const totalCount = countResult[0].total;
     
             //Select para los datos
             values.push(limit, offset)
-            const sql = `${this.getSelect()}
+            const sql = `${selectBase} ${selectTables}
                          ${where ? `WHERE ${where}` : ""}
                          ${order.length ? `ORDER BY ${order.join(", ")}` : ""}
                          LIMIT ? OFFSET ?`
-         
-        console.log(sql);
         
             const [rows] = await pool.query(sql, values );
             
-            return {data:rows,      // Si algo no coincidiera entre la base y el objeto seria necesario llamar a un Proyectos.toJsonArray()
+            return {data: Proyecto.fromRows(rows),      
                     totalCount: totalCount
             };
         }catch(error){
@@ -122,7 +125,7 @@ export default class ProyectosService{
 
     static async getById(id) {
         try{
-            const [rows] = await pool.query(`${this.getSelect()} WHERE ${mainTable}.Id = ?`, [id]);
+            const [rows] = await pool.query(`${selectBase} ${selectTables} WHERE ${mainTable}.Id = ?`, [id]);
             if (rows.length === 0) throw dbErrorMsg(404, noExiste);
             return new Proyecto(rows[0]);
         }catch(error){
@@ -144,10 +147,9 @@ export default class ProyectosService{
         try{
             const [rows] = await pool.query(`INSERT INTO ${table} SET ?`, [proyectoToAdd]); 
             proyectoToAdd.id = rows.insertId;
-            console.log(proyectoToAdd);
             
             return new Proyecto(proyectoToAdd);
-        }catch(error){
+        }catch(error){            
             if (error?.code === "ER_DUP_ENTRY") throw dbErrorMsg(409, yaExiste);
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);
         }                          
@@ -157,8 +159,6 @@ export default class ProyectosService{
         try{
             const [rows] = await pool.query(`INSERT INTO ${table} SET ?`, [proyectoToAdd]); 
             proyectoToAdd.id = rows.insertId;
-            console.log(proyectoToAdd);
-            
             return new Proyecto(proyectoToAdd);
         }catch(error){
             if (error?.code === "ER_DUP_ENTRY") throw dbErrorMsg(409, yaExiste);
@@ -172,16 +172,20 @@ export default class ProyectosService{
             if (rows.affectedRows != 1) throw dbErrorMsg(404, noExiste);
             return true;
         }catch(error){
+            if (error.code === 'ER_ROW_IS_REFERENCED_2' || error.sqlMessage?.includes('foreign key constraint')) {
+                throw dbErrorMsg(409, "No se puede eliminar el recurso porque tiene dependencias asociadas.");
+            }
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);
         }
     }
 
-    static async update(id, proyecto){        
+    static async update(id, proyecto){   
         try{
             const [rows] = await pool.query(`UPDATE ${table} SET ? WHERE id = ?`, [proyecto, id]);
             if (rows.affectedRows != 1) throw dbErrorMsg(404, noExiste);
             return ProyectosService.getById(id);
         }catch(error){
+            if (error?.code === "ER_DUP_ENTRY") throw dbErrorMsg(409, yaExiste);
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);
         }
     }
@@ -192,6 +196,7 @@ export default class ProyectosService{
             if (rows.affectedRows != 1) throw dbErrorMsg(404, noExiste);
             return ProyectosService.getById(id);
         }catch(error){
+            if (error?.code === "ER_DUP_ENTRY") throw dbErrorMsg(409, yaExiste);
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);
         }
     }

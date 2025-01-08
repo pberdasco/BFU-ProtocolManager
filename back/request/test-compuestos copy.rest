@@ -1,0 +1,62 @@
+### grupoCompuestos/ 
+#* allowedFields = ["id", "nombre", "matrizCodigo", "matriz"];
+
+### GET 
+### ? Todos los compuestos
+GET http://localhost:5001/grupoCompuestos/
+
+### ? Compuestos por el sinonimo
+# Este request filtra compuesto con sinonimo = 'gro'
+# Formato interno: ["nombre","=","HTP 8015 - Full"]
+GET http://localhost:5001/grupoCompuestos?$filter=[%22nombre%22%2C%22%3D%22%2C%22HTP 8015 - Full%22]
+
+
+### ? Get por ID
+GET http://localhost:5001/grupoCompuestos/3
+
+### Updates
+### ? Actualizar un compuestp que no existe
+PUT http://localhost:5001/grupoCompuestos/45
+Content-Type: application/json
+
+{
+  "nombre": "Hidrocarburos Totales (GRO + DRO)",
+  "matrizCodigo": 2
+}
+
+### ? Actualizar un Compuesto - nombre duplicado
+PUT http://localhost:5001/grupoCompuestos/2
+Content-Type: application/json
+
+{
+  "nombre": "BTEX 8015",
+  "matrizCodigo": 2
+}
+
+### ? Actualizar un Compuesto
+PUT http://localhost:5001/grupoCompuestos/2
+Content-Type: application/json
+
+{
+  "nombre": "BTEX 8016",
+  "matrizCodigo": 2
+}
+
+
+### Create
+### ? Crear un Compuesto 
+POST http://localhost:5001/grupoCompuestos/
+Content-Type: application/json
+
+{
+  "nombre": "Metil ter-Butil Eter (MTBE)*",
+  "matrizCodigo": 2
+}
+
+### Delete
+### ? Borrar un compuesto que no existe
+DELETE http://localhost:5001/grupoCompuestos/35
+
+### Delete
+### ? Borrar un labortorio que sí existe
+DELETE http://localhost:5001/compuestos/5

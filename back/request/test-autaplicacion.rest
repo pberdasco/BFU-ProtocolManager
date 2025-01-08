@@ -7,8 +7,8 @@ GET http://localhost:5001/autaplicacion/
 
 ### ? Autoridades de aplicación por el nombre
 # Este request filtra compuesto con nombre = 'Nacion'
-# Formato interno: ["nombre","=","Nacion"]
-GET http://localhost:5001/autaplicacion?$filter=[%22nombre%22%2C%22%3D%22%2C%22Nacion%22]
+# Formato interno: ["nombre","=","NQN"]
+GET http://localhost:5001/autaplicacion?$filter=[%22nombre%22%2C%22%3D%22%2C%22NQN%22]
 
 
 ### ? Get por ID
@@ -61,7 +61,7 @@ Content-Type: application/json
 
 ### Delete
 ### ? Borrar un compuesto que no existe
-DELETE http://localhost:5001/autaplicacion/35
+DELETE http://localhost:5001/autaplicacion/7
 
 ### Delete
 ### ? Borrar una autoridad de aplicacion sí existe

@@ -30,3 +30,7 @@ Content-Type: application/json
   "objetivo": "Vactor + GeoRadar",
   "notas": "exProyecto 197115"
 }
+
+### DELETE
+### ? 
+DELETE  http://localhost:5001/subproyectos/5

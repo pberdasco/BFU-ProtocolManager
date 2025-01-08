@@ -5,11 +5,16 @@ const allowedFields = {
     id: "a.id", 
     nombre: "a.nombre",
     sitioWeb1: "a.sitioWeb1",
-    sitioWeb2: "a.sitioWeb2"
+    sitioWeb2: "a.sitioWeb2",
+    provinciaId: "a.provinciaId",
+    provincia: "p.nombre"
 };
 
 const table = "Autaplicacion";
-const selectBase = "SELECT a.id, a.nombre, a.sitioWeb1, a.sitioWeb2 FROM Autaplicacion a ";
+const selectBase = "SELECT a.id, a.nombre, a.sitioWeb1, a.sitioWeb2, a.provinciaId, p.nombre as provincia ";
+const selectTables = "FROM Autaplicacion AS a " +
+                     "LEFT JOIN Provincias AS p ON a.provinciaId = p.id";
+const mainTable = "a";
 const noExiste = "La autoridad de aplicacion no existe";
 const yaExiste = "La autoridad de aplicacion ya existe"
 
@@ -25,13 +30,14 @@ export default class AutaplicacionService{
         try{
             //Select para el totalCount
             const countValues = [...values];
-            const countSql = `SELECT COUNT(*) as total FROM Autaplicacion a
+            const countSql = `SELECT COUNT(*) as total ${selectTables}
                               ${where ? `WHERE ${where}` : ""}`;
             const [countResult] = await pool.query(countSql, countValues);
             const totalCount = countResult[0].total;
                 //Select para los datos
             values.push(limit, offset)
-            const sql = `${selectBase}
+            
+            const sql = `${selectBase} ${selectTables}
                          ${where ? `WHERE ${where}` : ""}
                          ${order.length ? `ORDER BY ${order.join(", ")}` : ""}
                          LIMIT ? OFFSET ?`
@@ -47,7 +53,7 @@ export default class AutaplicacionService{
 
     static async getById(id) {
         try{
-            const [rows] = await pool.query(selectBase + "WHERE Id = ?", [id]);
+            const [rows] = await pool.query(`${selectBase} ${selectTables} WHERE ${mainTable}.id = ?`, [id]);
             if (rows.length === 0) throw dbErrorMsg(404, noExiste);
             return new Autaplicacion(rows[0]);
         }catch(error){

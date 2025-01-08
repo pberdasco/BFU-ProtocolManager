@@ -23,7 +23,9 @@ Content-Type: application/json
   "nombre": "Hidrocarburos Totales (GRO + DRO)",
   "sinonimo": "hidrocarburostotales",
   "funcion": 1,
-  "agrupaEn": 1
+  "agrupaEn": 1,
+  "exponeId": 1,
+  "matrizCodigo": 2
 }
 
 ### ? Actualizar un Compuesto
@@ -31,10 +33,12 @@ PUT http://localhost:5001/compuestos/2
 Content-Type: application/json
 
 {
-  "nombre": "DRO (Diesel Range Organics) modificado",
+  "nombre": "DRO (Diesel Range Organics)",
   "sinonimo": "dro",
   "funcion": 2,
-  "agrupaEn": 1
+  "agrupaEn": 1,
+  "exponeId": 1,
+  "matrizCodigo": 2
 }
 
 

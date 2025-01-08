@@ -32,18 +32,19 @@ GET http://localhost:5001/proyectos?$filter=[%22empresa%22,%22=%22,%22Vista%22]&
 GET http://localhost:5001/proyectos?$filter=%5B%5B%22id%22%2C%22%3D%22%2C1%5D%2C%22and%22%2C%5B%22codigo%22%2C%22contains%22%2C%22200115%22%5D%5D
 
 ### Updates
-### ? Actualizar un proyecto que no existe
-PUT http://localhost:5001/proyectos/9
+### ? Actualizar un proyecto 
+PUT http://localhost:5001/proyectos/3
 Content-Type: application/json
 
 {
-  "codigo": "200115",
-  "nombre": "Proyecto 200115 actualizado 1",
-  "empresa": "YPF"
+  "codigo": "300119",
+  "nombre": "Proyecto 300119 actualizado",
+  "empresa": "Vista",
+  "estadoCodigo": 2
 }
 
-### ? Actualizar un proyecto 
-PUT http://localhost:5001/proyectos/1
+### ? Actualizar un proyecto que no existe
+PUT http://localhost:5001/proyectos/100
 Content-Type: application/json
 
 {
@@ -59,9 +60,10 @@ POST http://localhost:5001/proyectos/
 Content-Type: application/json
 
 {
-  "codigo": "200335",
-  "nombre": "Nuevo Proyecto 200335",
-  "empresa": "YPF"
+  "codigo": "200336",
+  "nombre": "Nuevo Proyecto 200336",
+  "empresa": "Vista",
+  "estadoCodigo": 1
 }
 
 ### Delete

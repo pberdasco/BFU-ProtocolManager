@@ -1,14 +1,23 @@
+
+function obtenerEstado(estadoId) {
+    return estadoMap[estadoId] || "Desconocido";
+}
+
 export default class Proyecto{
-    id;          // int
-    codigo;      // string(10)
-    nombre;      // string(45)
-    empresa;     // string(45)
+    id;            // int
+    codigo;        // string(10)
+    nombre;        // string(45)
+    empresa;       // string(45)
+    estadoCodigo;  // int
+    estado;        // string(15)
 
     constructor(row){
         this.id = row.id;
         this.codigo = row.codigo;
         this.nombre = row.nombre;
         this.empresa = row.empresa;
+        this.estadoCodigo = row.estadoCodigo;
+        this.estado = row.estado
     }
 
     toJson() {
@@ -16,7 +25,9 @@ export default class Proyecto{
             id: this.id,               
             codigo: this.codigo,
             nombre: this.nombre,
-            empresa: this.empresa
+            empresa: this.empresa,
+            estadoCodigo: this.estadoCodigo,
+            estado: this.estado
         };
     }
 
@@ -39,6 +50,10 @@ export default class Proyecto{
      */
     static extendedFromRows(rows) {
         return rows.map(row => Proyecto.fromRow(row));
+    }
+
+    static fromRows(rows) {
+        return rows.map(row => new Proyecto(row));
     }
 
 }
