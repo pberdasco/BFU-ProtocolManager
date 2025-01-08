@@ -1,0 +1,55 @@
+### eventomuestreo/ 
+#* allowedFields = ["id", "fecha", "subproyectoId", "nombre", "cadenaCustodiaLink"];
+
+### GET 
+### ? Todos los eventos de nuestreo
+GET http://localhost:5001/eventomuestreo/
+
+### ? Filtra Eventos de Muestreo de nombre "Ev Muestr cc-Xs-22" 
+# Este request filtra los Eventos de Muestreo de nombre  = 'Ev Muestr cc-Xs-22'
+# Formato interno: ["nombre","=","Ev Muestr cc-Xs-22"]
+GET http://localhost:5001/eventomuestreo?$filter=[%22nombre%22%2C%22%3D%22%2C%22Ev Muestr cc-Xs-22%22]
+
+### GET by Id
+### ? 
+GET http://localhost:5001/eventomuestreo/1
+
+### Updates
+### ? Actualizar un evento de muestreo que no existe
+PUT http://localhost:5001/eventomuestreo/9
+Content-Type: application/json
+
+{
+  "fecha": "2024-09-01",
+  "subproyectoId": 1,
+  "nombre": "Ev Muestr cc-Xs-22",
+  "cadenaCustodiaLink": "cadenCustodiaLink cc-Xs-22"
+}
+
+### ? Actualizar un evento de muestreo
+PUT http://localhost:5001/eventomuestreo/1
+Content-Type: application/json
+
+{
+  "fecha": "2024-09-01",
+  "subproyectoId": 1,
+  "nombre": "Ev Muestr cc-Xs-22",
+  "cadenaCustodiaLink": "cadenaCustodiaLink cc-Xs-22"
+}
+
+### Create
+### ? Crear un evento de muestreo 
+POST http://localhost:5001/eventomuestreo/
+Content-Type: application/json
+
+{
+  "fecha": "2023-07-15",
+  "subproyectoId": 5,
+  "nombre": "Ev Muestr TRXA -23-07-15",
+  "cadenaCustodiaLink": "cadenaCustodiaLink TRXA - 23-07-15"
+}
+
+### Delete
+### ? Borrar un evento de muestreo
+DELETE http://localhost:5001/eventomuestreo/4
+
