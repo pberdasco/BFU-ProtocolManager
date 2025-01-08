@@ -1,0 +1,52 @@
+### protocolos/ 
+#* allowedFields = ["id", "numero", "fecha", "laboratorioId"];
+
+### GET 
+### ? Todos los protocolos
+GET http://localhost:5001/protocolos/
+
+### ? Filtra Protocol del laboratorioId = 1 
+# Este request filtra los protocolos del laboratorioId  = '1'
+# Formato interno: ["laboratorioId","=","1"]
+GET http://localhost:5001/protocolos?$filter=[%22laboratorioId%22%2C%22%3D%22%2C%221%22]
+
+### GET by Id
+### ? 
+GET http://localhost:5001/protocolos/4
+
+### Updates
+### ? Actualizar un protocolo que no existe
+PUT http://localhost:5001/protocolos/9
+Content-Type: application/json
+
+{
+  "numero": "666182/23",
+  "fecha": "2024-10-10",
+  "laboratorioId": 1
+}
+
+### ? Actualizar un protocolo
+PUT http://localhost:5001/protocolos/1
+Content-Type: application/json
+
+{
+  "numero": "666182/23",
+  "fecha": "2024-10-10",
+  "laboratorioId": 1
+}
+
+### Create
+### ? Crear un protocolo
+POST http://localhost:5001/protocolos/
+Content-Type: application/json
+
+{
+  "numero": "776182/23",
+  "fecha": "2024-10-10",
+  "laboratorioId": 1
+}
+
+### Delete
+### ? Borrar un protocolo
+DELETE http://localhost:5001/protocolos/5
+

@@ -1,0 +1,67 @@
+### pozos/ 
+#* allowedFields = ["id", "pozoId", "eventoMuestreoId", "nombre", "tipo", "cantViales", "cantBotellas05", "cantBotellas1", "cantBotellas2"];
+
+### GET 
+### ? Todos las muestras
+GET http://localhost:5001/muestras/
+
+### ? Filtra muestra que se llamen "Muestra 1-1" 
+# Este request filtra la muestra con nombre = 'Muestra 1-1'
+# Formato interno: ["nombre","=","Muestra 1-1"]
+GET http://localhost:5001/muestras?$filter=[%22nombre%22%2C%22%3D%22%2C%22Muestra 1-N%22]
+
+### GET by Id
+### ? 
+GET http://localhost:5001/muestras/2
+
+### Updates
+### ? Actualizar una muestra que no existe
+PUT http://localhost:5001/muestras/9
+Content-Type: application/json
+
+{
+  "pozoId": 1,
+  "eventoMuestreoId": 1,
+  "nombre": "Muestra 1-1",
+  "tipo": 1,
+  "cantViales": 1,
+  "cantBotellas05": 1,
+  "cantBotellas1": 1,
+  "cantBotellas2": 1    
+}
+
+### ? Actualizar una muestra
+PUT http://localhost:5001/muestras/6
+Content-Type: application/json
+
+{
+  "pozoId": 2,
+  "eventoMuestreoId": 2,
+  "nombre": "Muestra 2-2 modif",
+  "tipo": 1,
+  "cantViales": 1,
+  "cantBotellas05": 1,
+  "cantBotellas1": 1,
+  "cantBotellas2": 1    
+}
+
+### Create
+### ? Crear una muestra 
+POST http://localhost:5001/muestras/
+Content-Type: application/json
+
+{
+  "pozoId": 3,
+  "eventoMuestreoId": 2,
+  "nombre": "Muestra 3-2",
+  "tipo": 3,
+  "cantViales": 0,
+  "cantBotellas05": 2,
+  "cantBotellas1": 0,
+  "cantBotellas2": 8    
+}
+
+### Delete
+### ? Borrar una muestra
+DELETE http://localhost:5001/muestras/3
+

@@ -15,6 +15,9 @@ import { autaplicacionRouter } from './routers/autaplicacion_router.js';
 import { lqsRouter } from './routers/lqs_router.js';
 import { regulacionesRouter } from './routers/regulaciones_router.js';
 import { provinciasRouter } from './routers/provincias_router.js';
+import { protocolosRouter } from './routers/protocolos_router.js';
+import { eventomuestreoRouter } from './routers/eventomuestreo_router.js';
+import { muestrasRouter } from './routers/muestras_router.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -39,6 +42,9 @@ app.use("/autaplicacion", autaplicacionRouter);
 app.use("/lqs", lqsRouter);
 app.use("/regulaciones", regulacionesRouter);
 app.use("/provincias", provinciasRouter);
+app.use("/protocolos", protocolosRouter);
+app.use("/eventomuestreo", eventomuestreoRouter);
+app.use("/muestras", muestrasRouter);
 
 // Servir archivos estáticos del frontend
 app.use(express.static(path.join(__dirname, '../../public')));
@@ -47,7 +53,6 @@ app.use(express.static(path.join(__dirname, '../../public')));
 app.get('*', (req, res) => {
     res.sendFile(path.resolve(__dirname, '../../public', 'index.html'));
 });
-
 
 
 // Middleware para manejar rutas no encontradas
