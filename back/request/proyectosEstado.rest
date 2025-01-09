@@ -1,0 +1,9 @@
+### proyectosEstado/ 
+
+### GET 
+### ? Todos los estados
+GET http://localhost:5001/proyectosestado/
+
+
+### ? Get por ID
+GET http://localhost:5001/provincias/2

@@ -18,6 +18,8 @@ import { provinciasRouter } from './routers/provincias_router.js';
 import { protocolosRouter } from './routers/protocolos_router.js';
 import { eventomuestreoRouter } from './routers/eventomuestreo_router.js';
 import { muestrasRouter } from './routers/muestras_router.js';
+import { proyectosEstadoRouter } from './routers/proyectosEstado_router.js';
+import { matricesRouter } from './routers/matrices_router.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -45,6 +47,8 @@ app.use("/provincias", provinciasRouter);
 app.use("/protocolos", protocolosRouter);
 app.use("/eventomuestreo", eventomuestreoRouter);
 app.use("/muestras", muestrasRouter);
+app.use("/proyectosEstado", proyectosEstadoRouter);
+app.use("/matriz", matricesRouter);
 
 // Servir archivos estáticos del frontend
 app.use(express.static(path.join(__dirname, '../../public')));

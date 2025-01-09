@@ -1,10 +1,10 @@
 import { pool, dbErrorMsg } from "../database/db.js";
-import Provincia from "../models/provincia_model.js";
+import ProyectosEstado from "../models/proyectosEstado_model.js";
 
-const selectBase = "SELECT id, nombre FROM Provincias";
-const noExiste = "La provincia no existe";
+const selectBase = "SELECT id, codigo, nombre FROM ProyectosEstado";
+const noExiste = "El estado no existe";
 
-export default class ProvinciasService{
+export default class ProyectosEstadoService{
 
     static async getAll() {
         try{
@@ -19,7 +19,7 @@ export default class ProvinciasService{
         try{
             const [rows] = await pool.query(`${selectBase} WHERE id = ?`, [id]);
             if (rows.length === 0) throw dbErrorMsg(404, noExiste);
-            return new Provincia(rows[0]);
+            return new ProyectosEstado(rows[0]);
         }catch(error){
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);
         }
