@@ -1,26 +1,32 @@
 import { pool, dbErrorMsg } from "../database/db.js";
-import Compuesto from "../models/compuestos_model.js";
+import RelCompuestoGrupo from "../models/relCompuestoGrupo_model.js";
 
 const allowedFields = {
-    id: "c.id", 
-    nombre: "c.nombre",
-    sinonimo: "c.sinonimo",
-    funcion: "c.funcion",
-    agrupaEn: "c.agrupaen",
-    expone: "c.exponeId",
-    matrizCodigo: "c.matrizCodigo",
-    matriz: "m.nombre"
+    id: "r.id", 
+    grupoId: "r.grupoId",
+    grupo: "g.nombre",
+    matrizGrupoId: "g.matriz",
+    matrizGrupo: "m2.nombre",
+    compuestoId: "r.compuestoId",
+    compuesto: "c.nombre",
+    matrizCompuestoId: "c.matriz",
+    matrizCompuesto: "m1.nombre"
 };
 
-const table = "Compuestos";
-const selectBase = "SELECT c.id, c.nombre, c.sinonimo, c.funcion, c.agrupaEn, c.exponeId, c.matrizCodigo, m.nombre as matriz ";
-const selectTables = "FROM Compuestos c " +
-                     "LEFT JOIN Matriz m ON c.matrizCodigo = m.codigo "; 
-const mainTable  = "c";
-const noExiste = "El compuesto no existe";
-const yaExiste = "El compuesto ya existe";
+const table = "RelCompuestoGrupo";
+const selectBase = "SELECT r.id, r.grupoId, r.compuestoId, g.nombre as grupo, g.matrizCodigo as matrizGrupoId, " + 
+                          "c.nombre as compuesto, c.matrizCodigo as matrizCompuestoId, m1.nombre as matrizCompuesto, m2.nombre as matrizGrupo ";
+const selectTables = "FROM relCompuestoGrupo r " +
+                     "LEFT JOIN compuestos c ON r.compuestoId = c.id " +
+                     "LEFT JOIN grupoCompuestos g ON r.grupoId = g.id " +
+                     "LEFT JOIN matriz m1 ON c.matrizCodigo = m1.codigo " +
+                     "LEFT JOIN matriz m2 ON g.matrizCodigo = m2.codigo"
 
-export default class CompuestosService{
+const mainTable  = "r";
+const noExiste = "La relacion grupo-compuesto no existe";
+const yaExiste = "El relacion grupo-compuesto ya existe"
+
+export default class RelCompuestoGrupoService{
     
     static getAllowedFields() {
         return allowedFields;
@@ -56,7 +62,7 @@ export default class CompuestosService{
         try{
             const [rows] = await pool.query(`${selectBase} ${selectTables} WHERE ${mainTable}.Id = ?`, [id]);
             if (rows.length === 0) throw dbErrorMsg(404, noExiste);
-            return new Compuesto(rows[0]);
+            return new RelCompuestoGrupo(rows[0]);
         }catch(error){
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);
         }
@@ -68,7 +74,7 @@ export default class CompuestosService{
             compuestoToAdd.id = rows.insertId;
             console.log(compuestoToAdd);
             
-            return new Compuesto(compuestoToAdd);
+            return new RelCompuestoGrupo(compuestoToAdd);
         }catch(error){
             if (error?.code === "ER_DUP_ENTRY") throw dbErrorMsg(409, yaExiste);
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);
@@ -85,14 +91,13 @@ export default class CompuestosService{
         }
     }
 
-    static async update(id, compuesto){        
+    static async update(id, compuesto){  
+        console.log("Compuesto: ", compuesto);
+              
         try{
-            console.log(table, "Compuesto: ", JSON.stringify(compuesto))
-
-
             const [rows] = await pool.query(`UPDATE ${table} SET ? WHERE id = ?`, [compuesto, id]);
             if (rows.affectedRows != 1) throw dbErrorMsg(404, noExiste);
-            return CompuestosService.getById(id);
+            return RelCompuestoGrupoService.getById(id);
         }catch(error){
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);
         }

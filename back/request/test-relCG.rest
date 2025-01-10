@@ -1,0 +1,62 @@
+### relCompuestosGrupo/ 
+#* allowedFields = ["id", "grupoId", "grupo", "compuestoId", "compuesto", "matrizCompuestoId", "matrizCompuesto", "matrizGrupoId", "MatrizGrupo"];
+
+### GET 
+### ? Todos los compuestos
+GET http://localhost:5001/relCompuestoGrupo/
+
+### ? Compuestos por el sinonimo
+# Este request filtra compuesto con matrizGrupo = "Agua"
+# Formato interno: ["matrizGrupo","=","Agua"]
+GET http://localhost:5001/relCompuestoGrupo?$filter=[%22matrizGrupo%22%2C%22%3D%22%2C%22Agua%22]
+
+
+### ? Get por ID
+GET http://localhost:5001/relCompuestoGrupo/3
+
+### Updates
+### ? Actualizar un compuestp que no existe
+PUT http://localhost:5001/relCompuestoGrupo/45
+Content-Type: application/json
+
+{
+  "grupoId": 1,
+  "compuestoId": 2
+}
+
+### ? Actualizar un Compuesto - nombre duplicado
+PUT http://localhost:5001/relCompuestoGrupo/2
+Content-Type: application/json
+
+{
+  "grupoId": 1,
+  "compuestoId": 2
+}
+
+### ? Actualizar un Compuesto
+PUT http://localhost:5001/relCompuestoGrupo/2
+Content-Type: application/json
+
+{
+  "grupoId": 1,
+  "compuestoId": 2
+}
+
+
+### Create
+### ? Crear un Compuesto 
+POST http://localhost:5001/relCompuestoGrupo/
+Content-Type: application/json
+
+{
+  "grupoId": 3,
+  "compuestoId": 3
+}
+
+### Delete
+### ? Borrar un compuesto que no existe
+DELETE http://localhost:5001/grupoCompuestos/35
+
+### Delete
+### ? Borrar un labortorio que sí existe
+DELETE http://localhost:5001/compuestos/5

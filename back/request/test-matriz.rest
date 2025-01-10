@@ -1,0 +1,9 @@
+### MATRIZ/ 
+
+### GET 
+### ? Todas las Matrices
+GET http://localhost:5001/matriz/
+
+
+### ? Get por ID
+GET http://localhost:5001/matriz/3
