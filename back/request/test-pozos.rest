@@ -7,7 +7,7 @@ GET http://localhost:5001/pozos/
 
 ### ? Filtra Pozos que se llamen PM4 
 # Este request filtra los pozos con nombre  = 'PM4'
-# Formato interno: ["subproyectoId","=","1"]
+# Formato interno: ["nombre","=","PM4"]
 GET http://localhost:5001/pozos?$filter=[%22nombre%22%2C%22%3D%22%2C%22PM4%22]
 
 ### GET by Id

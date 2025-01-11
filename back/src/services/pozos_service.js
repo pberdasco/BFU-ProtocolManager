@@ -4,16 +4,20 @@ import Pozo from "../models/pozos_model.js";
 const allowedFields = { 
     id: "P.id", 
     nombre: "P.nombre", 
-    estado: "P.estado", 
-    tipo: "P.tipo", 
+    estadoId: "P.estadoId", 
+    tipoId: "P.tipoId", 
     subproyectoId: "P.subproyectoId", 
-    subproyecto: "S.codigo",    
+    subproyecto: "S.codigo",
+    estado: "E.nombre",
+    tipo: "T.nombre"   
 }
 
 const table = "Pozos";
-const selectBase = "SELECT P.id, P.subproyectoId, S.codigo as subproyecto, P.nombre, P.estado, P.tipo "
+const selectBase = "SELECT P.id, P.subproyectoId, S.codigo as subproyecto, P.nombre, P.estadoId, P.tipoId, E.nombre as estado, T.nombre as tipo "
 const selectTables = "FROM Pozos P " +
-                     "LEFT JOIN Subproyectos S ON P.subProyectoId = S.id ";
+                     "LEFT JOIN Subproyectos S ON P.subProyectoId = S.id " +
+                     "LEFT JOIN PozosTipo T ON P.tipoId = T.id " +
+                     "LEFT JOIN PozosEstado E ON P.estadoId = E.id";
 const mainTable = "P";                     
 const noExiste = "El pozo no existe";
 const yaExiste = "El pozo ya existe";

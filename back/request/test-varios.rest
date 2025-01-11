@@ -1,0 +1,29 @@
+### PROVINCIAS/ 
+
+### GET 
+### ? Todas las Provincias
+GET http://localhost:5001/provincias/
+
+
+### ? Get por ID
+GET http://localhost:5001/provincias/3
+
+### POZOSTIPO/ 
+
+### GET 
+### ? Todas las Provincias
+GET http://localhost:5001/pozosTipo/
+
+
+### ? Get por ID
+GET http://localhost:5001/pozosTipo/1
+
+### POZOSESTADO/ 
+
+### GET 
+### ? Todas las Provincias
+GET http://localhost:5001/pozosEstado/
+
+
+### ? Get por ID
+GET http://localhost:5001/pozosEstado/2

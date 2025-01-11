@@ -1,9 +1,0 @@
-### PROVINCIAS/ 
-
-### GET 
-### ? Todas las Provincias
-GET http://localhost:5001/provincias/
-
-
-### ? Get por ID
-GET http://localhost:5001/provincias/3
