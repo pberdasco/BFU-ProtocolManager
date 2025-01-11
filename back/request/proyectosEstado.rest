@@ -6,4 +6,4 @@ GET http://localhost:5001/proyectosestado/
 
 
 ### ? Get por ID
-GET http://localhost:5001/provincias/2
+GET http://localhost:5001/proyectosestado/2

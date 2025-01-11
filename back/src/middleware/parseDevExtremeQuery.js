@@ -19,11 +19,8 @@ export function createParseDevExtremeQuery() {
      * @param {Function} next - Función para pasar al siguiente middleware.
      */
     return function parseDevExtremeQuery(req, res, next) {
-        const allowedFields = req.allowedFields;
+        const allowedFields = req.allowedFields;        
         const { $filter: filter, $sort: sort, $skip: skip, $take: take } = req.query;
-        if (filter || sort || skip){
-            logger.info(`$filter: ${filter}  $sort: ${sort}   $skip/take: ${skip}/${take}`);
-        }
 
         let where = "";
         let values = [];

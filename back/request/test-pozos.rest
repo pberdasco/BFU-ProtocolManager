@@ -38,12 +38,26 @@ Content-Type: application/json
 }
 
 ### Create
+### ? Crear un proyecto con campos invalidos
+POST http://localhost:5001/pozos/
+Content-Type: application/json
+
+{
+  "subproyectoId": 5,
+  "subproyecto": "300119-03",
+  "nombre": "99",
+  "estado": 99,
+  "tipo": 99
+}
+
+
+### Create
 ### ? Crear un proyecto 
 POST http://localhost:5001/pozos/
 Content-Type: application/json
 
 {
-  "subproyectoId": 1,
+  "subproyectoId": 5,
   "nombre": "PM6",
   "estado": 1,
   "tipo": 1

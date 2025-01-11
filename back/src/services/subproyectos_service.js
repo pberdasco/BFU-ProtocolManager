@@ -13,10 +13,13 @@ const allowedFields = {
     apies: "S.apies",
     objetivo: "S.objetivo",
     notas: "S.notas",
+    cantPozos: "cantPozos"
 }
 
 const table = "Subproyectos";
-const selectBase = "SELECT S.id, S.proyectoId, P.codigo as proyecto, S.codigo, S.nombreLocacion, S.ubicacion, S.autAplicacionId, A.nombre as autoridad, S.apies, S.objetivo, S.notas "
+const selectBase = "SELECT S.id, S.proyectoId, P.codigo as proyecto, S.codigo, S.nombreLocacion, S.ubicacion, S.autAplicacionId, " + 
+                   "A.nombre as autoridad, S.apies, S.objetivo, S.notas, " +
+                   "(SELECT COUNT(*) FROM Pozos Pz WHERE Pz.subproyectoId = S.id) AS cantPozos "
 const selectTables = "FROM SubProyectos S " +
                      "LEFT JOIN AutAplicacion A ON S.AutAplicacionId = A.id " +
                      "LEFT JOIN Proyectos P ON S.proyectoId = P.id";

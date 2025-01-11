@@ -2,8 +2,8 @@ export function logRequest(logger) {
     return (req, res, next) => {
       const startTime = Date.now();
       const clientIP = req.ip || "unknown";
-      const endpoint = req.originalUrl || req.url;
-  
+      const endpoint = decodeURIComponent(req.originalUrl || req.url);
+
       res.on('finish', () => {
         const now = new Date();
         const formattedDate = now.toISOString();

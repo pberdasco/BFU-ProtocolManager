@@ -6,12 +6,12 @@ const allowedFields = {
     nombre: "P.nombre", 
     estado: "P.estado", 
     tipo: "P.tipo", 
-    subProyectoId: "P.subProyectoId", 
-    subProyecto: "S.codigo",    
+    subproyectoId: "P.subproyectoId", 
+    subproyecto: "S.codigo",    
 }
 
 const table = "Pozos";
-const selectBase = "SELECT P.id, P.subProyectoId, S.codigo as subProyecto, P.nombre, P.estado, P.tipo "
+const selectBase = "SELECT P.id, P.subproyectoId, S.codigo as subproyecto, P.nombre, P.estado, P.tipo "
 const selectTables = "FROM Pozos P " +
                      "LEFT JOIN Subproyectos S ON P.subProyectoId = S.id ";
 const mainTable = "P";                     

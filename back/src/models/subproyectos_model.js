@@ -8,6 +8,7 @@ export default class Subproyecto {
     apies;            // string(10)
     objetivo;         // string(45)
     notas;            // string(60)
+    cantPozos         // int (calculado)
 
 
     constructor(row) {
@@ -20,6 +21,7 @@ export default class Subproyecto {
         this.apies = row.apies;
         this.objetivo = row.objetivo;
         this.notas = row.notas;
+        this.cantPozos = row.cantPozos;
     }
 
     toJson() {
@@ -33,6 +35,7 @@ export default class Subproyecto {
             apies: this.apies,
             objetivo: this.objetivo,
             notas: this.notas,
+            cantPozos: this.cantPozos
         };
     }
 }
