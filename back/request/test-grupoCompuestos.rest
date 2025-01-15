@@ -30,7 +30,8 @@ Content-Type: application/json
 
 {
   "nombre": "BTEX 8015",
-  "matrizCodigo": 2
+  "matrizCodigo": 2,
+  "metodoId": 4
 }
 
 ### ? Actualizar un Compuesto
@@ -39,7 +40,8 @@ Content-Type: application/json
 
 {
   "nombre": "BTEX 8016",
-  "matrizCodigo": 2
+  "matrizCodigo": 2,
+  "metodoId": 6
 }
 
 

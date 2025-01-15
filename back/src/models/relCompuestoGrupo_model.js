@@ -4,6 +4,8 @@ export default class GrupoCompuesto{
     grupo;         // string(45)
     compuestoId;   // int
     compuesto;     // string(45)
+    metodoId;      // int
+    metodo;        // string(45)
     matrizCompuestoId;  // int
     matrizCompuesto;
     matrizGrupoId;
@@ -15,6 +17,8 @@ export default class GrupoCompuesto{
         this.grupo = row.grupo;
         this.compuestoId = row.compuestoId;
         this.compuesto = row.compuesto;
+        this.metodoId = row.metodoId;
+        this.metodo = row.metodo;
         this.matrizCompuestoId = row.matrizCompuestoId;
         this.matrizCompuesto = row.matrizCompuesto;
         this.matrizGrupoId = row.matrizGrupoId;
@@ -28,6 +32,8 @@ export default class GrupoCompuesto{
             grupo: this.grupo,
             compuestoId: this.compuestoId,
             compuesto: this.compuesto,
+            metodoId: this.metodoId,
+            metodo: this.metodo,
             matrizCompuestoId: this.matrizCompuestoId,
             matrizCompuesto: this.matrizCompuesto,
             matrizGrupoId: this.matrizGrupoId,

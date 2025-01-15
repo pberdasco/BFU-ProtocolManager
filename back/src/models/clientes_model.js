@@ -1,4 +1,4 @@
-export default class cliente{
+export default class Cliente{
     id;          // int
     codigo;      // string(12)
     nombre;      // string(45)

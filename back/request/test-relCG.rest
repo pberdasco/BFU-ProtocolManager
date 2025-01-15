@@ -12,7 +12,7 @@ GET http://localhost:5001/relCompuestoGrupo?$filter=[%22matrizGrupo%22%2C%22%3D%
 
 
 ### ? Get por ID
-GET http://localhost:5001/relCompuestoGrupo/3
+GET http://localhost:5001/relCompuestoGrupo/4
 
 ### Updates
 ### ? Actualizar un compuestp que no existe
@@ -25,12 +25,12 @@ Content-Type: application/json
 }
 
 ### ? Actualizar un Compuesto - nombre duplicado
-PUT http://localhost:5001/relCompuestoGrupo/2
+PUT http://localhost:5001/relCompuestoGrupo/4
 Content-Type: application/json
 
 {
   "grupoId": 1,
-  "compuestoId": 2
+  "compuestoId": 4
 }
 
 ### ? Actualizar un Compuesto
@@ -49,8 +49,8 @@ POST http://localhost:5001/relCompuestoGrupo/
 Content-Type: application/json
 
 {
-  "grupoId": 3,
-  "compuestoId": 3
+  "grupoId": 1,
+  "compuestoId": 2
 }
 
 ### Delete
@@ -59,4 +59,4 @@ DELETE http://localhost:5001/grupoCompuestos/35
 
 ### Delete
 ### ? Borrar un labortorio que sí existe
-DELETE http://localhost:5001/compuestos/5
+DELETE http://localhost:5001/relCompuestoGrupo/21

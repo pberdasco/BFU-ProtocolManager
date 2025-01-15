@@ -1,25 +1,21 @@
 import { pool, dbErrorMsg } from "../database/db.js";
-import GrupoCompuesto from "../models/grupoCompuestos_model.js";
+import Metodo from "../models/metodos_model.js";
 
 const allowedFields = {
-    id: "c.id", 
-    nombre: "c.nombre",
-    matrizCodigo: "c.matrizCodigo",
-    metodoId: "c.metodoId",
-    matriz: "m.nombre",
-    metodo: "e.nombre"
+    id: "m.id", 
+    nombre: "m.nombre",
+    sinonimo: "m.sinonimo",
+    funcion: "m.funcion"
 };
 
-const table = "GrupoCompuestos";
-const selectBase = "SELECT c.id, c.nombre, c.metodoId, c.matrizCodigo, m.nombre as matriz, e.nombre as metodo ";
-const selectTables = "FROM grupoCompuestos c " +
-                     "LEFT JOIN Matriz m ON c.matrizCodigo = m.codigo " +
-                     "LEFT JOIN Metodos e ON c.metodoId = e.id"
-const mainTable  = "c";
-const noExiste = "El compuesto no existe";
-const yaExiste = "El compuesto ya existe"
+const table = "Metodos";
+const selectBase = "SELECT m.id, m.nombre, m.sinonimo, m.funcion ";
+const selectTables = "FROM Metodos m "; 
+const mainTable  = "m";
+const noExiste = "El metodo no existe";
+const yaExiste = "El metodo ya existe";
 
-export default class GrupoCompuestosService{
+export default class MetodosService{
     
     static getAllowedFields() {
         return allowedFields;
@@ -55,19 +51,20 @@ export default class GrupoCompuestosService{
         try{
             const [rows] = await pool.query(`${selectBase} ${selectTables} WHERE ${mainTable}.Id = ?`, [id]);
             if (rows.length === 0) throw dbErrorMsg(404, noExiste);
-            return new GrupoCompuesto(rows[0]);
+            return new Metodo(rows[0]);
         }catch(error){
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);
         }
     }
 
-    static async create(compuestoToAdd) {
+    static async create(entityToAdd) {
         try{
-            const [rows] = await pool.query(`INSERT INTO ${table} SET ?`, [compuestoToAdd]); 
-            compuestoToAdd.id = rows.insertId;
-            console.log(compuestoToAdd);
+            console.log(" CREANDO entidad: ", entityToAdd);
             
-            return new GrupoCompuesto(compuestoToAdd);
+            const [rows] = await pool.query(`INSERT INTO ${table} SET ?`, [entityToAdd]); 
+            entityToAdd.id = rows.insertId;
+            
+            return new Metodo(entityToAdd);
         }catch(error){
             if (error?.code === "ER_DUP_ENTRY") throw dbErrorMsg(409, yaExiste);
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);
@@ -88,7 +85,7 @@ export default class GrupoCompuestosService{
         try{
             const [rows] = await pool.query(`UPDATE ${table} SET ? WHERE id = ?`, [compuesto, id]);
             if (rows.affectedRows != 1) throw dbErrorMsg(404, noExiste);
-            return GrupoCompuestosService.getById(id);
+            return MetodosService.getById(id);
         }catch(error){
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);
         }

@@ -10,17 +10,21 @@ const allowedFields = {
     compuestoId: "r.compuestoId",
     compuesto: "c.nombre",
     matrizCompuestoId: "c.matriz",
-    matrizCompuesto: "m1.nombre"
+    matrizCompuesto: "m1.nombre",
+    metodoId: "g.metodoId",
+    metodo: "e.nombre",
 };
 
 const table = "RelCompuestoGrupo";
-const selectBase = "SELECT r.id, r.grupoId, r.compuestoId, g.nombre as grupo, g.matrizCodigo as matrizGrupoId, " + 
-                          "c.nombre as compuesto, c.matrizCodigo as matrizCompuestoId, m1.nombre as matrizCompuesto, m2.nombre as matrizGrupo ";
+const selectBase = "SELECT r.id, r.grupoId, r.compuestoId, g.metodoId, g.nombre as grupo, g.matrizCodigo as matrizGrupoId, " + 
+                          "c.nombre as compuesto, c.matrizCodigo as matrizCompuestoId, " + 
+                          "m1.nombre as matrizCompuesto, m2.nombre as matrizGrupo, e.nombre as metodo ";
 const selectTables = "FROM relCompuestoGrupo r " +
                      "LEFT JOIN compuestos c ON r.compuestoId = c.id " +
                      "LEFT JOIN grupoCompuestos g ON r.grupoId = g.id " +
                      "LEFT JOIN matriz m1 ON c.matrizCodigo = m1.codigo " +
-                     "LEFT JOIN matriz m2 ON g.matrizCodigo = m2.codigo"
+                     "LEFT JOIN matriz m2 ON g.matrizCodigo = m2.codigo " +
+                     "LEFT JOIN metodos e ON g.metodoId = e.id"
 
 const mainTable  = "r";
 const noExiste = "La relacion grupo-compuesto no existe";
@@ -71,10 +75,10 @@ export default class RelCompuestoGrupoService{
     static async create(compuestoToAdd) {
         try{
             const [rows] = await pool.query(`INSERT INTO ${table} SET ?`, [compuestoToAdd]); 
-            compuestoToAdd.id = rows.insertId;
-            console.log(compuestoToAdd);
+            return RelCompuestoGrupoService.getById(rows.insertId);
             
-            return new RelCompuestoGrupo(compuestoToAdd);
+            // compuestoToAdd.id = rows.insertId;
+            // return new RelCompuestoGrupo(compuestoToAdd);
         }catch(error){
             if (error?.code === "ER_DUP_ENTRY") throw dbErrorMsg(409, yaExiste);
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);
@@ -91,9 +95,7 @@ export default class RelCompuestoGrupoService{
         }
     }
 
-    static async update(id, compuesto){  
-        console.log("Compuesto: ", compuesto);
-              
+    static async update(id, compuesto){                
         try{
             const [rows] = await pool.query(`UPDATE ${table} SET ? WHERE id = ?`, [compuesto, id]);
             if (rows.affectedRows != 1) throw dbErrorMsg(404, noExiste);

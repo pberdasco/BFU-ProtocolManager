@@ -1,5 +1,5 @@
 import { pool, dbErrorMsg } from "../database/db.js";
-import Cliente from "../models/compuestos_model.js";
+import Cliente from "../models/clientes_model.js";
 
 const allowedFields = {
     id: "c.id", 
@@ -38,7 +38,7 @@ export default class ClientesService{
                          LIMIT ? OFFSET ?`
             const [rows] = await pool.query(sql, values );
             
-            return {data:rows,      // Si algo no coincidiera entre la base y el objeto seria necesario llamar a un Compuestos.toJsonArray()
+            return {data:rows,      // Si algo no coincidiera entre la base y el objeto seria necesario llamar a un Entity.toJsonArray()
                     totalCount: totalCount
             };
         }catch(error){
@@ -80,9 +80,9 @@ export default class ClientesService{
         }
     }
 
-    static async update(id, compuesto){        
+    static async update(id, entity){        
         try{
-            const [rows] = await pool.query(`UPDATE ${table} SET ? WHERE id = ?`, [compuesto, id]);
+            const [rows] = await pool.query(`UPDATE ${table} SET ? WHERE id = ?`, [entity, id]);
             if (rows.affectedRows != 1) throw dbErrorMsg(404, noExiste);
             return ClientesService.getById(id);
         }catch(error){
