@@ -36,7 +36,6 @@ export default class CompuestosController{
         try{
             const [errores, nuevoCompuesto] = CompuestosController.bodyValidations(req.body, "create")
             if (errores.length != 0) throw Object.assign(new Error("Problemas con el req.body"), { status: 400, fields: errores });
-    
             const insertado = await CompuestosService.create(nuevoCompuesto);
             res.status(200).json(insertado.toJson());
         } catch (error) {
