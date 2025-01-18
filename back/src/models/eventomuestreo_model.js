@@ -1,17 +1,19 @@
 export default class Eventomuestreo {
-    id;               // int
-    fecha;            // date
-    subproyectoId;    // int (FK)
-    nombre;           // string(45)
-    cadenaCustodiaLink;    // string(60)
+    id;                        // int
+    fecha;                     // date
+    subproyectoId;             // int (FK)
+    subproyectoCodigo;         // string(10)
+    nombre;                    // string(45)
+    cadenasCustodiaPDFLink;    // string(60)
 
 
     constructor(row) {
         this.id = row.id;
         this.fecha = row.fecha;
         this.subproyectoId = row.subproyectoId;
+        this.subproyectoCodigo = row.subproyectoCodigo;
         this.nombre = row.nombre;
-        this.cadenaCustodiaLink = row.cadenaCustodiaLink;
+        this.cadenasCustodiaPDFLink = row.cadenasCustodiaPDFLink;
     }
 
     toJson() {
@@ -19,8 +21,9 @@ export default class Eventomuestreo {
             id: this.id,
             fecha: this.fecha,
             subproyectoId: this.subproyectoId,
+            subproyectoCodigo: this.subproyectoCodigo,
             nombre: this.nombre,
-            cadenaCustodiaLink: this.cadenaCustodiaLink,
+            cadenasCustodiaPDFLink: this.cadenasCustodiaPDFLink,
         };
     }
 }

@@ -34,6 +34,8 @@ export default class EventomuestreoController {
 
     static async create(req, res, next) {
         try {
+            console.log("Create: ", JSON.stringify(req.body));
+            
             const [errores, nuevoEventomuestreo] = EventomuestreoController.bodyValidations(req.body, "create");
             if (errores.length !== 0) throw Object.assign(new Error("Problemas con el req.body"), { status: 400, fields: errores });
 

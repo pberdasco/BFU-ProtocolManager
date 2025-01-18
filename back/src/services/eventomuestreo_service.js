@@ -4,16 +4,16 @@ import Pozo from "../models/eventomuestreo_model.js";
 const allowedFields = { 
     id: "E.id", 
     fecha: "E.fecha",
-    subProyectoId: "E.subProyectoId", 
-    subProyecto: "S.codigo",
+    subproyectoId: "E.subproyectoId", 
+    subproyecto: "S.codigo",
     nombre: "E.nombre", 
-    cadenaCustodiaLink: "E.cadenaCustodiaLink",         
+    cadenasCustodiaPDFLink: "E.cadenasCustodiaPDFLink",         
 }
 
 const table = "Eventomuestreo";
-const selectBase = "SELECT E.id, E.fecha, E.subProyectoId, S.codigo as subProyecto, E.nombre, E.cadenaCustodiaLink ";
+const selectBase = "SELECT E.id, E.fecha, E.subproyectoId, S.codigo as subproyecto, E.nombre, E.cadenasCustodiaPDFLink ";
 const selectTables = "FROM Eventomuestreo E " +
-                     "LEFT JOIN Subproyectos S ON E.subProyectoId = S.id ";
+                     "LEFT JOIN Subproyectos S ON E.subproyectoId = S.id ";
 const mainTable = "E";                     
 const noExiste = "El evento de muestreo no existe";
 const yaExiste = "El evento de muestreo ya existe";

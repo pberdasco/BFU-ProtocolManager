@@ -5,10 +5,10 @@
 ### ? Todos los eventos de nuestreo
 GET http://localhost:5001/eventomuestreo/
 
-### ? Filtra Eventos de Muestreo de nombre "Ev Muestr cc-Xs-22" 
-# Este request filtra los Eventos de Muestreo de nombre  = 'Ev Muestr cc-Xs-22'
-# Formato interno: ["nombre","=","Ev Muestr cc-Xs-22"]
-GET http://localhost:5001/eventomuestreo?$filter=[%22nombre%22%2C%22%3D%22%2C%22Ev Muestr cc-Xs-22%22]
+### ? Filtra Eventos de Muestreo  
+# Este request filtra los Eventos de Muestreo del subproyectoId  = 4
+# Formato interno: ["subproyectoId","=","4"]
+GET http://localhost:5001/eventomuestreo?$filter=[%22subproyectoId%22%2C%22%3D%22%2C%222%22]
 
 ### GET by Id
 ### ? 
