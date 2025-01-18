@@ -83,6 +83,7 @@ export default class SubproyectosService {
             if (rows.affectedRows !== 1) throw dbErrorMsg(404, noExiste);
             return SubproyectosService.getById(id);
         } catch (error) {
+            if (error?.code === "ER_DUP_ENTRY") throw dbErrorMsg(409, yaExiste);
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);
         }
     }

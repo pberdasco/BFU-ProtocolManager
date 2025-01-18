@@ -7,9 +7,10 @@ export default class GrupoCompuesto{
     metodoId;      // int
     metodo;        // string(45)
     matrizCompuestoId;  // int
-    matrizCompuesto;
-    matrizGrupoId;
-    matrizGrupo;
+    matrizCompuesto;    // string
+    matrizGrupoId;      // int
+    matrizGrupo;        // string
+    matrizCodigo;       // int
 
     constructor(row){
         this.id = row.id;
@@ -23,6 +24,7 @@ export default class GrupoCompuesto{
         this.matrizCompuesto = row.matrizCompuesto;
         this.matrizGrupoId = row.matrizGrupoId;
         this.matrizGrupo = row.matrizGrupo;
+        this.matrizCodigo = row.matrizCodigo;
     }
 
     toJson() {
@@ -37,7 +39,8 @@ export default class GrupoCompuesto{
             matrizCompuestoId: this.matrizCompuestoId,
             matrizCompuesto: this.matrizCompuesto,
             matrizGrupoId: this.matrizGrupoId,
-            matrizGrupo: this.matrizGrupo
+            matrizGrupo: this.matrizGrupo,
+            matrizCodigo: this.matrizCodigo,
         };
     }
 }

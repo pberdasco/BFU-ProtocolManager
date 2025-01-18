@@ -77,6 +77,9 @@ export default class MetodosService{
             if (rows.affectedRows != 1) throw dbErrorMsg(404, noExiste);
             return true;
         }catch(error){
+            if (error.code === 'ER_ROW_IS_REFERENCED_2' || error.sqlMessage?.includes('foreign key constraint')) {
+                throw dbErrorMsg(409, "No se puede eliminar el recurso porque tiene dependencias asociadas.");
+            }
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);
         }
     }
@@ -87,6 +90,7 @@ export default class MetodosService{
             if (rows.affectedRows != 1) throw dbErrorMsg(404, noExiste);
             return MetodosService.getById(id);
         }catch(error){
+            if (error?.code === "ER_DUP_ENTRY") throw dbErrorMsg(409, yaExiste);
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);
         }
     }

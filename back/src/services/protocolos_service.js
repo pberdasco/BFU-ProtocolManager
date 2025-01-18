@@ -83,6 +83,9 @@ export default class ProtocolosService {
             if (rows.affectedRows !== 1) throw dbErrorMsg(404, noExiste);
             return true;
         } catch (error) {
+            if (error.code === 'ER_ROW_IS_REFERENCED_2' || error.sqlMessage?.includes('foreign key constraint')) {
+                throw dbErrorMsg(409, "No se puede eliminar el recurso porque tiene dependencias asociadas.");
+            }
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);
         }
     }

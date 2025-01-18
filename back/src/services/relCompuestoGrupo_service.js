@@ -13,10 +13,12 @@ const allowedFields = {
     matrizCompuesto: "m1.nombre",
     metodoId: "g.metodoId",
     metodo: "e.nombre",
+    matrizId: "g.matrizCodigo",
 };
 
 const table = "RelCompuestoGrupo";
-const selectBase = "SELECT r.id, r.grupoId, r.compuestoId, g.metodoId, g.nombre as grupo, g.matrizCodigo as matrizGrupoId, " + 
+const selectBase = "SELECT r.id, r.grupoId, r.compuestoId, " + 
+                          "g.metodoId, g.nombre as grupo, g.matrizCodigo as matrizGrupoId, g.matrizCodigo as matrizCodigo, " + 
                           "c.nombre as compuesto, c.matrizCodigo as matrizCompuestoId, " + 
                           "m1.nombre as matrizCompuesto, m2.nombre as matrizGrupo, e.nombre as metodo ";
 const selectTables = "FROM relCompuestoGrupo r " +
@@ -91,6 +93,9 @@ export default class RelCompuestoGrupoService{
             if (rows.affectedRows != 1) throw dbErrorMsg(404, noExiste);
             return true;
         }catch(error){
+            if (error.code === 'ER_ROW_IS_REFERENCED_2' || error.sqlMessage?.includes('foreign key constraint')) {
+                throw dbErrorMsg(409, "No se puede eliminar el recurso porque tiene dependencias asociadas.");
+            }
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);
         }
     }
@@ -101,6 +106,7 @@ export default class RelCompuestoGrupoService{
             if (rows.affectedRows != 1) throw dbErrorMsg(404, noExiste);
             return RelCompuestoGrupoService.getById(id);
         }catch(error){
+            if (error?.code === "ER_DUP_ENTRY") throw dbErrorMsg(409, yaExiste);
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);
         }
     }
