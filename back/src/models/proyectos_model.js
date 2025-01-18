@@ -7,7 +7,9 @@ export default class Proyecto{
     id;            // int
     codigo;        // string(10)
     nombre;        // string(45)
-    empresa;       // string(45)
+    clienteId      // int
+    clienteCod     // string(12)
+    cliente;       // string(45)
     estadoCodigo;  // int
     estado;        // string(15)
 
@@ -15,7 +17,9 @@ export default class Proyecto{
         this.id = row.id;
         this.codigo = row.codigo;
         this.nombre = row.nombre;
-        this.empresa = row.empresa;
+        this.clienteId = row.clienteId;
+        this.clienteCod = row.clienteCod;
+        this.cliente = row.cliente;
         this.estadoCodigo = row.estadoCodigo;
         this.estado = row.estado
     }
@@ -25,7 +29,9 @@ export default class Proyecto{
             id: this.id,               
             codigo: this.codigo,
             nombre: this.nombre,
-            empresa: this.empresa,
+            cliente: this.cliente,
+            clienteId: this.clienteId,
+            clienteCod: this.clienteCod,
             estadoCodigo: this.estadoCodigo,
             estado: this.estado
         };

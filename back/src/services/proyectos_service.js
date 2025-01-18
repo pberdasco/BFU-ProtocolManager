@@ -8,16 +8,19 @@ const allowedFields = {
     id: "p.id", 
     codigo: "p.codigo",
     nombre: "p.nombre",
-    empresa: "p.empresa",
+    clienteId: "p.clienteId",
+    clienteCod: "c.codigo",
+    cliente: "c.nombre",
     estadoCodigo: "p.estadoCodigo",
     estado: "e.nombre"
 };
 
 const table = "Proyectos";
 const mainTable  = "p"
-const selectBase = "SELECT p.id, p.codigo, p.nombre, p.empresa, p.estadoCodigo, e.nombre as estado "
+const selectBase = "SELECT p.id, p.codigo, p.nombre, p.clienteId, p.estadoCodigo, e.nombre as estado, c.codigo as clienteCod, c.nombre as cliente"
 const selectTables = "FROM Proyectos p " +
-                     "LEFT JOIN ProyectosEstado e ON p.estadoCodigo = e.codigo"
+                     "LEFT JOIN ProyectosEstado e ON p.estadoCodigo = e.codigo " +
+                     "LEFT JOIN Clientes c ON p.clienteId = c.id"
 const noExiste = "El proyecto no existe";
 const yaExiste = "El proyecto ya existe"
 
