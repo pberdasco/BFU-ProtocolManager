@@ -23,7 +23,8 @@ Content-Type: application/json
   "nombre": "Cadena Actual",
   "fecha": "2024-09-01",
   "laboratorioId": 1,
-  "eventoMuestreoId": 2
+  "eventoMuestreoId": 2,
+  "matrizCodigo": 2
 }
 
 
@@ -36,7 +37,8 @@ Content-Type: application/json
   "nombre": "Cadena Delete",
   "fecha": "2024-09-02",
   "laboratorioId": 1,
-  "eventoMuestreoId": 2
+  "eventoMuestreoId": 2,
+  "matrizCodigo": 1
 }
 
 ### Delete
