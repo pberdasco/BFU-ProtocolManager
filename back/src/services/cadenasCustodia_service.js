@@ -1,24 +1,24 @@
 import { pool, dbErrorMsg } from "../database/db.js";
-import Evento from "../models/eventomuestreo_model.js";
+import Cadena from "../models/cadenasCustodia_model.js";
 
 const allowedFields = { 
-    id: "E.id", 
-    fecha: "E.fecha",
-    subproyectoId: "E.subproyectoId", 
-    subproyecto: "S.codigo",
-    nombre: "E.nombre", 
-    cadenasCustodiaPDFLink: "E.cadenasCustodiaPDFLink",         
+    id: "c.id", 
+    nombre: "c.nombre", 
+    fecha: "c.fecha",
+    eventoMuestreoId: "c.eventoMuestreoId",
+    laboratorioId: "c.laboratorioId", 
+    laboratorio: "l.nombre",         
 }
 
-const table = "Eventomuestreo";
-const selectBase = "SELECT E.id, E.fecha, E.subproyectoId, S.codigo as subproyecto, E.nombre, E.cadenasCustodiaPDFLink ";
-const selectTables = "FROM Eventomuestreo E " +
-                     "LEFT JOIN Subproyectos S ON E.subproyectoId = S.id ";
-const mainTable = "E";                     
-const noExiste = "El evento de muestreo no existe";
-const yaExiste = "El evento de muestreo ya existe";
+const table = "CadenaCustodia";
+const selectBase = "SELECT c.id, c.nombre, c.fecha, c.eventoMuestreoId, c.laboratorioId, l.nombre as laboratorio ";
+const selectTables = "FROM CadenaCustodia c " +
+                     "LEFT JOIN Laboratorios l ON c.laboratorioId = l.id ";
+const mainTable = "c";                     
+const noExiste = "La Cadena de Custodia no existe";
+const yaExiste = "La Cadena de Custodia ya existe";
 
-export default class EventomuestreoService {
+export default class CadenasCustodiaService {
 
     static getAllowedFields() {
         return allowedFields;
@@ -51,28 +51,28 @@ export default class EventomuestreoService {
         try {
             const [rows] = await pool.query(`${selectBase} ${selectTables} WHERE ${mainTable}.id = ?`, [id]);
             if (rows.length === 0) throw dbErrorMsg(404, noExiste);
-            return new Evento(rows[0]);
+            return new Cadena(rows[0]);
         } catch (error) {
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);
         }
     }
 
-    static async create(eventomuestreoToAdd) {
+    static async create(elementToAdd) {
         try {
-            const [rows] = await pool.query(`INSERT INTO ${table} SET ?`, [eventomuestreoToAdd]);
-            eventomuestreoToAdd.id = rows.insertId;
-            return new Evento(eventomuestreoToAdd);
+            const [rows] = await pool.query(`INSERT INTO ${table} SET ?`, [elementToAdd]);
+            elementToAdd.id = rows.insertId;
+            return new Cadena(elementToAdd);
         } catch (error) {
             if (error?.code === "ER_DUP_ENTRY") throw dbErrorMsg(409, yaExiste);
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);
         }
     }
 
-    static async update(id, eventomuestreo) {
+    static async update(id, element) {
         try {
-            const [rows] = await pool.query(`UPDATE ${table} SET ? WHERE id = ?`, [eventomuestreo, id]);
+            const [rows] = await pool.query(`UPDATE ${table} SET ? WHERE id = ?`, [element, id]);
             if (rows.affectedRows !== 1) throw dbErrorMsg(404, noExiste);
-            return EventomuestreoService.getById(id);
+            return CadenasCustodiaService.getById(id);
         } catch (error) {
             if (error?.code === "ER_DUP_ENTRY") throw dbErrorMsg(409, yaExiste);
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);

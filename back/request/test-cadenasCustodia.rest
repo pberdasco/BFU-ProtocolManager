@@ -1,0 +1,45 @@
+### eventomuestreo/ 
+#* allowedFields = ["id", "fecha", "subproyectoId", "nombre", "cadenaCustodiaLink"];
+
+### GET 
+### ? Todos los eventos de nuestreo
+GET http://localhost:5001/cadenascustodia/
+
+### ? Filtra Cadenas de Custodia  
+# Este request filtra los Eventos de Muestreo del eventoMuestreoId  = 1
+# Formato interno: ["eventoMuestreoId","=","2"]
+GET http://localhost:5001/cadenascustodia?$filter=[%22eventoMuestreoId%22%2C%22%3D%22%2C%222%22]
+
+### GET by Id
+### ? 
+GET http://localhost:5001/cadenascustodia/1
+
+### Updates
+### ? Actualizar una cadena de custodia
+PUT http://localhost:5001/cadenascustodia/2
+Content-Type: application/json
+
+{
+  "nombre": "Cadena Actual",
+  "fecha": "2024-09-01",
+  "laboratorioId": 1,
+  "eventoMuestreoId": 2
+}
+
+
+### Create
+### ? Crear una cadena de custodia
+POST http://localhost:5001/cadenascustodia/
+Content-Type: application/json
+
+{
+  "nombre": "Cadena Delete",
+  "fecha": "2024-09-02",
+  "laboratorioId": 1,
+  "eventoMuestreoId": 2
+}
+
+### Delete
+### ? Borrar una cadena de custodia
+DELETE http://localhost:5001/cadenascustodia/3
+
