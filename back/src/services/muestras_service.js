@@ -5,22 +5,17 @@ const allowedFields = {
     id: "m.id",
     pozoId: "m.pozoId",
     pozo: "p.nombre", 
-    eventomuestreoID: "m.eventomuestreoID",
-    nombreEventomuestreo: "e.nombre", // ver esto
+    cadenaCustodiaId: "m.cadenaCustodiaID",
     nombre: "m.nombre",
     tipo: "m.tipo",
-    cantViales: "m.cantViales",
-    cantBotellas05: "m.cantBotellas05",
-    cantBotellas1: "m.cantBotellas1",
-    cantBotellas2: "m.cantBotellas2",
+    nivelFreatico: "m.nivelFreatico",
 }
 
 const table = "Muestras";
-const selectBase = "SELECT m.id, m.pozoId, p.nombre as pozo, m.eventomuestreoID, e.nombre as nombreEventomuestreo, m.tipo, m.cantViales, m.cantBotellas05, m.cantbotellas1, m.cantbotellas2 " // seguir aca
+const selectBase = "SELECT m.id, m.nombre, m.pozoId, p.nombre as pozo, m.cadenaCustodiaId, m.tipo, m.nivelFreatico "
 const selectTables = "FROM Muestras m " +
-                     "LEFT JOIN Pozos P ON m.pozoId = P.id " +
-                     "LEFT JOIN Eventomuestreo E ON m.eventomuestreoId = E.id";
-const mainTable = "M";
+                     "LEFT JOIN Pozos P ON m.pozoId = P.id ";
+const mainTable = "m";
 const noExiste = "La muestra no existe";
 const yaExiste = "La muestra ya existe";
 
