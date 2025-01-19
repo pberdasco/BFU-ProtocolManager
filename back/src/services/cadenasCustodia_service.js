@@ -6,12 +6,15 @@ const allowedFields = {
     nombre: "c.nombre", 
     fecha: "c.fecha",
     eventoMuestreoId: "c.eventoMuestreoId",
+    subproyectoId: "c.subproyectoId",
     laboratorioId: "c.laboratorioId", 
     laboratorio: "l.nombre",         
 }
 
 const table = "CadenaCustodia";
-const selectBase = "SELECT c.id, c.nombre, c.fecha, c.eventoMuestreoId, c.laboratorioId, l.nombre as laboratorio ";
+const selectBase = "SELECT c.id, c.nombre, c.fecha, c.eventoMuestreoId, c.subproyectoId, c.laboratorioId, l.nombre as laboratorio, " +
+                   "(SELECT COUNT(*) FROM Muestras m WHERE m.cadenaCustodiaId = c.id) AS cantidadMuestras, "+
+                   "(SELECT COUNT(*) FROM AnalisisRequeridos a WHERE a.cadenaCustodiaId = c.id) AS cantidadAnalisis ";
 const selectTables = "FROM CadenaCustodia c " +
                      "LEFT JOIN Laboratorios l ON c.laboratorioId = l.id ";
 const mainTable = "c";                     
