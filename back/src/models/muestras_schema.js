@@ -7,6 +7,7 @@ export const muestrasCreateSchema = z.object({
     tipo: z.number().int()
     .min(1, "El tipo puede ser 1: Pozo, 2: Equipo, 3: Blanco")
     .max(3, "El tipo puede ser 1: Pozo, 2: Equipo, 3: Blanco"),  
+    nivelFreatico: z.number()
 });
 
 export const muestrasUpdateSchema = muestrasCreateSchema.partial();

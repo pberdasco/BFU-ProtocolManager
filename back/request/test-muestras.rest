@@ -12,7 +12,7 @@ GET http://localhost:5001/muestras?$filter=[%22nombre%22%2C%22%3D%22%2C%22Muestr
 
 ### GET by Id
 ### ? 
-GET http://localhost:5001/muestras/2
+GET http://localhost:5001/muestras/1
 
 ### Updates
 ### ? Actualizar una muestra que no existe

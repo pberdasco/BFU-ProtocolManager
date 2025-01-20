@@ -1,5 +1,5 @@
 import { pool, dbErrorMsg } from "../database/db.js";
-import Lq from "../models/muestras_model.js";
+import Muestra from "../models/muestras_model.js";
 
 const allowedFields = { 
     id: "m.id",
@@ -42,7 +42,7 @@ export default class MuestrasService {
             values.push(limit, offset);
             const [rows] = await pool.query(sql, values);
 
-            return { data: rows, totalCount };
+            return { data: Muestra.fromRows(rows), totalCount };
         } catch (error) {
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);
         }
@@ -52,7 +52,7 @@ export default class MuestrasService {
         try {
             const [rows] = await pool.query(`${selectBase} ${selectTables} WHERE ${mainTable}.id = ?`, [id]);
             if (rows.length === 0) throw dbErrorMsg(404, noExiste);
-            return new Lq(rows[0]);
+            return new Muestra(rows[0]);
         } catch (error) {
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);
         }
@@ -63,7 +63,7 @@ export default class MuestrasService {
             const [rows] = await pool.query(`INSERT INTO ${table} SET ?`, [muestraToAdd]);
             muestraToAdd.id = rows.insertId;
 
-            return new Lq(muestraToAdd);
+            return new Muestra(muestraToAdd);
         } catch (error) {
             if (error?.code === "ER_DUP_ENTRY") throw dbErrorMsg(409, yaExiste);
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);

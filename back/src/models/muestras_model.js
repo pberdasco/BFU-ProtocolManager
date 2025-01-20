@@ -1,4 +1,4 @@
-export default class Regulacion {
+export default class Muestra {
     id;               // int
     pozoId;           // int (FK)
     cadenaCustodiaId; // int (FK)
@@ -12,7 +12,7 @@ export default class Regulacion {
         this.cadenaCustodiaId = row.cadenaCustodiaId;
         this.nombre = row.nombre;
         this.tipo = row.tipo;
-        this.nivelFreatico = row.nivelFreatico;
+        this.nivelFreatico = parseFloat(row.nivelFreatico);
               
     }
 
@@ -25,5 +25,9 @@ export default class Regulacion {
             tipo: this.tipo,
             nivelFreatico: this.nivelFreatico,                 
         };
+    }
+
+    static fromRows(rows) {
+        return rows.map(row => new Muestra(row));
     }
 }
