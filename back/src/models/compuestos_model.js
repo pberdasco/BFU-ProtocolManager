@@ -1,7 +1,7 @@
 export default class compuesto{
     id;          // int
     nombre;      // string(45)
-    sinonimo;    // string(30)
+    sinonimo;    // string(45)
     funcion;     // int
     agrupaEn;    // int
     exponeId;      // int
