@@ -27,6 +27,7 @@ import { proyectosEstadoRouter } from './routers/proyectosEstado_router.js';
 import { matricesRouter } from './routers/matrices_router.js';
 import { clientesRouter } from './routers/clientes_router.js';
 import { metodosRouter } from './routers/metodos_router.js';
+import { matrizProtocoloRouter } from './routers/matrizProtocolo_router.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -63,6 +64,7 @@ app.use("/proyectosEstado", proyectosEstadoRouter);
 app.use("/matriz", matricesRouter);
 app.use("/clientes", clientesRouter);
 app.use("/metodos", metodosRouter);
+app.use("/matrizprotocolo", matrizProtocoloRouter);
 
 // Servir archivos estáticos del frontend
 app.use(express.static(path.join(__dirname, '../../public')));
