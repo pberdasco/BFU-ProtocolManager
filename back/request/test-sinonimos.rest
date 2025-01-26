@@ -1,0 +1,85 @@
+### sinonimoscompuestos/  sinonimosmetodos
+#* allowedFields = ["id", "laboratorioId", "textoLab", "textoProcesado", "componenteId", "componente"];
+
+### GET 
+### ? Todos los sinonimos de compuestos
+GET http://localhost:5001/sinonimoscompuestos/
+
+### ? Todos los sinonimos de compuestos
+GET http://localhost:5001/sinonimosmetodos/
+
+
+
+### ? Get sinonimo compuestos por ID
+GET http://localhost:5001/localhost:5001/sinonimoscompuestos/2
+
+### ? Get sinonimo metodos por ID
+GET http://localhost:5001/localhost:5001/sinonimosmetodos/2
+
+
+### Converir x sinonimos
+### ? Sinonimos de compuestos
+POST http://localhost:5001/sinonimoscompuestos/listasinonimos
+Content-Type: application/json
+
+{
+  "compuestosOriginales": ["MRO C28-C35*", "Metil ter-Butil Eter (MTBE)*","*No me/vas- a Encontrar"]
+}
+
+### ? Sinonimos de metodos
+POST http://localhost:5001/sinonimosmetodos/listasinonimos
+Content-Type: application/json
+
+{
+  "metodosOriginales": ["EPA 3510 C Rev 03 (1996) / EPA 8270 E Rev 06 (2018)", "*Otro metodo"]
+}
+
+### Updates
+### ? Actualizar un sinonimo compuesto
+PUT http://localhost:5001/localhost:5001/sinonimoscompuestos/2
+Content-Type: application/json
+
+{
+  "compuestoId": 8
+}
+
+### ? Actualizar un sinonimo metodo
+PUT http://localhost:5001/sinonimosmetodo/2
+Content-Type: application/json
+
+{
+  "metodoId": 8
+}
+
+
+### Create
+### ? Crear un Sinonimo compuesto 
+POST http://localhost:5001/sinonimoscompuestos/
+Content-Type: application/json
+
+{
+  "textoLab": "MRO C28-C35*",
+  "textoProcesado": "mroc28c351",
+  "compuestoId": 22
+}
+
+
+### ? Crear un Sinonimo metodo 
+POST http://localhost:5001/sinonimosmetodos/
+Content-Type: application/json
+
+{
+  "textoLab": "EPA 3510 C Rev 03 (1996) / EPA 8270 E Rev 06 (2018)",
+  "textoProcesado": "epa3510crev03(1996)epa8270erev06(2018)",
+  "metodoId": 6
+}
+
+
+
+### Delete
+### ? Borrar un analisis que no existe
+DELETE http://localhost:5001/sinonimoscompuestos/35
+
+### Delete
+### ? Borrar un analisis que sí existe
+DELETE http://localhost:5001/sinonimoscompuestos/4
