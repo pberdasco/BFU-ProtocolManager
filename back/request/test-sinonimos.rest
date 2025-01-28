@@ -23,7 +23,7 @@ POST http://localhost:5001/sinonimoscompuestos/listasinonimos
 Content-Type: application/json
 
 {
-  "compuestosOriginales": ["MRO C28-C35*", "Metil ter-Butil Eter (MTBE)*","*No me/vas- a Encontrar"]
+  "compuestosOriginales": ["MRO C28-C35*", "Metil ter-Butil Eter (MTBE)*","*No me/vas- a Encontrar", "Con ácentís /*y màs"]
 }
 
 ### ? Sinonimos de metodos

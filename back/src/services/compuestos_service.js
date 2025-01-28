@@ -4,8 +4,7 @@ import Compuesto from "../models/compuestos_model.js";
 const allowedFields = {
     id: "c.id", 
     nombre: "c.nombre",
-    sinonimo: "c.sinonimo",
-    funcion: "c.funcion",
+    codigo: "c.codigo",
     agrupaEn: "c.agrupaen",
     expone: "c.exponeId",
     matrizCodigo: "c.matrizCodigo",
@@ -13,7 +12,7 @@ const allowedFields = {
 };
 
 const table = "Compuestos";
-const selectBase = "SELECT c.id, c.nombre, c.sinonimo, c.funcion, c.agrupaEn, c.exponeId, c.matrizCodigo, m.nombre as matriz ";
+const selectBase = "SELECT c.id, c.nombre, c.codigo, c.agrupaEn, c.exponeId, c.matrizCodigo, m.nombre as matriz ";
 const selectTables = "FROM Compuestos c " +
                      "LEFT JOIN Matriz m ON c.matrizCodigo = m.codigo "; 
 const mainTable  = "c";

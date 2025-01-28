@@ -4,12 +4,10 @@ import Metodo from "../models/metodos_model.js";
 const allowedFields = {
     id: "m.id", 
     nombre: "m.nombre",
-    sinonimo: "m.sinonimo",
-    funcion: "m.funcion"
 };
 
 const table = "Metodos";
-const selectBase = "SELECT m.id, m.nombre, m.sinonimo, m.funcion ";
+const selectBase = "SELECT m.id, m.nombre ";
 const selectTables = "FROM Metodos m "; 
 const mainTable  = "m";
 const noExiste = "El metodo no existe";

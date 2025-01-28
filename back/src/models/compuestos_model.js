@@ -1,8 +1,7 @@
 export default class compuesto{
     id;          // int
     nombre;      // string(45)
-    sinonimo;    // string(45)
-    funcion;     // int
+    codigo;      // string(10)
     agrupaEn;    // int
     exponeId;      // int
     matrizCodigo;  // int
@@ -11,8 +10,7 @@ export default class compuesto{
     constructor(row){
         this.id = row.id;
         this.nombre = row.nombre;
-        this.sinonimo = row.sinonimo;
-        this.funcion = row.funcion;
+        this.codigo = row.codigo;
         this.agrupaEn = row.agrupaEn;
         this.exponeId = row.exponeId;
         this.matrizCodigo = row.matrizCodigo;
@@ -23,8 +21,7 @@ export default class compuesto{
         return {
             id: this.id,               
             nombre: this.nombre,
-            sinonimo: this.sinonimo,
-            funcion: this.funcion,
+            codigo: this.codigo,
             agrupaEn: this.agrupaEn,
             exponeId: this.exponeId,
             matrizCodigo: this.matrizCodigo,

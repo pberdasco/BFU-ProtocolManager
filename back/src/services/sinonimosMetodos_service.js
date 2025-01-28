@@ -62,7 +62,9 @@ export default class SinonimosMetodosService {
         try {
             const metodosProcesados = metodosOriginales.map(compuesto =>
                 compuesto
-                    .replace(/\s|,|;|-|_|\*|\//g, "") // Remueve espacios, comas, guión, asterisco, etc.
+                    .normalize('NFD')                 // forma descompuesta de acentos unicode
+                    .replace(/[\u0300-\u036f]/g, '')  // elimina acentos
+                    .replace(/[.,;:_()*/\+\-\s]/g, "")  // Remueve espacios, comas, guión, asterisco, etc.
                     .toLowerCase() 
             );
     
