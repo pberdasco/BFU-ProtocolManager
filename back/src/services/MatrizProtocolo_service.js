@@ -46,8 +46,8 @@ export default class MatrizProtocoloService{
     static async get(eventoId, cadenaId) {
         try {
             const [compuestos, muestras] = await Promise.all([
-                MatrizProtocoloService.getCompuestos(cadenaId, eventoId),
-                MatrizProtocoloService.getMuestras(cadenaId, eventoId)
+                MatrizProtocoloService.getCompuestos(eventoId, cadenaId),
+                MatrizProtocoloService.getMuestras(eventoId, cadenaId)
             ]);
     
             return {
@@ -78,10 +78,12 @@ export default class MatrizProtocoloService{
         const selectBase = MatrizProtocoloService.getSelectMuestras(cadenaId);
         let rows;
         try{
-            if (cadenaId)
+            if (cadenaId){
                 [rows] = await pool.query(selectBase, [cadenaId]);
-            else 
+            }
+            else {
                 [rows] = await pool.query(selectBase, [eventoId]);
+            }
 
             return {data:rows, totalCount: rows.length };
         }catch(error){
@@ -103,7 +105,7 @@ export default class MatrizProtocoloService{
                     'JOIN CadenaCustodia CC ON AR.cadenaCustodiaID = CC.id ' 
         const whereCadena = 'WHERE AR.cadenaCustodiaID = ?';
         const whereEvento = 'WHERE CC.eventoMuestreoId = ?';
-
+        
         return cadenaId ? compuestosListSQL+whereCadena : compuestosListSQL+whereEvento;
     }
 

@@ -8,7 +8,6 @@ export default class MatrizProtocoloController{
     static async get(req, res, next){
         try{
             const { eventoId, cadenaId } = matrizProtocoloSchema.parse(req.query);
-
             const matrizProtocolo = await MatrizProtocoloService.get(eventoId, cadenaId);
             res.status(200).json(matrizProtocolo);                  
         } catch (error) {
