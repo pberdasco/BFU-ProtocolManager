@@ -5,7 +5,8 @@ Content-Type: application/json
   "formData": {
     "evento": 4,
     "laboratorio": 2,
-    "adelanto": [{ "name": "Protocolo_125.xlsx" }]
+    "adelanto": [{ "name": "Protocolo_125.xlsx" }],
+    "matrizId": 1
   },
   "adelantoData": {
     "data": [
@@ -29,7 +30,7 @@ Content-Type: application/json
 }
 
 ### GET con el formato de las tablas
-GET http://localhost:5001/protocolos/8
+GET http://localhost:5001/protocolos/12/extended
 
 ### GET con el formato de frontend
-GET http://localhost:5001/protocolos/8/original
+GET http://localhost:5001/protocolos/12/original

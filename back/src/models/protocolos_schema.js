@@ -3,6 +3,7 @@ import { nullable, z } from "zod";
 export const formDataSchema = z.object({
     evento: z.number().int().positive(),
     laboratorio: z.number().int().positive(),
+    matrizId: z.number().int().positive(),
     adelanto: z.array(
         z.object({
             name: z.string().min(5).max(255).regex(/\.xlsx$|\.xls$/i, "Debe ser un archivo Excel")

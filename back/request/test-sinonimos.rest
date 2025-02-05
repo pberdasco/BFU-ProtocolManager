@@ -23,6 +23,7 @@ POST http://localhost:5001/sinonimoscompuestos/listasinonimos
 Content-Type: application/json
 
 {
+  "matrizId": 1,
   "compuestosOriginales": ["MRO C28-C35*", "Metil ter-Butil Eter (MTBE)*","*No me/vas- a Encontrar", "Con ácentís /*y màs"]
 }
 
@@ -31,6 +32,7 @@ POST http://localhost:5001/sinonimosmetodos/listasinonimos
 Content-Type: application/json
 
 {
+  "matrizId": 1,
   "metodosOriginales": ["EPA 3510 C Rev 03 (1996) / EPA 8270 E Rev 06 (2018)", "*Otro metodo"]
 }
 
@@ -60,7 +62,8 @@ Content-Type: application/json
 {
   "textoLab": "MRO C28-C35*",
   "textoProcesado": "mroc28c351",
-  "compuestoId": 22
+  "compuestoId": 22,
+  "matrizId": 1
 }
 
 
@@ -71,7 +74,8 @@ Content-Type: application/json
 {
   "textoLab": "EPA 3510 C Rev 03 (1996) / EPA 8270 E Rev 06 (2018)",
   "textoProcesado": "epa3510crev03(1996)epa8270erev06(2018)",
-  "metodoId": 6
+  "metodoId": 6,
+  "matrizId": 1
 }
 
 

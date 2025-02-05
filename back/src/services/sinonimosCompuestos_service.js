@@ -6,11 +6,12 @@ const allowedFields = {
     textoLab: "s.textolab",
     textoProcesado: "s.textoProcesado", 
     compuestoId: "s.compuestoId",
-    compuesto: "c.nombre",          
+    compuesto: "c.nombre",         
+    matrizId: "s.matrizId" 
 }
 
 const table = "SinonimosCompuestos";
-const selectBase = "SELECT s.id, s.textoLab, s.textoProcesado, s.compuestoId, c.nombre as compuesto ";
+const selectBase = "SELECT s.id, s.textoLab, s.textoProcesado, s.compuestoId, c.nombre as compuesto, s.matrizId";
 const selectTables = "FROM  SinonimosCompuestos s " +
                      "LEFT JOIN Compuestos c ON s.compuestoId = c.id ";
 const mainTable = "s";                     
@@ -57,7 +58,7 @@ export default class SinonimosCompuestosService {
     }
 
     static async convertList(listToConvert) {
-        const { compuestosOriginales } = listToConvert;
+        const { compuestosOriginales, matrizId } = listToConvert;
         const convertedList = [];
     
         try {
@@ -73,12 +74,14 @@ export default class SinonimosCompuestosService {
                 SELECT 
                     s.textoLab AS compuestoOriginal, 
                     s.textoProcesado AS compuestoProcesado, 
-                    s.compuestoId 
+                    s.compuestoId, 
+                    s.matrizId
                 FROM SinonimosCompuestos s
                 WHERE s.textoProcesado IN (${compuestosProcesados.map(() => '?').join(',')})
+                AND s.matrizId = ?
             `;
     
-            const [rows] = await pool.query(sql, [...compuestosProcesados]);
+            const [rows] = await pool.query(sql, [...compuestosProcesados, matrizId]);
     
             compuestosOriginales.forEach((compuestoOriginal, index) => {
                 const compuestoProcesado = compuestosProcesados[index];

@@ -4,13 +4,15 @@ export default class SinonimoMetodo {
     textoProcesado;   // string(60)
     metodoId;         // int (FK)
     metodo;           // string(45)
+    matrizId;         // int
         
     constructor(row) {
         this.id = row.id;
         this.textoLab = row.textoLab;
         this.textoProcesado = row.textoProcesado;
         this.metodoId = row.metodoId;
-        this.metodo = this.metodo;
+        this.metodo = row.metodo;
+        this.matrizId = row.matrizId;
               
     }
 
@@ -20,7 +22,8 @@ export default class SinonimoMetodo {
             textoLab: this.textoLab,
             textoProcesado: this.textoProcesado,
             metodoId: this.metodoId,
-            metodo: this.metodo,                 
+            metodo: this.metodo,    
+            matrizId: this.matrizId,             
         };
     }
 

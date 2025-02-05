@@ -3,12 +3,14 @@ import { z } from "zod";
 export const sinonimoCompuestoCreateSchema = z.object({
     textoLab: z.string().max(60, "El textoLab no puede superar los 60 caracteres"),
     textoProcesado: z.string().max(60, "El textoProcesado no puede superar los 60 caracteres"),
-    compuestoId: z.number().int().min(1, "El ID del compuesto debe ser un entero positivo")
+    compuestoId: z.number().int().min(1, "El ID del compuesto debe ser un entero positivo"),
+    matrizId: z.number().int().min(1, "El ID de la matriz debe ser un entero positivo"),
 });
 
 export const sinonimoCompuestoUpdateSchema = sinonimoCompuestoCreateSchema.partial();
 
 export const compuestosOriginalesSchema = z.object({
+    matrizId: z.number().int().min(1, "El ID de la matriz debe ser un entero positivo"),
     compuestosOriginales: z
       .array(
         z

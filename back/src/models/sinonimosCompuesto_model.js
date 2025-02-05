@@ -4,14 +4,15 @@ export default class SinonimoCompuesto {
     textoProcesado;   // string(60)
     compuestoId;      // int (FK)
     compuesto;        // string(45)
+    matrizId;         // int
         
     constructor(row) {
         this.id = row.id;
         this.textoLab = row.textoLab;
         this.textoProcesado = row.textoProcesado;
         this.compuestoId = row.compuestoId;
-        this.compuesto = this.compuesto;
-              
+        this.compuesto = row.compuesto;
+        this.matrizId = row.matrizId;      
     }
 
     toJson() {
@@ -20,7 +21,8 @@ export default class SinonimoCompuesto {
             textoLab: this.textoLab,
             textoProcesado: this.textoProcesado,
             compuestoId: this.compuestoId,
-            compuesto: this.compuesto,                 
+            compuesto: this.compuesto,    
+            matrizId: this.matrizId,             
         };
     }
 

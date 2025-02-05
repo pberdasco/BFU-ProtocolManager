@@ -6,11 +6,12 @@ const allowedFields = {
     textoLab: "s.textolab",
     textoProcesado: "s.textoProcesado", 
     metodoId: "s.metodoId",
-    metodo: "c.nombre",          
+    metodo: "c.nombre",
+    matrizId: "s.matrizId",          
 }
 
 const table = "SinonimosMetodos";
-const selectBase = "SELECT s.id, s.textoLab, s.textoProcesado, s.metodoId, m.nombre as metodo ";
+const selectBase = "SELECT s.id, s.textoLab, s.textoProcesado, s.metodoId, m.nombre as metodo, s.matrizId ";
 const selectTables = "FROM  SinonimosMetodos s " +
                      "LEFT JOIN Metodos m ON s.metodoId = m.id ";
 const mainTable = "s";                     
@@ -57,7 +58,7 @@ export default class SinonimosMetodosService {
     }
 
     static async convertList(listToConvert) {
-        const { metodosOriginales } = listToConvert;
+        const { metodosOriginales, matrizId } = listToConvert;
         const convertedList = [];
         try {
             const metodosProcesados = metodosOriginales.map(compuesto =>
@@ -72,11 +73,13 @@ export default class SinonimosMetodosService {
                 SELECT 
                     s.textoLab AS metodoOriginal, 
                     s.textoProcesado AS metodoProcesado, 
-                    s.metodoId 
+                    s.metodoId,
+                    s.matrizId 
                 FROM SinonimosMetodos s
                 WHERE s.textoProcesado IN (${metodosProcesados.map(() => '?').join(',')})
+                AND s.matrizId = ?
             `;
-            const [rows] = await pool.query(sql, [...metodosProcesados]);
+            const [rows] = await pool.query(sql, [...metodosProcesados, matrizId]);
             
             metodosOriginales.forEach((metodoOriginal, index) => {
                 const metodoProcesado = metodosProcesados[index];

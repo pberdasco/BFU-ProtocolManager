@@ -19,6 +19,8 @@ export default class ProtocolosService {
                 nombre: formData.adelanto?.[0]?.name.replace(/\.(xlsx|xls)$/, ''), 
                 evento: formData.evento, 
                 laboratorio: formData.laboratorio,
+                matrizId: formData.matrizId,
+                //TODO: fecha
                 protocoloItems, 
                 protocoloMuestras, 
                 protocoloResultados 
@@ -48,6 +50,8 @@ export default class ProtocolosService {
                 nombre: protocolo.nombre,
                 evento: protocolo.evento,
                 laboratorio: protocolo.laboratorio,
+                matrizId: protocolo.matrizId,
+                fecha: protocolo.fecha,
                 protocoloItems: items,
                 protocoloMuestras: muestras,
                 protocoloResultados: resultados
@@ -98,6 +102,8 @@ export default class ProtocolosService {
                 formData: {
                     evento: protocolo.evento,
                     laboratorio: protocolo.laboratorio,
+                    matrizId: protocolo.matrizId,
+                    fecha: protocolo.fecha,
                     adelanto: [{ name: protocolo.nombre + ".xlsx" }]
                 },
                 adelantoData: {
@@ -117,13 +123,14 @@ export default class ProtocolosService {
 
 
 async function insertProtocolo(conn, formData){
-    const protocoloSql = `INSERT INTO Protocolos (nombre, fecha, eventoMuestreoId, laboratorioId)
-                            VALUES (?, NOW(), ?, ?)
+    const protocoloSql = `INSERT INTO Protocolos (nombre, fecha, eventoMuestreoId, laboratorioId, matrizId)
+                            VALUES (?, NOW(), ?, ?, ?)
                         `;
     const [protocoloResult] = await conn.query(protocoloSql, [
         formData.adelanto?.[0]?.name.replace(/\.(xlsx|xls)$/, ''), 
         formData.evento, 
-        formData.laboratorio
+        formData.laboratorio,
+        formData.matrizId
     ]);
     return protocoloResult.insertId;
 }
@@ -202,7 +209,7 @@ async function insertResultadosProtocolo(conn, protocoloItems, protocoloMuestras
 // Funciones para los GETs
 async function getProtocoloGeneral(conn, id) {
     const [rows] = await conn.query(
-        `SELECT id, nombre, eventoMuestreoId AS evento, laboratorioId AS laboratorio 
+        `SELECT id, nombre, eventoMuestreoId AS evento, laboratorioId AS laboratorio, matrizId, fecha 
          FROM Protocolos WHERE id = ?`, 
         [id]
     );

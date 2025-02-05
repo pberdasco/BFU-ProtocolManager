@@ -2,8 +2,8 @@ import { pool, dbErrorMsg } from "../database/db.js";
 import UM from "../models/um_model.js";
 
 const allowedFields = {
-    id: "c.id", 
-    nombre: "c.nombre",
+    id: "u.id", 
+    nombre: "u.nombre",
 };
 
 const table = "UM";
