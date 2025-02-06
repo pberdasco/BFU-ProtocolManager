@@ -34,3 +34,6 @@ GET http://localhost:5001/protocolos/12/extended
 
 ### GET con el formato de frontend
 GET http://localhost:5001/protocolos/12/original
+
+### Get ALL basico
+GET http://localhost:5001/protocolos/

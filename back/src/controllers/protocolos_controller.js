@@ -5,6 +5,22 @@ import { z } from "zod";
 
 export default class ProtocolosController {
 
+    static getAllowedFields(req, res, next) {
+        req.allowedFields = ProtocolosService.getAllowedFields();
+        next();
+    }
+
+
+    static async getAll(req, res, next) {
+        try {
+            const devExtremeQuery = req.devExtremeQuery;
+            const entities = await ProtocolosService.getAll(devExtremeQuery);
+            res.status(200).json(entities);
+        } catch (error) {
+            showError(req, res, error);
+        }
+    }
+
     static async create(req, res, next) {
         try {
             const [errores, validData] = ProtocolosController.bodyValidations(req.body, "create");

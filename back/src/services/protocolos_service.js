@@ -1,7 +1,47 @@
 import { pool, dbErrorMsg } from "../database/db.js";
 
+const allowedFields = {
+    id: "p.id", 
+    nombre: "p.nombre",
+    eventoMuestreoId: "p.eventoMuestreoId",
+    fecha: "p.fecha",
+    laboratorioId: "p.laboratorioId",
+    matrizId: "p.matrizId",
+};
+const selectBase = "SELECT p.id, p.nombre, p.eventoMuestreoId, p.fecha, p.laboratorioId, p.matrizId FROM Protocolos p ";
+
 export default class ProtocolosService {
+    static getAllowedFields() {
+        return allowedFields;
+    }
+
+    static async getAll(devExtremeQuery) {
+        const { where, values, order, limit, offset } = devExtremeQuery;
+
+        try{
+            //Select para el totalCount
+            const countValues = [...values];
+            const countSql = `SELECT COUNT(*) as total FROM Protocolos p
+                              ${where ? `WHERE ${where}` : ""}`;
+            const [countResult] = await pool.query(countSql, countValues);
+            const totalCount = countResult[0].total;
     
+            //Select para los datos
+            values.push(limit, offset)
+            const sql = `${selectBase}
+                         ${where ? `WHERE ${where}` : ""}
+                         ${order.length ? `ORDER BY ${order.join(", ")}` : ""}
+                         LIMIT ? OFFSET ?`
+            const [rows] = await pool.query(sql, values );
+            
+            return {data:rows,      // Si algo no coincidiera entre la base y el objeto seria necesario llamar a un Laboratosio.toJsonArray()
+                    totalCount: totalCount
+            };
+        }catch(error){
+            throw dbErrorMsg(error.status, error.sqlMessage || error.message);
+        }
+    }
+
     static async createProtocolo(formData, adelantoData) {
         const conn = await pool.getConnection();
         try {
