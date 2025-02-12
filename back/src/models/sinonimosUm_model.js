@@ -1,16 +1,16 @@
-export default class SinonimoMetodo {
+export default class SinonimoUm {
     id;               // int
     textoLab;         // string(60)
     textoProcesado;   // string(60)
-    metodoId;         // int (FK)
-    metodo;           // string(45)
+    umId;             // int (FK)
+    um;               // string(10)
         
     constructor(row) {
         this.id = row.id;
         this.textoLab = row.textoLab;
         this.textoProcesado = row.textoProcesado;
-        this.metodoId = row.metodoId;
-        this.metodo = row.metodo;             
+        this.umId = row.umId;
+        this.um = row.um;             
     }
 
     toJson() {
@@ -18,8 +18,8 @@ export default class SinonimoMetodo {
             id: this.id,
             textoLab: this.textoLab,
             textoProcesado: this.textoProcesado,
-            metodoId: this.metodoId,
-            metodo: this.metodo,                
+            umId: this.umId,
+            um: this.um,                
         };
     }
 

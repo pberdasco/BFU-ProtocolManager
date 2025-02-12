@@ -1,23 +1,23 @@
 import { pool, dbErrorMsg } from "../database/db.js";
-import SinonimoMetodo from "../models/sinonimosMetodo_model.js";
+import SinonimoUM from "../models/sinonimosUm_model.js";
 
 const allowedFields = { 
     id: "s.id", 
     textoLab: "s.textolab",
     textoProcesado: "s.textoProcesado", 
-    metodoId: "s.metodoId",
-    metodo: "c.nombre",        
+    umId: "s.umId",
+    um: "u.nombre",        
 }
 
-const table = "SinonimosMetodos";
-const selectBase = "SELECT s.id, s.textoLab, s.textoProcesado, s.metodoId, m.nombre as metodo ";
-const selectTables = "FROM  SinonimosMetodos s " +
-                     "LEFT JOIN Metodos m ON s.metodoId = m.id ";
+const table = "SinonimosUM";
+const selectBase = "SELECT s.id, s.textoLab, s.textoProcesado, s.umId, u.nombre as um ";
+const selectTables = "FROM  SinonimosUM s " +
+                     "LEFT JOIN UM u ON s.umId = u.id ";
 const mainTable = "s";                     
-const noExiste = "El SinonimoMetodo no existe";
-const yaExiste = "El SinonimoMetodo ya existe";
+const noExiste = "El SinonimoUM no existe";
+const yaExiste = "El SinonimoUM ya existe";
 
-export default class SinonimosMetodosService {
+export default class SinonimosUMsService {
 
     static getAllowedFields() {
         return allowedFields;
@@ -50,18 +50,18 @@ export default class SinonimosMetodosService {
         try {
             const [rows] = await pool.query(`${selectBase} ${selectTables} WHERE ${mainTable}.id = ?`, [id]);
             if (rows.length === 0) throw dbErrorMsg(404, noExiste);
-            return new SinonimoMetodo(rows[0]);
+            return new SinonimoUM(rows[0]);
         } catch (error) {
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);
         }
     }
 
     static async convertList(listToConvert) {
-        const { metodosOriginales, matrizId } = listToConvert;
+        const { umsOriginales } = listToConvert;
         const convertedList = [];
         try {
-            const metodosProcesados = metodosOriginales.map(compuesto =>
-                compuesto
+            const umsProcesados = umsOriginales.map(um =>
+                um
                     .normalize('NFD')                 // forma descompuesta de acentos unicode
                     .replace(/[\u0300-\u036f]/g, '')  // elimina acentos
                     .replace(/[.,;:_()*/\+\-\s]/g, "")  // Remueve espacios, comas, guión, asterisco, etc.
@@ -70,22 +70,24 @@ export default class SinonimosMetodosService {
     
             const sql = `
                 SELECT 
-                    s.textoLab AS metodoOriginal, 
-                    s.textoProcesado AS metodoProcesado, 
-                    s.metodoId
-                FROM SinonimosMetodos s
-                WHERE s.textoProcesado IN (${metodosProcesados.map(() => '?').join(',')})
+                    s.textoLab AS umOriginal, 
+                    s.textoProcesado AS umProcesado, 
+                    s.umId
+                FROM SinonimosUM s
+                WHERE s.textoProcesado IN (${umsProcesados.map(() => '?').join(',')})
             `;
-            const [rows] = await pool.query(sql, [...metodosProcesados, matrizId]);
+            console.log("select: ", sql, ...umsProcesados);
             
-            metodosOriginales.forEach((metodoOriginal, index) => {
-                const metodoProcesado = metodosProcesados[index];
-                const encontrado = rows.find(row => row.metodoProcesado === metodoProcesado);
+            const [rows] = await pool.query(sql, [...umsProcesados]);
+            
+            umsOriginales.forEach((umOriginal, index) => {
+                const umProcesado = umsProcesados[index];
+                const encontrado = rows.find(row => row.umProcesado === umProcesado);
     
                 convertedList.push({
-                    metodoOriginal,
-                    metodoProcesado,
-                    metodoId: encontrado ? encontrado.metodoId : null, 
+                    umOriginal,
+                    umProcesado,
+                    umId: encontrado ? encontrado.umId : null, 
                 });
             });
     
@@ -99,7 +101,7 @@ export default class SinonimosMetodosService {
         try {
             const [rows] = await pool.query(`INSERT INTO ${table} SET ?`, [entityToAdd]);
             entityToAdd.id = rows.insertId;
-            return new SinonimoMetodo(entityToAdd);
+            return new SinonimoUM(entityToAdd);
         } catch (error) {
             if (error?.code === "ER_DUP_ENTRY") throw dbErrorMsg(409, yaExiste);
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);
@@ -110,7 +112,7 @@ export default class SinonimosMetodosService {
         try {
             const [rows] = await pool.query(`UPDATE ${table} SET ? WHERE id = ?`, [entity, id]);
             if (rows.affectedRows !== 1) throw dbErrorMsg(404, noExiste);
-            return SinonimosMetodosService.getById(id);
+            return SinonimosUMsService.getById(id);
         } catch (error) {
             if (error?.code === "ER_DUP_ENTRY") throw dbErrorMsg(409, yaExiste);
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);

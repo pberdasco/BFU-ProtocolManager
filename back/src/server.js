@@ -31,6 +31,7 @@ import { metodosRouter } from './routers/metodos_router.js';
 import { matrizProtocoloRouter } from './routers/matrizProtocolo_router.js';
 import { sinonimosCompuestosRouter } from './routers/sinonimosCompuestos_router.js';
 import { sinonimosMetodosRouter } from './routers/sinonimosMetodos_router.js';
+import { sinonimosUMsRouter } from './routers/sinonimosUMs_router.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -71,6 +72,7 @@ app.use("/metodos", metodosRouter);
 app.use("/matrizprotocolo", matrizProtocoloRouter);
 app.use("/sinonimoscompuestos", sinonimosCompuestosRouter);
 app.use("/sinonimosmetodos", sinonimosMetodosRouter);
+app.use("/sinonimosums", sinonimosUMsRouter);
 
 // Servir archivos estáticos del frontend
 app.use(express.static(path.join(__dirname, '../../public')));

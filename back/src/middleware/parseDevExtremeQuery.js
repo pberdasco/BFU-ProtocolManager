@@ -57,7 +57,7 @@ export function createParseDevExtremeQuery() {
         }
 
         // Paginación
-        const limit = parseInt(take) || 50;
+        const limit = parseInt(take) || 999999999999;
         const offset = parseInt(skip) || 0;
 
         req.devExtremeQuery = { where, values, order, limit, offset };

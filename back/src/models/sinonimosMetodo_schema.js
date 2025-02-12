@@ -4,13 +4,11 @@ export const sinonimoMetodoCreateSchema = z.object({
     textoLab: z.string().max(60, "El textoLab no puede superar los 60 caracteres"),
     textoProcesado: z.string().max(60, "El textoProcesado no puede superar los 60 caracteres"),
     metodoId: z.number().int().min(1, "El ID del metodo debe ser un entero positivo"),
-    matrizId: z.number().int().min(1, "El ID de la matriz debe ser un entero positivo"),
 });
 
 export const sinonimoMetodoUpdateSchema = sinonimoMetodoCreateSchema.partial();
 
 export const metodosOriginalesSchema = z.object({
-    matrizId: z.number().int().min(1, "El ID de la matriz debe ser un entero positivo"),
     metodosOriginales: z
       .array(
         z

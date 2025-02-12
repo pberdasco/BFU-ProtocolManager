@@ -5,16 +5,22 @@
 ### ? Todos los sinonimos de compuestos
 GET http://localhost:5001/sinonimoscompuestos/
 
-### ? Todos los sinonimos de compuestos
+### ? Todos los sinonimos de metodos
 GET http://localhost:5001/sinonimosmetodos/
 
+### ? Todos los sinonimos de ums
+GET http://localhost:5001/sinonimosums/
 
 
+### GET BY ID
 ### ? Get sinonimo compuestos por ID
-GET http://localhost:5001/localhost:5001/sinonimoscompuestos/2
+GET http://localhost:5001/sinonimoscompuestos/2
 
 ### ? Get sinonimo metodos por ID
-GET http://localhost:5001/localhost:5001/sinonimosmetodos/2
+GET http://localhost:5001/sinonimosmetodos/2
+
+### ? Get sinonimo um por ID
+GET http://localhost:5001/sinonimosums/2
 
 
 ### Converir x sinonimos
@@ -24,7 +30,7 @@ Content-Type: application/json
 
 {
   "matrizId": 1,
-  "compuestosOriginales": ["MRO C28-C35*", "Metil ter-Butil Eter (MTBE)*","*No me/vas- a Encontrar", "Con ácentís /*y màs"]
+  "compuestosOriginales": ["MRO C28-C35*", "1,2,4-Trimetilbenceno","*No me/vas- a Encontrar", "Con ácentís /*y màs"]
 }
 
 ### ? Sinonimos de metodos
@@ -32,13 +38,20 @@ POST http://localhost:5001/sinonimosmetodos/listasinonimos
 Content-Type: application/json
 
 {
-  "matrizId": 1,
-  "metodosOriginales": ["EPA 3510 C Rev 03 (1996) / EPA 8270 E Rev 06 (2018)", "*Otro metodo"]
+  "metodosOriginales": ["EPA 3051 A/ 6010 D", "*Otro metodo"]
+}
+
+### ? Sinonimos de um
+POST http://localhost:5001/sinonimosums/listasinonimos
+Content-Type: application/json
+
+{
+  "umsOriginales": ["ug/l", "mg/l", "otro"]
 }
 
 ### Updates
 ### ? Actualizar un sinonimo compuesto
-PUT http://localhost:5001/localhost:5001/sinonimoscompuestos/2
+PUT http://localhost:5001/sinonimoscompuestos/2
 Content-Type: application/json
 
 {
@@ -46,11 +59,19 @@ Content-Type: application/json
 }
 
 ### ? Actualizar un sinonimo metodo
-PUT http://localhost:5001/sinonimosmetodo/2
+PUT http://localhost:5001/sinonimosmetodos/2
 Content-Type: application/json
 
 {
   "metodoId": 8
+}
+
+### ? Actualizar un sinonimo um
+PUT http://localhost:5001/sinonimosums/2
+Content-Type: application/json
+
+{
+  "umId": 2
 }
 
 
@@ -74,10 +95,19 @@ Content-Type: application/json
 {
   "textoLab": "EPA 3510 C Rev 03 (1996) / EPA 8270 E Rev 06 (2018)",
   "textoProcesado": "epa3510crev03(1996)epa8270erev06(2018)",
-  "metodoId": 6,
-  "matrizId": 1
+  "metodoId": 6
 }
 
+
+### ? Crear un Sinonimo um 
+POST http://localhost:5001/sinonimosums/
+Content-Type: application/json
+
+{
+  "textoLab": "g/lm",
+  "textoProcesado": "glm",
+  "umId": 11
+}
 
 
 ### Delete
