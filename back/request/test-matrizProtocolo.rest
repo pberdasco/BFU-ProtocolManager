@@ -1,10 +1,10 @@
-### matrizProtocolo/ 
+### matrizcadena/ 
 
 
 ### GET 
 ### ? matriz de un evento
-GET http://localhost:5001/matrizprotocolo?eventoId=4
+GET http://localhost:5001/matrizcadena?eventoId=6
 
 ### ? matriz de una cadenas de custodia
-GET http://localhost:5001/matrizprotocolo?cadenaId=5
+GET http://localhost:5001/matrizcadena?cadenaId=9
 

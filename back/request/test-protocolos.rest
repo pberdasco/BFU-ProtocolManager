@@ -30,7 +30,7 @@ Content-Type: application/json
 }
 
 ### GET con el formato de las tablas
-GET http://localhost:5001/protocolos/12/extended
+GET http://localhost:5001/protocolos/15/extended
 
 ### GET con el formato de frontend
 GET http://localhost:5001/protocolos/12/original

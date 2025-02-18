@@ -1,9 +1,9 @@
 import { pool, dbErrorMsg } from "../database/db.js";
 
-export default class MatrizProtocoloService{
+export default class MatrizCadenaService{
 
     /**
-     * Obtiene la información necesaria para armar la matriz de un protocolo.
+     * Obtiene la información necesaria para armar la matriz de una Cadena de Custodia o de todas las cadenas de un evento.
      * Devuelve la lista de compuestos requeridos y la lista de muestras asociadas.
      * 
      * Si se especifica una cadena (`cadenaId`), se devuelve la información correspondiente a esa cadena.
@@ -46,8 +46,8 @@ export default class MatrizProtocoloService{
     static async get(eventoId, cadenaId) {
         try {
             const [compuestos, muestras] = await Promise.all([
-                MatrizProtocoloService.getCompuestos(eventoId, cadenaId),
-                MatrizProtocoloService.getMuestras(eventoId, cadenaId)
+                MatrizCadenaService.getCompuestos(eventoId, cadenaId),
+                MatrizCadenaService.getMuestras(eventoId, cadenaId)
             ]);
     
             return {
@@ -60,7 +60,7 @@ export default class MatrizProtocoloService{
     }
 
     static async getCompuestos(eventoId, cadenaId) {
-        const selectBase = MatrizProtocoloService.getSelectCompuestos(cadenaId);
+        const selectBase = MatrizCadenaService.getSelectCompuestos(cadenaId);
         let rows;
         try{
             if (cadenaId)
@@ -68,14 +68,14 @@ export default class MatrizProtocoloService{
             else 
                 [rows] = await pool.query(selectBase, [eventoId]);
 
-            return {data:rows, totalCount: rows.length };
+            return rows;
         }catch(error){
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);
         }
     }
 
     static async getMuestras(eventoId, cadenaId) {
-        const selectBase = MatrizProtocoloService.getSelectMuestras(cadenaId);
+        const selectBase = MatrizCadenaService.getSelectMuestras(cadenaId);
         let rows;
         try{
             if (cadenaId){
@@ -85,7 +85,7 @@ export default class MatrizProtocoloService{
                 [rows] = await pool.query(selectBase, [eventoId]);
             }
 
-            return {data:rows, totalCount: rows.length };
+            return rows;
         }catch(error){
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);
         }

@@ -1,15 +1,15 @@
-import MatrizProtocoloService from "../services/MatrizProtocolo_service.js";
-import { matrizProtocoloSchema } from "../models/matrizProtocolo_schema.js";
+import MatrizCadenaService from "../services/MatrizCadena_service.js";
+import { matrizCadenaSchema } from "../models/matrizCadena_schema.js";
 import { showError } from "../middleware/controllerErrors.js";
 import { z } from "zod";
 
-export default class MatrizProtocoloController{
+export default class MatrizCadenaController{
 
     static async get(req, res, next){
         try{
-            const { eventoId, cadenaId } = matrizProtocoloSchema.parse(req.query);
-            const matrizProtocolo = await MatrizProtocoloService.get(eventoId, cadenaId);
-            res.status(200).json(matrizProtocolo);                  
+            const { eventoId, cadenaId } = matrizCadenaSchema.parse(req.query);
+            const result = await MatrizCadenaService.get(eventoId, cadenaId);
+            res.status(200).json(result);                  
         } catch (error) {
             if (error instanceof z.ZodError) {
                 const fields = error.errors.map(issue => ({

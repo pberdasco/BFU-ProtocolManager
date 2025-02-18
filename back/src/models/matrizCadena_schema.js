@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const matrizProtocoloSchema = z.object({
+export const matrizCadenaSchema = z.object({
     eventoId: z
         .preprocess((val) => (val !== undefined ? parseInt(val, 10) : null), z.number().nullable().optional())
         .refine((val) => val === null || !isNaN(val), {
