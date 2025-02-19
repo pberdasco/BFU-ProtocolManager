@@ -1,0 +1,51 @@
+### Crear una Cadena Completa
+POST http://localhost:5001/cadenaCompleta/
+Content-Type: application/json
+
+{
+  "cadenaId": 9, 
+  "cadenaCompleta": {
+    "filas": [
+      {
+        "id": "101-001",
+        "compuestoId": 1,
+        "metodoId": 6,
+        "umId": 1,
+        "estado": 1,
+        "protocoloItemId": 149,
+        "MA PM1/2": 0.5,
+        "MA PM2/2": 1.2
+      },
+      {
+        "id": "102-001",
+        "compuestoId": 2,
+        "metodoId": 6,
+        "umId": 1,
+        "estado": 1,
+        "protocoloItemId": 150,
+        "MA PM1/2": 1.0,
+        "MA PM2/2": 1.11
+      }
+    ],
+    "muestras": [
+      {
+        "muestraId": 11,
+        "muestra": "MA PM1/2",
+        "tipo": 1,
+        "pozo": 22
+      },
+      {
+        "muestraId": 12,
+        "muestra": "MA PM2/2",
+        "tipo": 1,
+        "pozo": 23
+      }
+    ]
+  }
+}
+
+### Obtener una Cadena Completa por ID
+GET http://localhost:5001/cadenaCompleta/9
+
+### Eliminar una Cadena Completa por ID
+DELETE http://localhost:5001/cadenaCompleta/9
