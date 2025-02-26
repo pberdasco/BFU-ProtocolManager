@@ -8,7 +8,8 @@ export const pool = createPool({
     password: process.env.DB_PASSWORD,  //Nota: tuve que generar un nuevo usuario administrador que usa seguridad
                             // estandar y no SHA?? porque el cliente no lo soporta
     database: process.env.DB_DATABASE,
-    port: process.env.DB_PORT
+    port: process.env.DB_PORT,
+    // decimalNumbers: true    // Esto haria que todos los decimal lleguen como numeros y no como strings. Cambiarlo obliga a revisar todo...
 })
 
 //todo: debeia usar logger para dejar registro de errores?

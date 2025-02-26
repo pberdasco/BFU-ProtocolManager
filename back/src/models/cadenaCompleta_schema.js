@@ -14,7 +14,7 @@ export const muestraSchema = z.object({
 
 // Validación de cada fila de la cadena
 export const filaSchema = z.object({
-    id: z.string().min(1), // Es un identificador temporal, puede ser string
+    id: z.number().int().positive(), // Es un identificador temporal, puede ser string
     compuestoId: z.number().int().positive(),
     metodoId: z.number().int().positive(),
     umId: z.number().int().positive(),

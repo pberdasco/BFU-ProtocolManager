@@ -1,8 +1,73 @@
 //cadenaCompleta_service.js
 import { pool, dbErrorMsg } from "../database/db.js";
 
+// Función para agrupar filas por compuestoId y metodoId, y reasignar IDs secuenciales
+// Función para agrupar filas por compuestoId y metodoId, adjuntar el código, ordenar y reasignar IDs secuenciales
+function mergeFilas(filas, codigoMap) {
+    const clavesBase = ['id', 'cadenaCustodiaId', 'compuestoId', 'metodoId', 'umId', 'estado', 'protocoloItemId'];
+    const filasAgrupadas = new Map();
+  
+    for (const fila of filas) {
+      // Usamos compuestoId y metodoId para identificar el grupo
+      const key = `${fila.compuestoId}-${fila.metodoId}`;
+      if (!filasAgrupadas.has(key)) {
+        filasAgrupadas.set(key, { ...fila });
+      } else {
+        const filaExistente = filasAgrupadas.get(key);
+        for (const prop in fila) {
+          if (!clavesBase.includes(prop)) {
+            filaExistente[prop] = fila[prop];
+          }
+        }
+      }
+    }
+  
+    // Convertimos el mapa a array y adjuntamos el código correspondiente
+    const mergedArray = Array.from(filasAgrupadas.values()).map(fila => ({
+      ...fila,
+      codigo: codigoMap[fila.compuestoId] || ""
+    }));
+  
+    // Ordenamos el array por el campo código (ascendente)
+    mergedArray.sort((a, b) => {
+      if(a.codigo < b.codigo) return -1;
+      if(a.codigo > b.codigo) return 1;
+      return 0;
+    });
+  
+    // Reasignamos IDs secuenciales (1,2,3,...) en función del orden
+    mergedArray.forEach((fila, index) => {
+      fila.id = index + 1;
+      // Si no necesitas enviar el campo código, puedes eliminarlo:
+      // delete fila.codigo;
+    });
+  
+    return mergedArray;
+  }
+  
+  
+  
+
 export default class CadenaCompletaService {
 
+    /**
+     * Crea una nueva entrada en la base de datos para una Cadena Completa.
+     *
+     * @param {number} cadenaId - El ID único de la cadena de custodia asociada.
+     * @param {Object} cadenaCompleta - El objeto que contiene las filas y muestras a insertar.
+     * @param {Array<Object>} cadenaCompleta.filas - Lista de objetos de fila con el formato:
+     *      [{ id, estado, compuestoId, metodoId, umId, protocoloItemId, <NombreMuestra1>: valor, <NombreMuestra2>: valor, ... }]
+     * @param {Array<Object>} cadenaCompleta.muestras - Lista de objetos muestra con el formato:
+     *      [{ muestraId, muestra (nombre), tipo, pozo }]
+     * 
+     * @returns {Object} - Retorna un objeto que contiene las filas y valores insertados:
+     *      {
+     *          filas: [{ id, cadenaCustodiaId, compuestoId, metodoId, umId, estado, protocoloItemId }],
+     *          valores: [{ id, cadenaCompletaFilaId, muestraId, valor }]
+     *      }
+     * 
+     * @throws {Error} - Lanza un error si ocurre algún problema durante la inserción de datos.
+     */
     static async create(cadenaId, cadenaCompleta) {
         const conn = await pool.getConnection();
         try {
@@ -63,6 +128,41 @@ export default class CadenaCompletaService {
         }
     }
 
+
+    /**
+     * Obtiene una Cadena Completa por su ID desde la base de datos.
+     *
+     * @param {number} cadenaId - El ID único de la cadena de custodia a consultar.
+     * 
+     * @returns {Object} - Retorna un objeto con la estructura de la cadena completa:
+     *      {
+     *          filas: [
+     *              {
+     *                  id: number,                // ID de la fila en la base de datos
+     *                  compuestoId: number,      // ID del compuesto analizado
+     *                  metodoId: number,         // ID del método de análisis
+     *                  umId: number,             // ID de la unidad de medida
+     *                  estado: number,           // Estado de la fila 
+     *                  protocoloItemId: number,  // ID del ítem de protocolo asociado (nullable)
+     *                  <NombreMuestra1>: number | null,  // Valor asociado a la muestra 1 (si existe)
+     *                  <NombreMuestra2>: number | null,  // Valor asociado a la muestra 2 (si existe)
+     *                  ... // Más valores de muestras
+     *              }
+     *          ],
+     *          muestras: [
+     *              {
+     *                  muestraId: number,    // ID único de la muestra
+     *                  muestra: string,     // Nombre de la muestra
+     *                  tipo: number,        // Tipo de muestra
+     *                  pozo: number | null  // ID del pozo asociado o null si no aplica
+     *              }
+     *          ]
+     *      }
+     * 
+     * @throws {Error} - Lanza un error si ocurre algún problema al obtener los datos, como:
+     *      - Error en la consulta SQL
+     *      - ID de cadena no encontrado
+     */
     static async getById(cadenaId){
         try {
             const [filas] = await pool.query(
@@ -103,7 +203,7 @@ export default class CadenaCompletaService {
             for (const valor of valores) {
                 const fila = filasMap.get(valor.cadenaCompletaFilaId);
                 if (fila) {
-                    fila[valor.muestra] = valor.valor; 
+                    fila[valor.muestra] = valor.valor !== null ? Number(valor.valor) : null; 
                 }
             }
     
@@ -145,6 +245,99 @@ export default class CadenaCompletaService {
         }
     }
 
+    static async getByEventoMuestreoId(eventoMuestreoId) {
+        try {
+            // Obtenemos todas las cadenasCustodia asociadas al EventoMuestreo.
+            const [cadenas] = await pool.query(
+                `SELECT id FROM CadenaCustodia WHERE EventoMuestreoId = ?`,
+                [eventoMuestreoId]
+            );
+            if (!cadenas.length) {
+                throw dbErrorMsg(404, "No existen cadenas de custodia para el EventoMuestreo especificado.");
+            }
+            // Extraemos los IDs de todas las cadenas.
+            const cadenaIds = cadenas.map(c => c.id);
+    
+            // Obtenemos las filas de las cadenas, esto solo traerá registros de las cadenas que tengan datos.
+            const [filas] = await pool.query(
+                `SELECT id, cadenaCustodiaId, compuestoId, metodoId, umId, estado, protocoloItemId 
+                 FROM CadenaCompletaFilas 
+                 WHERE cadenaCustodiaId IN (?)`,
+                [cadenaIds]
+            );
+
+            // Si no hay filas, se puede retornar un objeto vacío o manejar el caso según convenga.
+            if (!filas.length) {
+                return { filas: [], muestras: [] };
+            }
+
+            // Extraemos los compuestoIds para consultar el campo Código en compuestos
+            const compuestoIds = Array.from(new Set(filas.map(f => f.compuestoId)));
+            const [compuestos] = await pool.query(
+                `SELECT id as compuestoId, Codigo FROM compuestos WHERE id IN (?)`,
+                [compuestoIds]
+            );
+    
+            
+    
+            // Extraemos los IDs de las cadenas que realmente tienen filas.
+            const cadenaIdsConFilas = Array.from(new Set(filas.map(fila => fila.cadenaCustodiaId)));
+    
+            // Obtenemos los valores asociados, limitados a las cadenas con filas.
+            const [valores] = await pool.query(
+                `SELECT v.cadenaCompletaFilaId, v.muestraId, m.Nombre AS muestra, v.valor
+                 FROM CadenaCompletaValores v
+                 JOIN Muestras m ON v.muestraId = m.Id
+                 WHERE m.CadenaCustodiaId IN (?)`,
+                [cadenaIdsConFilas]
+            );
+    
+            // Obtenemos las muestras solo de las cadenas que tienen registros.
+            const [muestras] = await pool.query(
+                `SELECT Id AS muestraId, Nombre AS muestra, Tipo AS tipo, PozoId AS pozo 
+                 FROM Muestras 
+                 WHERE CadenaCustodiaId IN (?)`,
+                [cadenaIdsConFilas]
+            );
+            const codigoMap = {};
+            for (const comp of compuestos) {
+                codigoMap[comp.compuestoId] = comp.Codigo;
+            }
+    
+            // Armamos un mapa para las filas y asignamos los valores correspondientes.
+            const filasMap = new Map();
+            for (const fila of filas) {
+                filasMap.set(fila.id, {
+                    id: fila.id,
+                    cadenaCustodiaId: fila.cadenaCustodiaId,
+                    compuestoId: fila.compuestoId,
+                    metodoId: fila.metodoId,
+                    umId: fila.umId,
+                    estado: fila.estado,
+                    protocoloItemId: fila.protocoloItemId
+                });
+            }
+    
+            for (const valor of valores) {
+                const fila = filasMap.get(valor.cadenaCompletaFilaId);
+                if (fila) {
+                    fila[valor.muestra] = valor.valor !== null ? Number(valor.valor) : null;
+                }
+            }
+    
+            const filasArray = Array.from(filasMap.values());
+            const filasMerge = mergeFilas(filasArray, codigoMap);
+
+            const cadenaCompleta = {
+                filas: filasMerge,
+                muestras: muestras
+            };
+    
+            return cadenaCompleta;
+        } catch(error) {
+            throw dbErrorMsg(error.status, error.sqlMessage || error.message);
+        }
+    }
     
 }
 

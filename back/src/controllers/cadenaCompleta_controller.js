@@ -34,6 +34,18 @@ export default class CadenaCompletaController {
         }
     }
 
+    static async getByEventoMuestreoId(req, res, next) {
+        try {
+            const id = req.params.id;
+            if (isNaN(id)) throw Object.assign(new Error("El id debe ser numérico."), { status: 400 });
+
+            const entity = await CadenaCompletaService.getByEventoMuestreoId(id);
+            res.status(200).json(entity);
+        } catch (error) {
+            showError(req, res, error);
+        }
+    }
+
     static async delete(req, res, next) {
         try{
             const id = req.params.id;

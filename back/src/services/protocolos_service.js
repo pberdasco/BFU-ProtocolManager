@@ -9,6 +9,7 @@ const allowedFields = {
     matrizId: "p.matrizId",
 };
 const selectBase = "SELECT p.id, p.nombre, p.eventoMuestreoId, p.fecha, p.laboratorioId, p.matrizId FROM Protocolos p ";
+const yaExiste = "El protocolo ya existe";
 
 export default class ProtocolosService {
     static getAllowedFields() {
@@ -68,7 +69,8 @@ export default class ProtocolosService {
         } catch (error) {
             await conn.rollback(); 
             conn.release();
-            throw dbErrorMsg(500, `Error guardando protocolo: ${error.message}`);
+            if (error?.code === "ER_DUP_ENTRY") throw dbErrorMsg(409, yaExiste);
+            throw dbErrorMsg(error.status || 500, `Error guardando protocolo: ${error.message}`);
         }
     }
 
@@ -230,7 +232,6 @@ async function insertResultadosProtocolo(conn, protocoloItems, protocoloMuestras
                     console.warn(`⚠ No se encontró protocoloMuestra para muestra: ${campo}`);
                     continue;
                 } 
-                console.log(`✅ Insertando resultado: compuestoId=${protocoloItem.id}, muestraId=${protocoloMuestra.id}, valor=${compuesto[campo]}`);
 
                 const [resultado] = await conn.query(
                     `INSERT INTO ResultadosProtocolo (itemProtocoloId, muestraProtocoloId, valor)

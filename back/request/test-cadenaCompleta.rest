@@ -47,5 +47,8 @@ Content-Type: application/json
 ### Obtener una Cadena Completa por ID
 GET http://localhost:5001/cadenaCompleta/9
 
+### Obtener las Cadenas Completa de un evento por ID
+GET http://localhost:5001/cadenaCompleta/evento/6
+
 ### Eliminar una Cadena Completa por ID
 DELETE http://localhost:5001/cadenaCompleta/9

@@ -5,5 +5,6 @@ import CadenaCompletaController from "../controllers/cadenaCompleta_controller.j
 export const cadenaCompletaRouter = Router();
 
 cadenaCompletaRouter.get('/:id', CadenaCompletaController.getById);
+cadenaCompletaRouter.get('/evento/:id', CadenaCompletaController.getByEventoMuestreoId);
 cadenaCompletaRouter.post('/', CadenaCompletaController.create);
 cadenaCompletaRouter.delete('/:id', CadenaCompletaController.delete);
