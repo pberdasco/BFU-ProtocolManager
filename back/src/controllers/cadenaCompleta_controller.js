@@ -39,7 +39,8 @@ export default class CadenaCompletaController {
             const id = req.params.id;
             if (isNaN(id)) throw Object.assign(new Error("El id debe ser numérico."), { status: 400 });
 
-            const entity = await CadenaCompletaService.getByEventoMuestreoId(id);
+            const matrizId = req.query.matrizId;
+            const entity = await CadenaCompletaService.getByEventoMuestreoId(id, matrizId);
             res.status(200).json(entity);
         } catch (error) {
             showError(req, res, error);

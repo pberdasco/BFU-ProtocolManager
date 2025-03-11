@@ -48,7 +48,10 @@ Content-Type: application/json
 GET http://localhost:5001/cadenaCompleta/9
 
 ### Obtener las Cadenas Completa de un evento por ID
-GET http://localhost:5001/cadenaCompleta/evento/6
+GET http://localhost:5001/cadenaCompleta/evento/8
+
+### Obtener las Cadenas Completa de un evento por ID con filtro por matriz
+GET http://localhost:5001/cadenaCompleta/evento/8?matrizId=1
 
 ### Eliminar una Cadena Completa por ID
 DELETE http://localhost:5001/cadenaCompleta/9

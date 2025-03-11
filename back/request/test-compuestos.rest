@@ -8,7 +8,7 @@ GET http://localhost:5001/compuestos/
 ### ? Compuestos por el sinonimo
 # Este request filtra compuesto con sinonimo = 'gro'
 # Formato interno: ["sinonimo","=","gro"]
-GET http://localhost:5001/compuestos?$filter=[%22sinonimo%22%2C%22%3D%22%2C%22gro%22]
+GET http://localhost:5001/compuestos?$filter=[%22nombre%22%2C%22%3D%22%2C%22Xilenos%22]
 
 
 ### ? Get por ID

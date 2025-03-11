@@ -220,55 +220,37 @@ export default class CadenaCompletaService {
         }
     }
 
-    static async delete(cadenaId) {
-        try {
-            await pool.query(
-                `DELETE FROM CadenaCompletaValores 
-                 WHERE cadenaCompletaFilaId IN 
-                 (SELECT id FROM CadenaCompletaFilas WHERE cadenaCustodiaId = ?)`,
-                [cadenaId]
-            );
-    
-            const [result] = await pool.query(
-                `DELETE FROM CadenaCompletaFilas WHERE cadenaCustodiaId = ?`,
-                [cadenaId]
-            );
-    
-            if (!result.affectedRows) throw dbErrorMsg(404, "No existe la CadenaCompleta especificada.");
-    
-            return true;
-        } catch (error) {
-            if (error.code === 'ER_ROW_IS_REFERENCED_2' || error.sqlMessage?.includes('foreign key constraint')) {
-                throw dbErrorMsg(409, "No se puede eliminar la CadenaCompleta porque tiene dependencias asociadas.");
-            }
-            throw dbErrorMsg(error.status, error.sqlMessage || error.message);
-        }
-    }
 
-    static async getByEventoMuestreoId(eventoMuestreoId) {
+    static async getByEventoMuestreoId(eventoMuestreoId, matrizId = null) {
         try {
-            // Obtenemos todas las cadenasCustodia asociadas al EventoMuestreo.
             const [cadenas] = await pool.query(
-                `SELECT id FROM CadenaCustodia WHERE EventoMuestreoId = ?`,
+                `SELECT id, matrizCodigo FROM CadenaCustodia WHERE EventoMuestreoId = ?`,
                 [eventoMuestreoId]
             );
             if (!cadenas.length) {
-                throw dbErrorMsg(404, "No existen cadenas de custodia para el EventoMuestreo especificado.");
+                throw dbErrorMsg(404, `No existen cadenas de custodia para el EventoMuestreo especificado (${eventoMuestreoId})`);
             }
-            // Extraemos los IDs de todas las cadenas.
-            const cadenaIds = cadenas.map(c => c.id);
+            
+            // obtengo los Ids de las cadenas involucradas (eventualmente filtradas por matriz)
+            let cadenaIds;
+            if (matrizId) {
+                cadenaIds = cadenas.filter(c => c.matrizCodigo == matrizId).map(c => c.id);
+                if (!cadenaIds.length) {
+                    throw dbErrorMsg(404, `No existen cadenas de custodia para el EventoMuestreo/Matriz especificados (${eventoMuestreoId}-${matrizId})`);
+                }
+            }else {
+                cadenaIds = cadenas.map(c => c.id);
+            }
     
-            // Obtenemos las filas de las cadenas, esto solo traerá registros de las cadenas que tengan datos.
+            // traigo todas las filas de las cadenas filtradas
             const [filas] = await pool.query(
                 `SELECT id, cadenaCustodiaId, compuestoId, metodoId, umId, estado, protocoloItemId 
                  FROM CadenaCompletaFilas 
                  WHERE cadenaCustodiaId IN (?)`,
                 [cadenaIds]
             );
-
-            // Si no hay filas, se puede retornar un objeto vacío o manejar el caso según convenga.
             if (!filas.length) {
-                return { filas: [], muestras: [] };
+                throw dbErrorMsg(404, `No existen compuestos analizados para el EventoMuestreo/Matriz especificados (${eventoMuestreoId}-${matrizId})`);
             }
 
             // Extraemos los compuestoIds para consultar el campo Código en compuestos
@@ -277,9 +259,7 @@ export default class CadenaCompletaService {
                 `SELECT id as compuestoId, Codigo FROM compuestos WHERE id IN (?)`,
                 [compuestoIds]
             );
-    
-            
-    
+        
             // Extraemos los IDs de las cadenas que realmente tienen filas.
             const cadenaIdsConFilas = Array.from(new Set(filas.map(fila => fila.cadenaCustodiaId)));
     
@@ -335,6 +315,31 @@ export default class CadenaCompletaService {
     
             return cadenaCompleta;
         } catch(error) {
+            throw dbErrorMsg(error.status, error.sqlMessage || error.message);
+        }
+    }
+
+    static async delete(cadenaId) {
+        try {
+            await pool.query(
+                `DELETE FROM CadenaCompletaValores 
+                 WHERE cadenaCompletaFilaId IN 
+                 (SELECT id FROM CadenaCompletaFilas WHERE cadenaCustodiaId = ?)`,
+                [cadenaId]
+            );
+    
+            const [result] = await pool.query(
+                `DELETE FROM CadenaCompletaFilas WHERE cadenaCustodiaId = ?`,
+                [cadenaId]
+            );
+    
+            if (!result.affectedRows) throw dbErrorMsg(404, "No existe la CadenaCompleta especificada.");
+    
+            return true;
+        } catch (error) {
+            if (error.code === 'ER_ROW_IS_REFERENCED_2' || error.sqlMessage?.includes('foreign key constraint')) {
+                throw dbErrorMsg(409, "No se puede eliminar la CadenaCompleta porque tiene dependencias asociadas.");
+            }
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);
         }
     }
