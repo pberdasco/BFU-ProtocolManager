@@ -1,6 +1,6 @@
-import { Router } from "express";
-import LaboratoriosController from "../controllers/laboratorios_controller.js";
-import { createParseDevExtremeQuery } from "../middleware/parseDevExtremeQuery.js";
+import { Router } from 'express';
+import LaboratoriosController from '../controllers/laboratorios_controller.js';
+import { createParseDevExtremeQuery } from '../middleware/parseDevExtremeQuery.js';
 
 export const laboratoriosRouter = Router();
 

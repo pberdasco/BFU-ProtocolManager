@@ -1,6 +1,6 @@
-import { Router } from "express";
-import LqsController from "../controllers/lqs_controller.js";
-import { createParseDevExtremeQuery } from "../middleware/parseDevExtremeQuery.js";
+import { Router } from 'express';
+import LqsController from '../controllers/lqs_controller.js';
+import { createParseDevExtremeQuery } from '../middleware/parseDevExtremeQuery.js';
 
 export const lqsRouter = Router();
 

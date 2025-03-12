@@ -1,6 +1,6 @@
-import { Router } from "express";
-import ClientesController from "../controllers/clientes_controller.js";
-import { createParseDevExtremeQuery } from "../middleware/parseDevExtremeQuery.js";
+import { Router } from 'express';
+import ClientesController from '../controllers/clientes_controller.js';
+import { createParseDevExtremeQuery } from '../middleware/parseDevExtremeQuery.js';
 
 export const clientesRouter = Router();
 

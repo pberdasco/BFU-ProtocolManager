@@ -1,5 +1,5 @@
-import { Router } from "express";
-import ProvinciasController from "../controllers/provincias_controller.js";
+import { Router } from 'express';
+import ProvinciasController from '../controllers/provincias_controller.js';
 
 export const provinciasRouter = Router();
 

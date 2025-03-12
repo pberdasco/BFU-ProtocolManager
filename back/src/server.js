@@ -38,7 +38,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-app.use(express.urlencoded({extended:false}));
+app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
 app.use(logRequest(logger));
@@ -46,50 +46,49 @@ app.use(logRequest(logger));
 app.use(cors());
 
 // APIs
-app.use("/usuarios", usuariosRouter);
-app.use("/proyectos", proyectosRouter);
-app.use("/subproyectos", subproyectosRouter);
-app.use("/pozos", pozosRouter);
-app.use("/pozosEstado", pozosEstadoRouter);
-app.use("/pozosTipo", pozosTipoRouter);
-app.use("/laboratorios", laboratoriosRouter);
-app.use("/compuestos", compuestosRouter);
-app.use("/grupoCompuestos", grupoCompuestosRouter);
-app.use("/relCompuestoGrupo", relCompuestoGrupoRouter);
-app.use("/autaplicacion", autaplicacionRouter);
-app.use("/lqs", lqsRouter);
-app.use("/regulaciones", regulacionesRouter);
-app.use("/provincias", provinciasRouter);
-app.use("/um", umRouter);
-app.use("/protocolos", protocolosRouter);
-app.use("/eventomuestreo", eventomuestreoRouter);
-app.use("/cadenascustodia", cadenasCustodiaRouter);
-app.use("/cadenacompleta", cadenaCompletaRouter);
-app.use("/muestras", muestrasRouter);
-app.use("/analisisrequeridos", analisisRequeridosRouter);
-app.use("/proyectosEstado", proyectosEstadoRouter);
-app.use("/matriz", matricesRouter);
-app.use("/clientes", clientesRouter);
-app.use("/metodos", metodosRouter);
-app.use("/matrizcadena", matrizCadenaRouter);
-app.use("/sinonimoscompuestos", sinonimosCompuestosRouter);
-app.use("/sinonimosmetodos", sinonimosMetodosRouter);
-app.use("/sinonimosums", sinonimosUMsRouter);
+app.use('/usuarios', usuariosRouter);
+app.use('/proyectos', proyectosRouter);
+app.use('/subproyectos', subproyectosRouter);
+app.use('/pozos', pozosRouter);
+app.use('/pozosEstado', pozosEstadoRouter);
+app.use('/pozosTipo', pozosTipoRouter);
+app.use('/laboratorios', laboratoriosRouter);
+app.use('/compuestos', compuestosRouter);
+app.use('/grupoCompuestos', grupoCompuestosRouter);
+app.use('/relCompuestoGrupo', relCompuestoGrupoRouter);
+app.use('/autaplicacion', autaplicacionRouter);
+app.use('/lqs', lqsRouter);
+app.use('/regulaciones', regulacionesRouter);
+app.use('/provincias', provinciasRouter);
+app.use('/um', umRouter);
+app.use('/protocolos', protocolosRouter);
+app.use('/eventomuestreo', eventomuestreoRouter);
+app.use('/cadenascustodia', cadenasCustodiaRouter);
+app.use('/cadenacompleta', cadenaCompletaRouter);
+app.use('/muestras', muestrasRouter);
+app.use('/analisisrequeridos', analisisRequeridosRouter);
+app.use('/proyectosEstado', proyectosEstadoRouter);
+app.use('/matriz', matricesRouter);
+app.use('/clientes', clientesRouter);
+app.use('/metodos', metodosRouter);
+app.use('/matrizcadena', matrizCadenaRouter);
+app.use('/sinonimoscompuestos', sinonimosCompuestosRouter);
+app.use('/sinonimosmetodos', sinonimosMetodosRouter);
+app.use('/sinonimosums', sinonimosUMsRouter);
 
 // Servir archivos estáticos del frontend
 app.use(express.static(path.join(__dirname, '../../public')));
 
 // Manejar rutas del frontend (Single Page Application)
 app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, '../../public', 'index.html'));
+  res.sendFile(path.resolve(__dirname, '../../public', 'index.html'));
 });
-
 
 // Middleware para manejar rutas no encontradas
 app.use((req, res, next) => {
-    const clientIP = req.ip;
-    logger.warn(`404 Not Found: ${req.method} ${req.url} - IP: ${clientIP}`);
-    res.status(404).json({message: "No existe el endpoint"});
+  const clientIP = req.ip;
+  logger.warn(`404 Not Found: ${req.method} ${req.url} - IP: ${clientIP}`);
+  res.status(404).json({ message: 'No existe el endpoint' });
 });
 
 process.loadEnvFile();

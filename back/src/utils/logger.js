@@ -1,18 +1,17 @@
 import winston from 'winston';
-//TODO: Eventualmente agregar: import DailyRotateFile from 'winston-daily-rotate-file';
+// TODO: Eventualmente agregar: import DailyRotateFile from 'winston-daily-rotate-file';
 
 // Obtener las variables de entorno
 process.loadEnvFile();
 const errorsToConsole = process.env.ERRORS_TO_CONSOLE === 'true';
 const infoToConsole = process.env.INFO_TO_CONSOLE === 'true';
 const debugToConsole = process.env.DEBUG_TO_CONSOLE === 'true';
-const logger_min_level = process.env.LOGGER_MIN_LEVEL;
+const loggerMinLevel = process.env.LOGGER_MIN_LEVEL;
 
 // Formato común para todos los logs
 const logFormat = winston.format.printf(({ timestamp, level, message }) => {
   return `${timestamp} [${level}]: ${message}`;
 });
-
 
 // Funciones de filtro para los niveles
 const levelFilter = (level) => {
@@ -47,10 +46,9 @@ const transports = [
       winston.format.timestamp(),
       logFormat
     )
-  }),
+  })
 
 ];
-
 
 // Transporte para `warn` y `error` en consola si `ERRORS_TO_CONSOLE` es true
 if (errorsToConsole) {
@@ -99,8 +97,8 @@ if (debugToConsole) {
 
 // Crear el logger con los transportes configurados
 const logger = winston.createLogger({
-  level: logger_min_level,
-  transports: transports
+  level: loggerMinLevel,
+  transports
 });
 
 export default logger;

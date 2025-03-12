@@ -1,5 +1,5 @@
-import { Router } from "express";
-import PozosTipoController from "../controllers/pozosTipo_controller.js";
+import { Router } from 'express';
+import PozosTipoController from '../controllers/pozosTipo_controller.js';
 
 export const pozosTipoRouter = Router();
 

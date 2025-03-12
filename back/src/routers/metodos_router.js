@@ -1,6 +1,6 @@
-import { Router } from "express";
-import MetodosController from "../controllers/metodos_controller.js";
-import { createParseDevExtremeQuery } from "../middleware/parseDevExtremeQuery.js";
+import { Router } from 'express';
+import MetodosController from '../controllers/metodos_controller.js';
+import { createParseDevExtremeQuery } from '../middleware/parseDevExtremeQuery.js';
 
 export const metodosRouter = Router();
 

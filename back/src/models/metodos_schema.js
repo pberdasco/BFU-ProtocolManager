@@ -1,8 +1,7 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 export const metodoCreateSchema = z.object({
-    nombre: z.string().max(45),  
+  nombre: z.string().max(45)
 });
-
 
 export const metodoUpdateSchema = metodoCreateSchema.partial();

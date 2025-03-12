@@ -1,6 +1,6 @@
-import { Router } from "express";
-import CadenasCustodiaController from "../controllers/cadenasCustodia_controller.js";
-import { createParseDevExtremeQuery } from "../middleware/parseDevExtremeQuery.js";
+import { Router } from 'express';
+import CadenasCustodiaController from '../controllers/cadenasCustodia_controller.js';
+import { createParseDevExtremeQuery } from '../middleware/parseDevExtremeQuery.js';
 
 export const cadenasCustodiaRouter = Router();
 

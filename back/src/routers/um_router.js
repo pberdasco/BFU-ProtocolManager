@@ -1,6 +1,6 @@
-import { Router } from "express";
-import UMController from "../controllers/um_controller.js";
-import { createParseDevExtremeQuery } from "../middleware/parseDevExtremeQuery.js";
+import { Router } from 'express';
+import UMController from '../controllers/um_controller.js';
+import { createParseDevExtremeQuery } from '../middleware/parseDevExtremeQuery.js';
 
 export const umRouter = Router();
 

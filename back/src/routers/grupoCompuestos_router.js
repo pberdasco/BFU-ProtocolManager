@@ -1,6 +1,6 @@
-import { Router } from "express";
-import GrupoCompuestosController from "../controllers/grupoCompuestos_controller.js";
-import { createParseDevExtremeQuery } from "../middleware/parseDevExtremeQuery.js";
+import { Router } from 'express';
+import GrupoCompuestosController from '../controllers/grupoCompuestos_controller.js';
+import { createParseDevExtremeQuery } from '../middleware/parseDevExtremeQuery.js';
 
 export const grupoCompuestosRouter = Router();
 

@@ -1,5 +1,5 @@
-import { Router } from "express";
-import ProyectosEstadoController from "../controllers/proyectosEstado_controller.js";
+import { Router } from 'express';
+import ProyectosEstadoController from '../controllers/proyectosEstado_controller.js';
 
 export const proyectosEstadoRouter = Router();
 

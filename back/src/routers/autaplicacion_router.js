@@ -1,6 +1,6 @@
-import { Router } from "express";
-import AutaplicacionController from "../controllers/autaplicacion_controller.js";
-import { createParseDevExtremeQuery } from "../middleware/parseDevExtremeQuery.js";
+import { Router } from 'express';
+import AutaplicacionController from '../controllers/autaplicacion_controller.js';
+import { createParseDevExtremeQuery } from '../middleware/parseDevExtremeQuery.js';
 
 export const autaplicacionRouter = Router();
 

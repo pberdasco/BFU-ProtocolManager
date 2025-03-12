@@ -1,6 +1,6 @@
-import { Router } from "express";
-import RegulacionesController from "../controllers/regulaciones_controller.js";
-import { createParseDevExtremeQuery } from "../middleware/parseDevExtremeQuery.js";
+import { Router } from 'express';
+import RegulacionesController from '../controllers/regulaciones_controller.js';
+import { createParseDevExtremeQuery } from '../middleware/parseDevExtremeQuery.js';
 
 export const regulacionesRouter = Router();
 

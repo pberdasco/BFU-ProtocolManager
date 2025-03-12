@@ -1,5 +1,5 @@
-import { Router } from "express";
-import PozosEstadoController from "../controllers/pozosEstado_controller.js";
+import { Router } from 'express';
+import PozosEstadoController from '../controllers/pozosEstado_controller.js';
 
 export const pozosEstadoRouter = Router();
 

@@ -1,6 +1,6 @@
-import { Router } from "express";
-import CompuestosController from "../controllers/compuestos_controller.js";
-import { createParseDevExtremeQuery } from "../middleware/parseDevExtremeQuery.js";
+import { Router } from 'express';
+import CompuestosController from '../controllers/compuestos_controller.js';
+import { createParseDevExtremeQuery } from '../middleware/parseDevExtremeQuery.js';
 
 export const compuestosRouter = Router();
 

@@ -1,6 +1,6 @@
-import { Router } from "express";
-import PozosController from "../controllers/pozos_controller.js";
-import { createParseDevExtremeQuery } from "../middleware/parseDevExtremeQuery.js";
+import { Router } from 'express';
+import PozosController from '../controllers/pozos_controller.js';
+import { createParseDevExtremeQuery } from '../middleware/parseDevExtremeQuery.js';
 
 export const pozosRouter = Router();
 

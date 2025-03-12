@@ -1,6 +1,6 @@
-import { Router } from "express";
-import RelCompuestoGrupoController from "../controllers/relCompuestoGrupo_controller.js";
-import { createParseDevExtremeQuery } from "../middleware/parseDevExtremeQuery.js";
+import { Router } from 'express';
+import RelCompuestoGrupoController from '../controllers/relCompuestoGrupo_controller.js';
+import { createParseDevExtremeQuery } from '../middleware/parseDevExtremeQuery.js';
 
 export const relCompuestoGrupoRouter = Router();
 

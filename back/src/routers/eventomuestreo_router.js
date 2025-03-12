@@ -1,6 +1,6 @@
-import { Router } from "express";
-import EventomuestreoController from "../controllers/eventomuestreo_controller.js";
-import { createParseDevExtremeQuery } from "../middleware/parseDevExtremeQuery.js";
+import { Router } from 'express';
+import EventomuestreoController from '../controllers/eventomuestreo_controller.js';
+import { createParseDevExtremeQuery } from '../middleware/parseDevExtremeQuery.js';
 
 export const eventomuestreoRouter = Router();
 

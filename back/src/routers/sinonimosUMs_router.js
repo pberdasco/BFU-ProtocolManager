@@ -1,6 +1,6 @@
-import { Router } from "express";
-import SinonimosUMsController from "../controllers/sinonimosUMs_controller.js";
-import { createParseDevExtremeQuery } from "../middleware/parseDevExtremeQuery.js";
+import { Router } from 'express';
+import SinonimosUMsController from '../controllers/sinonimosUMs_controller.js';
+import { createParseDevExtremeQuery } from '../middleware/parseDevExtremeQuery.js';
 
 export const sinonimosUMsRouter = Router();
 

@@ -1,6 +1,6 @@
-import { Router } from "express";
-import SubproyectosController from "../controllers/subproyectos_controller.js";
-import { createParseDevExtremeQuery } from "../middleware/parseDevExtremeQuery.js";
+import { Router } from 'express';
+import SubproyectosController from '../controllers/subproyectos_controller.js';
+import { createParseDevExtremeQuery } from '../middleware/parseDevExtremeQuery.js';
 
 export const subproyectosRouter = Router();
 

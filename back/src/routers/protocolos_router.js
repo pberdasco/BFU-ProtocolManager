@@ -1,6 +1,6 @@
-import { Router } from "express";
-import ProtocolosController from "../controllers/protocolos_controller.js";
-import { createParseDevExtremeQuery } from "../middleware/parseDevExtremeQuery.js";
+import { Router } from 'express';
+import ProtocolosController from '../controllers/protocolos_controller.js';
+import { createParseDevExtremeQuery } from '../middleware/parseDevExtremeQuery.js';
 
 export const protocolosRouter = Router();
 
