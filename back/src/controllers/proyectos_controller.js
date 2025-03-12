@@ -1,6 +1,6 @@
 import ProyectosService from '../services/proyectos_service.js';
 import { showError } from '../middleware/controllerErrors.js';
-import { proyectoCreateSchema, proyectoUpdateSchema, proyectoCreateExtendedSchema, proyectoUpdateExtendedSchema } from '../models/proyectos_schema.js';
+import { proyectoCreateSchema, proyectoUpdateSchema, proyectoCreateExtendedSchema } from '../models/proyectos_schema.js';
 // import { proyectoUpdateExtendedSchema } from '../models/proyectos_schema.js';
 import { z } from 'zod';
 
