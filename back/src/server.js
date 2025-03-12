@@ -81,14 +81,14 @@ app.use(express.static(path.join(__dirname, '../../public')));
 
 // Manejar rutas del frontend (Single Page Application)
 app.get('*', (req, res) => {
-  res.sendFile(path.resolve(__dirname, '../../public', 'index.html'));
+    res.sendFile(path.resolve(__dirname, '../../public', 'index.html'));
 });
 
 // Middleware para manejar rutas no encontradas
 app.use((req, res, next) => {
-  const clientIP = req.ip;
-  logger.warn(`404 Not Found: ${req.method} ${req.url} - IP: ${clientIP}`);
-  res.status(404).json({ message: 'No existe el endpoint' });
+    const clientIP = req.ip;
+    logger.warn(`404 Not Found: ${req.method} ${req.url} - IP: ${clientIP}`);
+    res.status(404).json({ message: 'No existe el endpoint' });
 });
 
 process.loadEnvFile();

@@ -1,49 +1,49 @@
 import ExcelJS from 'exceljs';
 
 async function procesarExcel (modeloPath, destinoBase, muestras, analisis) {
-  const CHUNK_SIZE = 12; // Máximo 12 muestras por archivo
-  let chunkIndex = 0;
+    const CHUNK_SIZE = 12; // Máximo 12 muestras por archivo
+    let chunkIndex = 0;
 
-  while (muestras.length > 0) {
-    const muestrasChunk = muestras.splice(0, CHUNK_SIZE);
-    const destino = chunkIndex === 0 ? destinoBase : destinoBase.replace(/(\.xlsm|\.xlsx)$/, `_${chunkIndex}$1`);
+    while (muestras.length > 0) {
+        const muestrasChunk = muestras.splice(0, CHUNK_SIZE);
+        const destino = chunkIndex === 0 ? destinoBase : destinoBase.replace(/(\.xlsm|\.xlsx)$/, `_${chunkIndex}$1`);
 
-    console.log(`Procesando archivo: ${destino} con ${muestrasChunk.length} muestras`);
+        console.log(`Procesando archivo: ${destino} con ${muestrasChunk.length} muestras`);
 
-    const workbook = new ExcelJS.Workbook();
-    await workbook.xlsx.readFile(modeloPath);
-    const sheet = workbook.worksheets[0]; // Se asume la primera hoja
+        const workbook = new ExcelJS.Workbook();
+        await workbook.xlsx.readFile(modeloPath);
+        const sheet = workbook.worksheets[0]; // Se asume la primera hoja
 
-    // Rango de filas donde insertar los datos
-    const startRow = 5;
-    const endRow = 16;
-    const colMuestra = 'A';
-    const colAnalisis = 'G';
+        // Rango de filas donde insertar los datos
+        const startRow = 5;
+        const endRow = 16;
+        const colMuestra = 'A';
+        const colAnalisis = 'G';
 
-    // Insertar muestras
-    muestrasChunk.forEach((muestra, index) => {
-      if (index < (endRow - startRow + 1)) {
-        const cell = sheet.getCell(`${colMuestra}${startRow + index}`);
-        cell.value = muestra;
-        console.log(`Insertando muestra en ${colMuestra}${startRow + index}: ${muestra}`);
-      }
-    });
+        // Insertar muestras
+        muestrasChunk.forEach((muestra, index) => {
+            if (index < (endRow - startRow + 1)) {
+                const cell = sheet.getCell(`${colMuestra}${startRow + index}`);
+                cell.value = muestra;
+                console.log(`Insertando muestra en ${colMuestra}${startRow + index}: ${muestra}`);
+            }
+        });
 
-    // Insertar análisis
-    analisis.forEach((analisisItem, index) => {
-      if (index < (endRow - startRow + 1)) {
-        const cell = sheet.getCell(`${colAnalisis}${startRow + index}`);
-        cell.value = analisisItem;
-        console.log(`Insertando análisis en ${colAnalisis}${startRow + index}: ${analisisItem}`);
-      }
-    });
+        // Insertar análisis
+        analisis.forEach((analisisItem, index) => {
+            if (index < (endRow - startRow + 1)) {
+                const cell = sheet.getCell(`${colAnalisis}${startRow + index}`);
+                cell.value = analisisItem;
+                console.log(`Insertando análisis en ${colAnalisis}${startRow + index}: ${analisisItem}`);
+            }
+        });
 
-    // Forzar la actualización de los valores
-    await workbook.xlsx.writeFile(destino);
-    console.log(`Archivo guardado correctamente: ${destino}`);
+        // Forzar la actualización de los valores
+        await workbook.xlsx.writeFile(destino);
+        console.log(`Archivo guardado correctamente: ${destino}`);
 
-    chunkIndex++;
-  }
+        chunkIndex++;
+    }
 }
 
 // Ejemplo de uso

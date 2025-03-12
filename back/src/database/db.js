@@ -3,13 +3,13 @@ import { createPool } from 'mysql2/promise';
 process.loadEnvFile();
 
 export const pool = createPool({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD, // Nota: tuve que generar un nuevo usuario administrador que usa seguridad
-  // estandar y no SHA?? porque el cliente no lo soporta
-  database: process.env.DB_DATABASE,
-  port: process.env.DB_PORT
-  // decimalNumbers: true    // Esto haria que todos los decimal lleguen como numeros y no como strings. Cambiarlo obliga a revisar todo...
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD, // Nota: tuve que generar un nuevo usuario administrador que usa seguridad
+    // estandar y no SHA?? porque el cliente no lo soporta
+    database: process.env.DB_DATABASE,
+    port: process.env.DB_PORT
+    // decimalNumbers: true    // Esto haria que todos los decimal lleguen como numeros y no como strings. Cambiarlo obliga a revisar todo...
 });
 
 // todo: debeia usar logger para dejar registro de errores?
@@ -21,7 +21,7 @@ export const pool = createPool({
  * @param {*} message - mensaje de error
  */
 export function dbErrorMsg (code, message) {
-  const error = new Error(message || 'Error interno de la base de datos');
-  error.status = code || 500;
-  return error;
+    const error = new Error(message || 'Error interno de la base de datos');
+    error.status = code || 500;
+    return error;
 }
