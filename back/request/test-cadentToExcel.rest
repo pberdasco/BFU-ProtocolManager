@@ -1,0 +1,21 @@
+
+### Create
+### ? Crear un LQ 
+POST http://localhost:5001/cadenatoexcel/
+Content-Type: application/json
+
+{
+  "cadena":  { 
+    "nombre": "Enero General 01", 
+    "matriz": "Agua", 
+    "cliente": "YPF S.A.", 
+    "proyecto": "200184-076", 
+    "laboratorio": "Inducer SA"
+  },
+  "muestras": [
+    "MA PM1/10", "MA PM2/10", "MA PM3/10", "MA PM4/10", "MA PSX1/7", "MA PSX2/7", "MA PSX3/7", "MA PSX4/7", "MA PSX5/7", "MA PSX6/7"
+  ],
+  "analisis": [
+    "HTP - EPA 8015", "BTEX - EPA 8260", "MTBE - EPA 8260", "Plomo Total"
+  ]
+}

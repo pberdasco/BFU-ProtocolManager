@@ -33,6 +33,7 @@ import { matrizCadenaRouter } from './routers/matrizCadena_router.js';
 import { sinonimosCompuestosRouter } from './routers/sinonimosCompuestos_router.js';
 import { sinonimosMetodosRouter } from './routers/sinonimosMetodos_router.js';
 import { sinonimosUMsRouter } from './routers/sinonimosUMs_router.js';
+import { cadenaToExcelRouter } from './routers/cadenaToExcel_router.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -75,6 +76,7 @@ app.use('/matrizcadena', matrizCadenaRouter);
 app.use('/sinonimoscompuestos', sinonimosCompuestosRouter);
 app.use('/sinonimosmetodos', sinonimosMetodosRouter);
 app.use('/sinonimosums', sinonimosUMsRouter);
+app.use('/cadenatoexcel', cadenaToExcelRouter);
 
 // Servir archivos estáticos del frontend
 app.use(express.static(path.join(__dirname, '../../public')));
