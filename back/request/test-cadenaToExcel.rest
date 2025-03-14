@@ -1,0 +1,118 @@
+
+### Create 
+### ? Crear un LQ 
+POST http://localhost:5001/cadenatoexcel/
+Content-Type: application/json
+
+{
+  "cadenas": [
+    {
+      "id": 13,
+      "nombre": "Cadena General",
+      "fecha": "2025-03-07T03:00:00.000Z",
+      "matriz": "Agua",
+      "cliente": "YPF",
+      "proyecto": "200100-001",
+      "laboratorio": "Inducer",
+      "muestras": [
+        {
+          "id": 20,
+          "nombre": "MA PM1/1",
+          "pozo": "PM1",
+          "tipo": 1,
+          "nivelFreatico": "0.000"
+        },
+        {
+          "id": 21,
+          "nombre": "MA PM2/1",
+          "pozo": "PM2",
+          "tipo": 1,
+          "nivelFreatico": "0.000"
+        },
+        {
+          "id": 22,
+          "nombre": "MA E/I",
+          "pozo": null,
+          "tipo": 2,
+          "nivelFreatico": "0.000"
+        }
+      ],
+      "analisis": [
+        {
+          "id": 25,
+          "tipo": 1,
+          "grupo": "HTP 8015",
+          "metodo": "EPA 8015",
+          "compuestoCodigo": null,
+          "compuestoNombre": null
+        },
+        {
+          "id": 26,
+          "tipo": 1,
+          "grupo": "BTEX 8260",
+          "metodo": "EPA 8260",
+          "compuestoCodigo": null,
+          "compuestoNombre": null
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "nombre": "CadenaAmpliada",
+      "fecha": "2025-03-07T03:00:00.000Z",
+      "matriz": "Agua",
+      "cliente": "YPF",
+      "proyecto": "200100-001",
+      "laboratorio": "Inducer",
+      "muestras": [
+        {
+          "id": 23,
+          "nombre": "MA PM3/1",
+          "pozo": "PM3",
+          "tipo": 1,
+          "nivelFreatico": "0.000"
+        }
+      ],
+      "analisis": [
+        {
+          "id": 27,
+          "tipo": 1,
+          "grupo": "HTP 8015",
+          "metodo": "EPA 8015",
+          "compuestoCodigo": null,
+          "compuestoNombre": null
+        },
+        {
+          "id": 28,
+          "tipo": 1,
+          "grupo": "BTEX 8260",
+          "metodo": "EPA 8260",
+          "compuestoCodigo": null,
+          "compuestoNombre": null
+        },
+        {
+          "id": 29,
+          "tipo": 2,
+          "grupo": null,
+          "metodo": "EPA 8260",
+          "compuestoCodigo": "10203010",
+          "compuestoNombre": "Diclorodifluorometano"
+        },
+        {
+          "id": 30,
+          "tipo": 2,
+          "grupo": null,
+          "metodo": "EPA 8260",
+          "compuestoCodigo": "10204010",
+          "compuestoNombre": "Clorometano"
+        }
+      ]
+    }
+  ]
+}
+
+### Get
+GET http://localhost:5001/cadenatoexcel/200184-076-EneroGeneral01.xlsx
+
+### ? Esto es mejor probarlo poniendo en en navegador
+### ? http://localhost:5001/cadenatoexcel/200184-076-EneroGeneral01.xlsx

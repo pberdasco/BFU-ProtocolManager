@@ -2,7 +2,7 @@ export default class Eventomuestreo {
     id; // int
     fecha; // date
     subproyectoId; // int (FK)
-    subproyectoCodigo; // string(10)
+    subproyecto; // string(10)
     nombre; // string(45)
     cadenasCustodiaPDFLink; // string(60)
 
@@ -10,7 +10,7 @@ export default class Eventomuestreo {
         this.id = row.id;
         this.fecha = row.fecha;
         this.subproyectoId = row.subproyectoId;
-        this.subproyectoCodigo = row.subproyectoCodigo;
+        this.subproyecto = row.subproyecto;
         this.nombre = row.nombre;
         this.cadenasCustodiaPDFLink = row.cadenasCustodiaPDFLink;
     }
@@ -20,7 +20,7 @@ export default class Eventomuestreo {
             id: this.id,
             fecha: this.fecha,
             subproyectoId: this.subproyectoId,
-            subproyectoCodigo: this.subproyectoCodigo,
+            subproyecto: this.subproyecto,
             nombre: this.nombre,
             cadenasCustodiaPDFLink: this.cadenasCustodiaPDFLink
         };

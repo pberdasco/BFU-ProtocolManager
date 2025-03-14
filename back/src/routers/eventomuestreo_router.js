@@ -8,6 +8,7 @@ const parseEventomuestreoQuery = createParseDevExtremeQuery();
 
 eventomuestreoRouter.get('/', EventomuestreoController.getAllowedFields, parseEventomuestreoQuery, EventomuestreoController.getAll);
 eventomuestreoRouter.get('/:id', EventomuestreoController.getById);
+eventomuestreoRouter.get('/fulldata/:id', EventomuestreoController.getFullDataById);
 eventomuestreoRouter.post('/', EventomuestreoController.create);
 eventomuestreoRouter.put('/:id', EventomuestreoController.update);
 eventomuestreoRouter.delete('/:id', EventomuestreoController.delete);

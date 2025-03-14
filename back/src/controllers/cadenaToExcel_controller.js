@@ -1,8 +1,7 @@
 import CadenaToExcelService from '../services/cadenaToExcel_service.js';
 import { showError } from '../middleware/controllerErrors.js';
-// import { eventomuestreoCreateSchema, eventomuestreoUpdateSchema } from '../models/eventomuestreo_schema.js';
-// import { z } from 'zod';
-// todo: validar
+import { bodyCadenaSchema } from '../models/cadenaToExcel_schema.js';
+import { z } from 'zod';
 
 export default class CadenaToExcelController {
     /**
@@ -18,5 +17,58 @@ export default class CadenaToExcelController {
         } catch (error) {
             showError(req, res, error);
         }
+    }
+
+    static async createMultiple (req, res, next) {
+        try {
+            const [errores, validData] = CadenaToExcelController.bodyValidations(req.body, 'create');
+            if (errores.length !== 0) {
+                throw Object.assign(new Error('Problemas con el req.body'), { status: 400, fields: errores });
+            }
+            const { cadenas } = validData;
+
+            const excelGrabado = await CadenaToExcelService.createMultiple(cadenas);
+            res.status(200).json(excelGrabado);
+        } catch (error) {
+            showError(req, res, error);
+        }
+    }
+
+    static async download (req, res, next) {
+        try {
+            const { nombreArchivo } = req.params;
+            const filePath = CadenaToExcelService.getFilePath(nombreArchivo);
+
+            res.download(filePath, nombreArchivo, (err) => {
+                if (err) {
+                    const error = new Error('Error al descargar el archivo');
+                    error.status = 500;
+                    error.stack = err.stack;
+                    showError(req, res, error);
+                }
+            });
+        } catch (error) {
+            showError(req, res, error);
+        }
+    }
+
+    static bodyValidations (record, method) {
+        let errores = [];
+        let validData = null;
+        try {
+            if (method === 'create') {
+                validData = bodyCadenaSchema.parse(record);
+            }
+        } catch (error) {
+            if (error instanceof z.ZodError) {
+                errores = error.errors.map(issue => ({
+                    field: issue.path.join('.'),
+                    message: issue.message
+                }));
+            } else {
+                throw error;
+            }
+        }
+        return [errores, validData];
     }
 }

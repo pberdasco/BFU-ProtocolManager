@@ -12,11 +12,15 @@ GET http://localhost:5001/eventomuestreo?$filter=[%22subproyectoId%22%2C%22%3D%2
 
 ### GET by Id
 ### ? 
-GET http://localhost:5001/eventomuestreo/1
+GET http://localhost:5001/eventomuestreo/8
+
+### GET Full Data by Id
+### ? 
+GET http://localhost:5001/eventomuestreo/fulldata/8
 
 ### Updates
 ### ? Actualizar un evento de muestreo que no existe
-PUT http://localhost:5001/eventomuestreo/9
+PUT http://localhost:5001/eventomuestreo/8
 Content-Type: application/json
 
 {

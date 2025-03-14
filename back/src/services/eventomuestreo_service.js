@@ -89,4 +89,120 @@ export default class EventomuestreoService {
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);
         }
     }
+
+    static async getFullDataById (id) {
+        try {
+            const sql = `
+                SELECT 
+                    E.id AS eventoMuestreoId, 
+                    E.fecha, 
+                    E.subproyectoId, 
+                    S.codigo AS proyecto, 
+                    C.nombre AS cliente, 
+                    L.nombre AS laboratorio, 
+                    M.nombre AS matriz, 
+                    CC.id AS cadenaCustodiaId, 
+                    CC.nombre AS cadenaNombre, 
+                    CC.fecha AS cadenaFecha,
+                    MUE.id AS muestraId,
+                    MUE.nombre AS muestraNombre, 
+                    P.nombre AS pozoNombre, 
+                    MUE.tipo AS muestraTipo, 
+                    MUE.nivelFreatico, 
+                    AR.id AS analisisRequeridoId,
+                    AR.tipo AS analisisTipo, 
+                    GC.nombre AS grupoCompuesto, 
+                    MT.nombre AS metodo, 
+                    CMP.codigo AS compuestoCodigo, 
+                    CMP.nombre AS compuestoNombre
+                FROM Eventomuestreo E
+                LEFT JOIN Subproyectos S ON E.subproyectoId = S.id
+                LEFT JOIN Proyectos PR ON S.proyectoId = PR.id
+                LEFT JOIN Clientes C ON PR.clienteId = C.id
+                LEFT JOIN CadenaCustodia CC ON CC.eventoMuestreoId = E.id
+                LEFT JOIN Laboratorios L ON CC.laboratorioId = L.id
+                LEFT JOIN Matriz M ON CC.matrizCodigo = M.codigo
+                LEFT JOIN Muestras MUE ON MUE.cadenaCustodiaId = CC.id
+                LEFT JOIN Pozos P ON MUE.pozoId = P.id
+                LEFT JOIN AnalisisRequeridos AR ON AR.cadenaCustodiaId = CC.id
+                LEFT JOIN GrupoCompuestos GC ON AR.grupoId = GC.id
+                LEFT JOIN Metodos MT ON AR.metodoId = MT.id
+                LEFT JOIN Compuestos CMP ON AR.compuestoId = CMP.id
+                WHERE E.id = ?
+                ORDER BY CC.fecha ASC, CC.id ASC, MUE.id ASC, AR.id ASC;
+            `;
+
+            const [rows] = await pool.query(sql, [id]);
+            if (rows.length === 0) throw dbErrorMsg(404, 'El evento de muestreo no existe');
+
+            const cadenasMap = new Map();
+
+            rows.forEach(row => {
+                // Si no hay ninguna cadena asociada, lanzar error 404
+                if (!row.cadenaCustodiaId) throw dbErrorMsg(404, 'El evento no tiene cadenas');
+
+                // Si la cadena no ha sido agregada aún, la inicializamos con sus propios arrays de muestras y análisis
+                if (!cadenasMap.has(row.cadenaCustodiaId)) {
+                    cadenasMap.set(row.cadenaCustodiaId, {
+                        id: row.cadenaCustodiaId,
+                        nombre: row.cadenaNombre,
+                        fecha: row.cadenaFecha,
+                        matriz: row.matriz,
+                        cliente: row.cliente,
+                        proyecto: row.proyecto,
+                        laboratorio: row.laboratorio,
+                        muestras: new Map(), // Usamos Map para evitar duplicados y asegurar ordenación
+                        analisis: new Map()
+                    });
+                }
+
+                const cadena = cadenasMap.get(row.cadenaCustodiaId);
+
+                // Agregar muestra si no está en la lista
+                if (row.muestraId && !cadena.muestras.has(row.muestraId)) {
+                    cadena.muestras.set(row.muestraId, {
+                        id: row.muestraId,
+                        nombre: row.muestraNombre,
+                        pozo: row.pozoNombre,
+                        tipo: row.muestraTipo,
+                        nivelFreatico: row.nivelFreatico
+                    });
+                }
+
+                // Agregar análisis si no está en la lista
+                if (row.analisisRequeridoId && !cadena.analisis.has(row.analisisRequeridoId)) {
+                    cadena.analisis.set(row.analisisRequeridoId, {
+                        id: row.analisisRequeridoId,
+                        tipo: row.analisisTipo,
+                        grupo: row.grupoCompuesto,
+                        metodo: row.metodo,
+                        compuestoCodigo: row.compuestoCodigo,
+                        compuestoNombre: row.compuestoNombre
+                    });
+                }
+            });
+
+            // Si no hay cadenas en el Map, devolver error 404
+            if (cadenasMap.size === 0) throw dbErrorMsg(404, 'El evento no tiene cadenas');
+
+            // Convertir maps a arrays ordenados
+            const response = {
+                cadenas: Array.from(cadenasMap.values()).map(c => ({
+                    id: c.id,
+                    nombre: c.nombre,
+                    fecha: c.fecha,
+                    matriz: c.matriz,
+                    cliente: c.cliente,
+                    proyecto: c.proyecto,
+                    laboratorio: c.laboratorio,
+                    muestras: Array.from(c.muestras.values()), // Convertimos Map a Array ordenado
+                    analisis: Array.from(c.analisis.values()) // Convertimos Map a Array ordenado
+                }))
+            };
+
+            return response;
+        } catch (error) {
+            throw dbErrorMsg(error.status, error.sqlMessage || error.message);
+        }
+    }
 }

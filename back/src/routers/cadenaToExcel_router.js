@@ -3,4 +3,5 @@ import CadenaToExcelController from '../controllers/cadenaToExcel_controller.js'
 
 export const cadenaToExcelRouter = Router();
 
-cadenaToExcelRouter.post('/', CadenaToExcelController.create);
+cadenaToExcelRouter.post('/', CadenaToExcelController.createMultiple);
+cadenaToExcelRouter.get('/:nombreArchivo', CadenaToExcelController.download);

@@ -31,6 +31,18 @@ export default class EventomuestreoController {
         }
     }
 
+    static async getFullDataById (req, res, next) {
+        try {
+            const id = req.params.id;
+            if (isNaN(id)) throw Object.assign(new Error('El id debe ser numérico.'), { status: 400 });
+
+            const eventomuestreo = await EventomuestreoService.getFullDataById(id);
+            res.status(200).json(eventomuestreo);
+        } catch (error) {
+            showError(req, res, error);
+        }
+    }
+
     static async create (req, res, next) {
         try {
             console.log('Create: ', JSON.stringify(req.body));
