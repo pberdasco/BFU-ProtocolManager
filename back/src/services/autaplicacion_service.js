@@ -7,13 +7,16 @@ const allowedFields = {
     sitioWeb1: 'a.sitioWeb1',
     sitioWeb2: 'a.sitioWeb2',
     provinciaId: 'a.provinciaId',
-    provincia: 'p.nombre'
+    provincia: 'p.nombre',
+    matrizId: 'a.matrizId',
+    matriz: 'm.nombre'
 };
 
 const table = 'Autaplicacion';
-const selectBase = 'SELECT a.id, a.nombre, a.sitioWeb1, a.sitioWeb2, a.provinciaId, p.nombre as provincia ';
+const selectBase = 'SELECT a.id, a.nombre, a.sitioWeb1, a.sitioWeb2, a.provinciaId, p.nombre as provincia, a.matrizId, m.nombre as matriz ';
 const selectTables = 'FROM Autaplicacion AS a ' +
-                     'LEFT JOIN Provincias AS p ON a.provinciaId = p.id';
+                     'LEFT JOIN Provincias AS p ON a.provinciaId = p.id ' +
+                     'LEFT JOIN Matriz AS m ON a.matrizId = m.id';
 const mainTable = 'a';
 const noExiste = 'La autoridad de aplicacion no existe';
 const yaExiste = 'La autoridad de aplicacion ya existe';

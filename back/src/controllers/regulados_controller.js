@@ -1,19 +1,19 @@
-import RegulacionesService from '../services/regulaciones_service.js';
+import ReguladosService from '../services/regulados_service.js';
 import { showError } from '../middleware/controllerErrors.js';
-import { regulacionCreateSchema, regulacionUpdateSchema } from '../models/regulaciones_schema.js';
+import { reguladoCreateSchema, reguladoUpdateSchema } from '../models/regulado_schema.js';
 import { z } from 'zod';
 
-export default class RegulacionesController {
+export default class ReguladosController {
     static getAllowedFields (req, res, next) {
-        req.allowedFields = RegulacionesService.getAllowedFields();
+        req.allowedFields = ReguladosService.getAllowedFields();
         next();
     }
 
     static async getAll (req, res, next) {
         try {
             const devExtremeQuery = req.devExtremeQuery;
-            const regulaciones = await RegulacionesService.getAll(devExtremeQuery);
-            res.status(200).json(regulaciones);
+            const regulados = await ReguladosService.getAll(devExtremeQuery);
+            res.status(200).json(regulados);
         } catch (error) {
             showError(req, res, error);
         }
@@ -24,7 +24,7 @@ export default class RegulacionesController {
             const id = req.params.id;
             if (isNaN(id)) throw Object.assign(new Error('El id debe ser numérico.'), { status: 400 });
 
-            const regulacion = await RegulacionesService.getById(id);
+            const regulacion = await ReguladosService.getById(id);
             res.status(200).json(regulacion.toJson());
         } catch (error) {
             showError(req, res, error);
@@ -33,10 +33,10 @@ export default class RegulacionesController {
 
     static async create (req, res, next) {
         try {
-            const [errores, nuevoRegulacion] = RegulacionesController.bodyValidations(req.body, 'create');
+            const [errores, nuevoRegulacion] = ReguladosController.bodyValidations(req.body, 'create');
             if (errores.length !== 0) throw Object.assign(new Error('Problemas con el req.body'), { status: 400, fields: errores });
 
-            const insertado = await RegulacionesService.create(nuevoRegulacion);
+            const insertado = await ReguladosService.create(nuevoRegulacion);
             res.status(200).json(insertado.toJson());
         } catch (error) {
             showError(req, res, error);
@@ -46,10 +46,10 @@ export default class RegulacionesController {
     static async update (req, res, next) {
         try {
             const id = req.params.id;
-            const [errores, regulacion] = RegulacionesController.bodyValidations(req.body, 'update');
+            const [errores, regulacion] = ReguladosController.bodyValidations(req.body, 'update');
             if (errores.length !== 0) throw Object.assign(new Error('Problemas con el req.body'), { status: 400, fields: errores });
 
-            const regulacionActualizado = await RegulacionesService.update(id, regulacion);
+            const regulacionActualizado = await ReguladosService.update(id, regulacion);
             res.status(200).json(regulacionActualizado.toJson());
         } catch (error) {
             showError(req, res, error);
@@ -61,7 +61,7 @@ export default class RegulacionesController {
             const id = req.params.id;
             if (isNaN(id)) throw Object.assign(new Error('El id debe ser numérico.'), { status: 400 });
 
-            await RegulacionesService.delete(id);
+            await ReguladosService.delete(id);
             res.status(204).send();
         } catch (error) {
             showError(req, res, error);
@@ -73,9 +73,9 @@ export default class RegulacionesController {
         let regulacion = null;
         try {
             if (method === 'update') {
-                regulacion = regulacionUpdateSchema.parse(record);
+                regulacion = reguladoUpdateSchema.parse(record);
             } else if (method === 'create') {
-                regulacion = regulacionCreateSchema.parse(record);
+                regulacion = reguladoCreateSchema.parse(record);
             }
         } catch (error) {
             if (error instanceof z.ZodError) {

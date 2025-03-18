@@ -1,7 +1,6 @@
 export default class Subproyecto {
     id; // int
     proyectoId; // int (FK)
-    autAplicacionId; // int (FK)
     codigo; // string(10)
     nombreLocacion; // string(45)
     ubicacion; // string(45)
@@ -9,11 +8,14 @@ export default class Subproyecto {
     objetivo; // string(45)
     notas; // string(60)
     cantPozos; // int (calculado)
+    autAplicacionAguaId; // int (FK)
+    autAplicacionSueloId; // int (FK)
+    autAplicacionGasesId; // int (FK)
+    autAplicacionFLNAId; // int (FK)
 
     constructor (row) {
         this.id = row.id;
         this.proyectoId = row.proyectoId;
-        this.autAplicacionId = row.autAplicacionId;
         this.codigo = row.codigo;
         this.nombreLocacion = row.nombreLocacion;
         this.ubicacion = row.ubicacion;
@@ -21,20 +23,27 @@ export default class Subproyecto {
         this.objetivo = row.objetivo;
         this.notas = row.notas;
         this.cantPozos = row.cantPozos;
+        this.autAplicacionAguaId = row.autAplicacionAguaId;
+        this.autAplicacionSueloId = row.autAplicacionSueloId;
+        this.autAplicacionGasesId = row.autAplicacionGasesId;
+        this.autAplicacionFLNAId = row.autAplicacionFLNAId;
     }
 
     toJson () {
         return {
             id: this.id,
             proyectoId: this.proyectoId,
-            autAplicacionId: this.autAplicacionId,
             codigo: this.codigo,
             nombreLocacion: this.nombreLocacion,
             ubicacion: this.ubicacion,
             apies: this.apies,
             objetivo: this.objetivo,
             notas: this.notas,
-            cantPozos: this.cantPozos
+            cantPozos: this.cantPozos,
+            autAplicacionAguaId: this.autAplicacionAguaId,
+            autAplicacionSueloId: this.autAplicacionSueloId,
+            autAplicacionGasesId: this.autAplicacionGasesId,
+            autAplicacionFLNAId: this.autAplicacionFLNAId
         };
     }
 }

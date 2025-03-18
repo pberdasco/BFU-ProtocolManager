@@ -1,5 +1,5 @@
 import { pool, dbErrorMsg } from '../database/db.js';
-import Regulacion from '../models/regulaciones_model.js';
+import Regulado from '../models/regulados_model.js';
 
 const allowedFields = {
     id: 'R.id',
@@ -9,19 +9,20 @@ const allowedFields = {
     compuestoId: 'R.compuestoId',
     compuesto: 'C.nombre',
     norma: 'R.norma',
-    valorReferencia: 'R.valorReferencia'
+    valorReferencia: 'R.valorReferencia',
+    matrizId: 'A.matrizId'
 };
 
-const table = 'Regulaciones';
-const selectBase = 'SELECT R.id, R.autAplicacionId, A.nombre as autoridad, R.fechaVigencia, R.compuestoId, C.nombre as compuesto, R.norma, R.valorReferencia ';
-const selectTables = 'FROM Regulaciones R ' +
+const table = 'Regulados';
+const selectBase = 'SELECT R.id, R.autAplicacionId, A.nombre as autoridad, R.fechaVigencia, R.compuestoId, C.nombre as compuesto, R.norma, R.valorReferencia, A.matrizId ';
+const selectTables = 'FROM Regulados R ' +
                      'LEFT JOIN AutAplicacion A ON R.AutAplicacionId = A.id ' +
                      'LEFT JOIN Compuestos C ON R.compuestoId = C.id';
 const mainTable = 'R';
-const noExiste = 'La regulacion no existe';
-const yaExiste = 'La regulacion ya existe';
+const noExiste = 'El compuesto Regulado no existe';
+const yaExiste = 'El compuesto Regulado ya existe';
 
-export default class RegulacionesService {
+export default class ReguladosService {
     static getAllowedFields () {
         return allowedFields;
     }
@@ -52,7 +53,7 @@ export default class RegulacionesService {
         try {
             const [rows] = await pool.query(`${selectBase} ${selectTables} WHERE ${mainTable}.id = ?`, [id]);
             if (rows.length === 0) throw dbErrorMsg(404, noExiste);
-            return new Regulacion(rows[0]);
+            return new Regulado(rows[0]);
         } catch (error) {
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);
         }
@@ -62,7 +63,7 @@ export default class RegulacionesService {
         try {
             const [rows] = await pool.query(`INSERT INTO ${table} SET ?`, [regulacionToAdd]);
             regulacionToAdd.id = rows.insertId;
-            return new Regulacion(regulacionToAdd);
+            return new Regulado(regulacionToAdd);
         } catch (error) {
             if (error?.code === 'ER_DUP_ENTRY') throw dbErrorMsg(409, yaExiste);
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);
@@ -73,7 +74,7 @@ export default class RegulacionesService {
         try {
             const [rows] = await pool.query(`UPDATE ${table} SET ? WHERE id = ?`, [regulacion, id]);
             if (rows.affectedRows !== 1) throw dbErrorMsg(404, noExiste);
-            return RegulacionesService.getById(id);
+            return ReguladosService.getById(id);
         } catch (error) {
             if (error?.code === 'ER_DUP_ENTRY') throw dbErrorMsg(409, yaExiste);
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);

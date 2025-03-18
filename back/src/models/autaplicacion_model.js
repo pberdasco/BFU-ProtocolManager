@@ -5,6 +5,8 @@ export default class autaplicacion {
     sitioWeb2; // string(60)
     provinciaId; // int (FK)
     provincia; // string(45)
+    matrizId; // int (FK)
+    matriz; // string (20)
 
     constructor (row) {
         this.id = row.id;
@@ -13,6 +15,8 @@ export default class autaplicacion {
         this.sitioWeb2 = row.sitioWeb2;
         this.provinciaId = row.provinciaId;
         this.provincia = row.provincia;
+        this.matrizId = row.matriz;
+        this.matriz = row.matriz;
     }
 
     toJson () {
@@ -22,7 +26,9 @@ export default class autaplicacion {
             sitioWeb1: this.sitioWeb1,
             sitioWeb2: this.sitioWeb2,
             provinciaId: this.provinciaId,
-            provincia: this.provincia
+            provincia: this.provincia,
+            matrizId: this.matrizId,
+            martriz: this.matriz
         };
     }
 }

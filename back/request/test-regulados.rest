@@ -3,34 +3,34 @@
 
 ### GET 
 ### ? Todas las Regulaciones
-GET http://localhost:5001/regulaciones/
+GET http://localhost:5001/regulados/
 
 ### ? Regulaciones por autAplicacionId
 # Este request filtra compuesto con autAplicacionId = '1'
 # Formato interno: ["autAplicacionId","=","1"]
-GET http://localhost:5001/regulaciones?$filter=[%22autAplicacionId%22%2C%22%3D%22%2C%221%22]
+GET http://localhost:5001/regulados?$filter=[%22autAplicacionId%22%2C%22%3D%22%2C%221%22]
 
 ### ? Regulaciones por compuestoId
 # Este request filtra compuesto con compuestoId = '1'
 # Formato interno: ["compuestoId","=","1"]
-GET http://localhost:5001/regulaciones?$filter=[%22compuestoId%22%2C%22%3D%22%2C%221%22]
+GET http://localhost:5001/regulados?$filter=[%22compuestoId%22%2C%22%3D%22%2C%221%22]
 
 ### ? Regulaciones por norma
 # Este request filtra compuesto con norma = 'Ley 25.865/12'
 # Formato interno: ["norma","=","1"]
-GET http://localhost:5001/regulaciones?$filter=[%22norma%22%2C%22%3D%22%2C%22Ley 25.865/12%22]
+GET http://localhost:5001/regulados?$filter=[%22norma%22%2C%22%3D%22%2C%22Ley 25.865/12%22]
 
 
 
 ### ? Get por ID
-GET http://localhost:5001/regulaciones/1
+GET http://localhost:5001/regulados/1
 
 ### ? Get por ID
-GET http://localhost:5001/regulaciones/10
+GET http://localhost:5001/regulados/10
 
 ### Updates
 ### ? Actualizar una Regulación que no existe
-PUT http://localhost:5001/regulaciones/45
+PUT http://localhost:5001/regulados/45
 Content-Type: application/json
 
 {
@@ -42,7 +42,7 @@ Content-Type: application/json
 }
 
 ### ? Actualizar una Regulacion
-PUT http://localhost:5001/regulaciones/7
+PUT http://localhost:5001/regulados/7
 Content-Type: application/json
 
 {
@@ -56,7 +56,7 @@ Content-Type: application/json
 
 ### Create
 ### ? Crear una Regulacion
-POST http://localhost:5001/regulaciones/
+POST http://localhost:5001/regulados/
 Content-Type: application/json
 
 {
@@ -69,7 +69,7 @@ Content-Type: application/json
 
 ### Create
 ### ? Crear una Regulacion
-POST http://localhost:5001/regulaciones/
+POST http://localhost:5001/regulados/
 Content-Type: application/json
 
 {
@@ -82,9 +82,9 @@ Content-Type: application/json
 
 ### Delete
 ### ? Borrar una Regulación que no existe
-DELETE http://localhost:5001/regulaciones/35
+DELETE http://localhost:5001/regulados/35
 
 ### Delete
 ### ? Borrar una Regulación que sí existe
-DELETE http://localhost:5001/regulaciones/5
+DELETE http://localhost:5001/regulados/5
 

@@ -21,14 +21,17 @@ POST http://localhost:5001/subproyectos/
 Content-Type: application/json
 
 {
-  "proyectoId": 1,
-  "autAplicacionId": 3,
+  "proyectoId": 24,
   "codigo": "300115",
   "nombreLocacion": "Locación Norte",
   "ubicacion": "Argentina - Neuquén - LLL",
   "apies": "COD-YPF",
   "objetivo": "Vactor + GeoRadar",
-  "notas": "exProyecto 197115"
+  "notas": "exProyecto 197115",
+  "autAplicacionAguaId": 3,
+  "autAplicacionSueloId": 4,
+  "autAplicacionGasesId": 4,
+  "autAplicacionFLNAId": 3
 }
 
 ### DELETE

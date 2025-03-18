@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const regulacionCreateSchema = z.object({
+export const reguladoCreateSchema = z.object({
     autAplicacionId: z.number().int().min(1, 'El ID de la autoridad de aplcación debe ser válido'),
     fechaVigencia: z.string().regex(
         /^\d{4}-\d{2}-\d{2}$/,
@@ -16,7 +16,7 @@ export const regulacionCreateSchema = z.object({
     })
 });
 
-export const regulacionUpdateSchema = regulacionCreateSchema.partial();
+export const reguladoUpdateSchema = reguladoCreateSchema.partial();
 
 /* autAplicacionFecha: z
 .string()

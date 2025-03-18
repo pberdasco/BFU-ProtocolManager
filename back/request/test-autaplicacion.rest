@@ -42,27 +42,18 @@ POST http://localhost:5001/autaplicacion/
 Content-Type: application/json
 
 {
-  "nombre": "La Matanza",
-  "sitioWeb1": "www.LaMatanza.gob.ar",
-  "sitioWeb2": ""
-}
-
-### Create
-### ? Crear una Autoridad de aplicacion 
-POST http://localhost:5001/autaplicacion/
-Content-Type: application/json
-
-{
-  "nombre": "Provincia de Neuquen",
-  "sitioWeb1": "www.Neuquen.gob.ar",
-  "sitioWeb2": "www.Neuquen.gob.ar II"
+  "nombre": "Prueba para borrar",
+  "sitioWeb1": "www.prueba.gob.ar",
+  "sitioWeb2": "www.prueba.gob.ar II",
+  "provinciaId": 1,
+  "matrizId": 1
 }
 
 
 ### Delete
 ### ? Borrar un compuesto que no existe
-DELETE http://localhost:5001/autaplicacion/7
+DELETE http://localhost:5001/autaplicacion/99
 
 ### Delete
 ### ? Borrar una autoridad de aplicacion sí existe
-DELETE http://localhost:5001/autaplicacion/2
+DELETE http://localhost:5001/autaplicacion/6

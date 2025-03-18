@@ -6,10 +6,16 @@ const allowedFields = {
     codigo: 'S.codigo',
     nombreLocacion: 'S.nombreLocacion',
     ubicacion: 'S.ubicacion',
-    autAplicacionId: 'S.autAplicacionId',
+    autAplicacionAguaId: 'S.autAplicacionAguaId',
+    autAplicacionSueloId: 'S.autAplicacionSueloId',
+    autAplicacionGasesId: 'S.autAplicacionGasesId',
+    autAplicacionFLNAId: 'S.autAplicacionFLNAId',
     proyectoId: 'S.proyectoId',
     proyecto: 'P.codigo',
-    autoridad: 'A.nombre',
+    autoridadAgua: 'A1.nombre',
+    autoridadSuelo: 'A2.nombre',
+    autoridadGases: 'A3.nombre',
+    autoridadFLNA: 'A4.nombre',
     apies: 'S.apies',
     objetivo: 'S.objetivo',
     notas: 'S.notas',
@@ -17,11 +23,16 @@ const allowedFields = {
 };
 
 const table = 'Subproyectos';
-const selectBase = 'SELECT S.id, S.proyectoId, P.codigo as proyecto, S.codigo, S.nombreLocacion, S.ubicacion, S.autAplicacionId, ' +
-                   'A.nombre as autoridad, S.apies, S.objetivo, S.notas, ' +
+const selectBase = 'SELECT S.id, S.proyectoId, P.codigo as proyecto, S.codigo, S.nombreLocacion, S.ubicacion, ' +
+                   'S.autAplicacionAguaId, S.autAplicacionSueloId, S.autAplicacionGasesId, S.autAplicacionFLNAId, ' +
+                   'A1.nombre as autoridadAgua, A2.nombre as autoridadSuelo, A3.nombre as autoridadGases, A4.nombre as autoridadFLNA, ' +
+                   'S.apies, S.objetivo, S.notas, ' +
                    '(SELECT COUNT(*) FROM Pozos Pz WHERE Pz.subproyectoId = S.id) AS cantPozos ';
 const selectTables = 'FROM SubProyectos S ' +
-                     'LEFT JOIN AutAplicacion A ON S.AutAplicacionId = A.id ' +
+                     'LEFT JOIN AutAplicacion A1 ON S.AutAplicacionAguaId = A1.id ' +
+                     'LEFT JOIN AutAplicacion A2 ON S.AutAplicacionSueloId = A2.id ' +
+                     'LEFT JOIN AutAplicacion A3 ON S.AutAplicacionGasesId = A3.id ' +
+                     'LEFT JOIN AutAplicacion A4 ON S.AutAplicacionFLNAId = A4.id ' +
                      'LEFT JOIN Proyectos P ON S.proyectoId = P.id';
 const mainTable = 'S';
 const noExiste = 'El subproyecto no existe';
