@@ -10,14 +10,18 @@ const allowedFields = {
     compuesto: 'C.nombre',
     norma: 'R.norma',
     valorReferencia: 'R.valorReferencia',
-    matrizId: 'A.matrizId'
+    matrizId: 'A.matrizId',
+    umId: 'R.umId',
+    um: 'U.nombre'
 };
 
 const table = 'Regulados';
-const selectBase = 'SELECT R.id, R.autAplicacionId, A.nombre as autoridad, R.fechaVigencia, R.compuestoId, C.nombre as compuesto, R.norma, R.valorReferencia, A.matrizId ';
+const selectBase = 'SELECT R.id, R.autAplicacionId, A.nombre as autoridad, R.fechaVigencia, R.compuestoId, C.nombre as compuesto, ' +
+                   'R.norma, R.valorReferencia, A.matrizId, R.umId, U.nombre as um ';
 const selectTables = 'FROM Regulados R ' +
                      'LEFT JOIN AutAplicacion A ON R.AutAplicacionId = A.id ' +
-                     'LEFT JOIN Compuestos C ON R.compuestoId = C.id';
+                     'LEFT JOIN Compuestos C ON R.compuestoId = C.id ' +
+                     'LEFT JOIN UM U ON R.umId = U.id';
 const mainTable = 'R';
 const noExiste = 'El compuesto Regulado no existe';
 const yaExiste = 'El compuesto Regulado ya existe';

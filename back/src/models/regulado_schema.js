@@ -11,6 +11,7 @@ export const reguladoCreateSchema = z.object({
         }),
     compuestoId: z.number().int().min(1, 'El ID del compuesto debe ser válido'),
     norma: z.string().max(45, 'La norma no puede superar los 45 caracteres'),
+    umId: z.number().int().positive(),
     valorReferencia: z.number().refine((val) => val === -1 || (val >= 0 && val <= 999.99999), {
         message: 'El valor de referencia debe ser -1 o entre 0 y 999.99999'
     })
