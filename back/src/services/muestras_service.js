@@ -8,11 +8,16 @@ const allowedFields = {
     cadenaCustodiaId: 'm.cadenaCustodiaID',
     nombre: 'm.nombre',
     tipo: 'm.tipo',
-    nivelFreatico: 'm.nivelFreatico'
+    nivelFreatico: 'm.nivelFreatico',
+    profundidad: 'm.profundidad',
+    flna: 'm.flna',
+    cadenaOPDS: 'm.cadenaOPDS',
+    protocoloOPDS: 'm.protocoloOPDS'
 };
 
 const table = 'Muestras';
-const selectBase = 'SELECT m.id, m.nombre, m.pozoId, p.nombre as pozo, m.cadenaCustodiaId, m.tipo, m.nivelFreatico ';
+const selectBase = 'SELECT m.id, m.nombre, m.pozoId, p.nombre as pozo, m.cadenaCustodiaId, m.tipo, m.nivelFreatico, ' +
+                   'm.profundidad, m.flna, m.cadenaOPDS, m.protocoloOPDS ';
 const selectTables = 'FROM Muestras m ' +
                      'LEFT JOIN Pozos P ON m.pozoId = P.id ';
 const mainTable = 'm';

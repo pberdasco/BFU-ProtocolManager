@@ -4,7 +4,11 @@ export default class Muestra {
     cadenaCustodiaId; // int (FK)
     nombre; // string(45)
     tipo; // int (1,2,3)
-    nivelFreatico; // decimal(5,3)
+    nivelFreatico; // decimal(8,3)
+    profundidad; // decimal(8,3)
+    flna; // decimal(8,3)
+    cadenaOPDS; // string(10)
+    protocoloOPDS; // string(10)
 
     constructor (row) {
         this.id = row.id;
@@ -13,6 +17,10 @@ export default class Muestra {
         this.nombre = row.nombre;
         this.tipo = row.tipo;
         this.nivelFreatico = parseFloat(row.nivelFreatico);
+        this.profundidad = parseFloat(row.profundidad);
+        this.flna = parseFloat(row.flna);
+        this.cadenaOPDS = row.cadenaOPDS;
+        this.protocoloOPDS = row.protocoloOPDS;
     }
 
     toJson () {
@@ -22,7 +30,11 @@ export default class Muestra {
             cadenaCustodiaId: this.cadenaCustodiaId,
             nombre: this.nombre,
             tipo: this.tipo,
-            nivelFreatico: this.nivelFreatico
+            nivelFreatico: this.nivelFreatico,
+            profundidad: this.profundidad,
+            flna: this.flna,
+            cadenaOPDS: this.cadenaOPDS,
+            protocoloOPDS: this.protocoloOPDS
         };
     }
 

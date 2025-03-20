@@ -33,6 +33,7 @@ export default class MatrizCadenaService {
      *      data: [
      *        {
      *          muestraId: number,
+     *          cadenaCustodiaId,
      *          muestra: string,
      *          tipo: number,
      *          pozo: string
@@ -105,9 +106,11 @@ export default class MatrizCadenaService {
     }
 
     static getSelectMuestras (cadenaId) {
-        const muestrasListCadenaSQL = 'SELECT M.id AS muestraId, M.cadenaCustodiaId, M.tipo, M.nombre AS muestra, M.pozoId AS pozo ' +
+        const muestrasListCadenaSQL = 'SELECT M.id AS muestraId, M.cadenaCustodiaId, M.tipo, M.nombre AS muestra, M.pozoId AS pozo, ' +
+                    'M.nivelFreatico, M.profundidad, M.flna, M.cadenaOPDS, M.protocoloOPDS ' +
                     'FROM Muestras M WHERE M.cadenaCustodiaId = ?';
-        const muestrasListEventoSQL = 'SELECT M.id AS muestraId, M.cadenaCustodiaId, M.tipo, M.nombre AS muestra, M.pozoId AS pozo ' +
+        const muestrasListEventoSQL = 'SELECT M.id AS muestraId, M.cadenaCustodiaId, M.tipo, M.nombre AS muestra, M.pozoId AS pozo, ' +
+                    'M.nivelFreatico, M.profundidad, M.flna, M.cadenaOPDS, M.protocoloOPDS ' +
                     'FROM Muestras M JOIN CadenaCustodia CC ON M.cadenaCustodiaId = CC.id WHERE CC.eventoMuestreoId = ?';
 
         return cadenaId ? muestrasListCadenaSQL : muestrasListEventoSQL;
