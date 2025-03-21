@@ -3,7 +3,7 @@
 
 ### GET 
 ### ? matriz de un evento
-GET http://localhost:5001/matrizcadena?eventoId=6
+GET http://localhost:5001/matrizcadena?eventoId=8
 
 ### ? matriz de una cadenas de custodia
 GET http://localhost:5001/matrizcadena?cadenaId=9

@@ -176,7 +176,8 @@ export default class CadenaCompletaService {
             );
 
             const [muestras] = await pool.query(
-                `SELECT Id AS muestraId, Nombre AS muestra, Tipo AS tipo, PozoId AS pozo 
+                `SELECT Id AS muestraId, Nombre AS muestra, Tipo AS tipo, PozoId AS pozo, 
+                              nivelFreatico, profundidad, flna, cadenaOPDS, protocoloOPDS 
                  FROM Muestras 
                  WHERE CadenaCustodiaId = ?`,
                 [cadenaId]
@@ -268,7 +269,8 @@ export default class CadenaCompletaService {
 
             // Obtenemos las muestras solo de las cadenas que tienen registros.
             const [muestras] = await pool.query(
-                `SELECT Id AS muestraId, Nombre AS muestra, Tipo AS tipo, PozoId AS pozo 
+                `SELECT Id AS muestraId, Nombre AS muestra, Tipo AS tipo, PozoId AS pozo,  
+                              nivelFreatico, profundidad, flna, cadenaOPDS, protocoloOPDS 
                  FROM Muestras 
                  WHERE CadenaCustodiaId IN (?)`,
                 [cadenaIdsConFilas]
