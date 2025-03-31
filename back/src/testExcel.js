@@ -47,6 +47,9 @@ async function procesarExcel (modeloPath, destinoBase, cadena, muestras, analisi
             }
         });
 
+        sheet.eachRow((row) => {
+            row.height = 48; // Fija la altura para cada fila copiada
+        });
         // Forzar la actualización de los valores
         await workbook.xlsx.writeFile(destino);
         console.log(`Archivo guardado correctamente: ${destino}`);

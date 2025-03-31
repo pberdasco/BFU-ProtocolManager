@@ -116,6 +116,7 @@ export default class CadenaToExcelService {
                 // Copiamos la plantilla: fila por fila, celda por celda
                 templateSheet.eachRow({ includeEmpty: true }, (row, rowNumber) => {
                     const newRow = newSheet.getRow(rowNumber);
+                    newRow.height = row.height || 18; // ? parece que height no se copia automaticamente
                     row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
                         const newCell = newRow.getCell(colNumber);
                         // Se copia el modelo de cada celda (incluye formateo, fórmulas, etc.)
@@ -123,18 +124,18 @@ export default class CadenaToExcelService {
                     });
                 });
 
-                // Copiamos también las propiedades de las columnas (por ejemplo, ancho)
+                // Copiar ancho de las columnas
                 templateSheet.columns.forEach((col, i) => {
                     const newCol = newSheet.getColumn(i + 1);
                     newCol.width = col.width;
                 });
 
-                // for (let i = 1; i <= templateSheet.rowCount; i++) {
-                //     newRow.height = 18; // templateRow.height;  ==> No funciona de ninguna forma la asignacion de height
-                //     TODO: estudiar mas en algun momento
-                // }
+                templateSheet.eachRow((row, rowNumber) => {
+                    const newRow = newSheet.getRow(rowNumber);
+                    newRow.height = row.height || 18; // ? Nuevo intento de asignar height porque el anterior parece fallar
+                });
 
-                // *** Aquí copiamos los parámetros de impresión (pageSetup) ***
+                // *** Parámetros de impresión (pageSetup) ***
                 newSheet.pageSetup = JSON.parse(JSON.stringify(templateSheet.pageSetup));
 
                 // Actualizamos los datos de la cadena en celdas específicas
