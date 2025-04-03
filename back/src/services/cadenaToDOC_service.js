@@ -9,76 +9,13 @@ function cleanString (str) {
 }
 
 export default class CadenaToExcelService {
-    static async create (cadena, muestras, analisis) {
-        try {
-            const CHUNK_SIZE = 12; // Máximo 12 muestras por archivo
-            let chunkIndex = 0;
-
-            const basePath = process.env.CADENA_EXCEL_PATH;
-            const fileName = `${cadena.proyecto.trim()}-${cleanString(cadena.nombre)}.xlsx`;
-            const destinoBase = path.join(basePath, fileName);
-
-            while (muestras.length > 0) {
-                const muestrasChunk = muestras.splice(0, CHUNK_SIZE);
-                const destino = chunkIndex === 0 ? destinoBase : destinoBase.replace(/(\.xlsm|\.xlsx)$/, `_${chunkIndex}$1`);
-
-                const workbook = new ExcelJS.Workbook();
-                await workbook.xlsx.readFile(modeloPath);
-                const sheet = workbook.worksheets[0]; // Se asume la primera hoja
-
-                sheet.getCell('AA2').value = {
-                    richText: [{ text: cadena.matriz, font: { bold: true } }] // Armado de esta forma porque al aplicar sheet.getCell('AA2').font = ...  otras celdas copian el formato...
-                };
-                sheet.getCell('AA3').value = { richText: [{ text: cadena.nombre, font: { bold: true } }] };
-                sheet.getCell('I6').value = { richText: [{ text: cadena.cliente, font: { bold: true } }] };
-                sheet.getCell('Q6').value = { richText: [{ text: cadena.proyecto, font: { bold: true } }] };
-                sheet.getCell('X5').value = { richText: [{ text: cadena.laboratorio, font: { bold: true } }] };
-
-                // Rango de filas donde insertar los datos
-                const startRow = 11;
-                const endRow = 27;
-                const colMuestra = 'C';
-                const colAnalisis = 'W';
-
-                muestrasChunk.forEach((muestra, index) => {
-                    const rowNumber = startRow + index;
-                    if (index < (endRow - startRow + 1)) {
-                        sheet.getCell(`B${rowNumber}`).value = index + 1;
-                        sheet.getCell(`${colMuestra}${rowNumber}`).value = muestra;
-                    }
-                });
-
-                analisis.forEach((analisisItem, index) => {
-                    if (index < (endRow - startRow + 1)) {
-                        const cell = sheet.getCell(`${colAnalisis}${startRow + index}`);
-                        cell.value = analisisItem;
-                    }
-                });
-
-                await workbook.xlsx.writeFile(destino);
-                chunkIndex++;
-            }
-            return { id: 0, path: basePath, file: fileName };
-        } catch (err) {
-            let message = err.message;
-            let status = err.status;
-            if (err.code === 'EBUSY') {
-                status = 423;
-                message = `El archivo ${err.path || 'desconocido'} esta abierto. No se pudo grabar.`;
-            }
-            const error = new Error(message || 'Error al generar el formulario Excel de la cadena');
-            error.status = status || 503;
-            throw error;
-        }
-    }
-
     static async createMultiple (cadenasArray) {
         try {
             // TODO: un directorio por subproyecto dentro de un directorio FORMS_EVENTOS ?
             // TODO: con que nombre de archivo?  nombreEvento+Date.Now?  Tengo los datos de evento y subproyecto ?
-            const basePath = process.env.CADENA_EXCEL_PATH;
-            const fileName = `Cadenas_${Date.now()}.xlsx`;
-            const destino = path.join(basePath, fileName);
+            // const basePath = process.env.CADENA_EXCEL_PATH;
+            // const fileName = `Cadenas_${Date.now()}.xlsx`;
+            // const destino = path.join(basePath, fileName);
 
             // Creamos el workbook final en el que se agregarán todas las hojas nuevas
             const finalWorkbook = new ExcelJS.Workbook();
@@ -113,13 +50,13 @@ export default class CadenaToExcelService {
                 // Creamos la hoja nueva en el workbook final
                 // const newSheet = finalWorkbook.addWorksheet(sheetName);
                 const newSheet = finalWorkbook.addWorksheet(sheetName, {
-                    properties: { defaultRowHeight: 22.5 }
+                    properties: { defaultRowHeight: 18 }
                 });
 
                 // Copiamos la plantilla: fila por fila, celda por celda
                 templateSheet.eachRow({ includeEmpty: true }, (row, rowNumber) => {
                     const newRow = newSheet.getRow(rowNumber);
-                    newRow.height = 22.5;
+                    newRow.height = row.height || 18; // ? parece que height no se copia automaticamente
                     row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
                         const newCell = newRow.getCell(colNumber);
                         // Se copia el modelo de cada celda (incluye formateo, fórmulas, etc.)
@@ -133,10 +70,10 @@ export default class CadenaToExcelService {
                     newCol.width = col.width;
                 });
 
-                // templateSheet.eachRow((row, rowNumber) => {
-                //     const newRow = newSheet.getRow(rowNumber);
-                //     newRow.height = row.height || 18; // ? Nuevo intento de asignar height porque el anterior parece fallar
-                // });
+                templateSheet.eachRow((row, rowNumber) => {
+                    const newRow = newSheet.getRow(rowNumber);
+                    newRow.height = row.height || 18; // ? Nuevo intento de asignar height porque el anterior parece fallar
+                });
 
                 // *** Parámetros de impresión (pageSetup) ***
                 newSheet.pageSetup = JSON.parse(JSON.stringify(templateSheet.pageSetup));
