@@ -150,6 +150,12 @@ export default class CadenaCompletaService {
      *                  muestra: string,     // Nombre de la muestra
      *                  tipo: number,        // Tipo de muestra
      *                  pozo: number | null  // ID del pozo asociado o null si no aplica
+     *                  nivelFreatico
+     *                  profundidad
+     *                  flna
+     *                  cadenaOPDS
+     *                  protocoloOPDS
+     *                  matriz
      *              }
      *          ]
      *      }
@@ -176,10 +182,11 @@ export default class CadenaCompletaService {
             );
 
             const [muestras] = await pool.query(
-                `SELECT Id AS muestraId, Nombre AS muestra, Tipo AS tipo, PozoId AS pozo, 
-                              nivelFreatico, profundidad, flna, cadenaOPDS, protocoloOPDS 
-                 FROM Muestras 
-                 WHERE CadenaCustodiaId = ?`,
+                `SELECT m.Id AS muestraId, m.Nombre AS muestra, m.Tipo AS tipo, m.PozoId AS pozo, 
+                              m.nivelFreatico, m.profundidad, m.flna, m.cadenaOPDS, m.protocoloOPDS, c.matrizCodigo as matriz 
+                 FROM Muestras m
+                 LEFT JOIN CadenaCustodia c ON m.CadenaCustodiaId = c.id
+                 WHERE m.CadenaCustodiaId = ?`,
                 [cadenaId]
             );
 
@@ -269,10 +276,11 @@ export default class CadenaCompletaService {
 
             // Obtenemos las muestras solo de las cadenas que tienen registros.
             const [muestras] = await pool.query(
-                `SELECT Id AS muestraId, Nombre AS muestra, Tipo AS tipo, PozoId AS pozo,  
-                              nivelFreatico, profundidad, flna, cadenaOPDS, protocoloOPDS 
-                 FROM Muestras 
-                 WHERE CadenaCustodiaId IN (?)`,
+                `SELECT m.Id AS muestraId, m.Nombre AS muestra, m.Tipo AS tipo, m.PozoId AS pozo, m.cadenaCustodiaId, c.laboratorioId, 
+                              m.nivelFreatico, m.profundidad, m.flna, m.cadenaOPDS, m.protocoloOPDS, c.matrizCodigo as matriz 
+                 FROM Muestras m
+                 LEFT JOIN CadenaCustodia c ON m.CadenaCustodiaId = c.id
+                 WHERE m.CadenaCustodiaId IN (?)`,
                 [cadenaIdsConFilas]
             );
             const codigoMap = {};
