@@ -34,6 +34,7 @@ import { sinonimosCompuestosRouter } from './routers/sinonimosCompuestos_router.
 import { sinonimosMetodosRouter } from './routers/sinonimosMetodos_router.js';
 import { sinonimosUMsRouter } from './routers/sinonimosUMs_router.js';
 import { cadenaToExcelRouter } from './routers/cadenaToExcel_router.js';
+import { cadenaToDOCTablaRouter } from './routers/cadenaToDocTabla_router.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -77,6 +78,7 @@ app.use('/sinonimoscompuestos', sinonimosCompuestosRouter);
 app.use('/sinonimosmetodos', sinonimosMetodosRouter);
 app.use('/sinonimosums', sinonimosUMsRouter);
 app.use('/cadenatoexcel', cadenaToExcelRouter);
+app.use('/cadenatodoctabla', cadenaToDOCTablaRouter);
 
 // Servir archivos estáticos del frontend
 app.use(express.static(path.join(__dirname, '../../public')));
