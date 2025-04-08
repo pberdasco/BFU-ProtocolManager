@@ -12,7 +12,7 @@ GET http://localhost:5001/lqs?$filter=[%22laboratorioId%22%2C%22%3D%22%2C%221%22
 
 
 ### ? Get por ID
-GET http://localhost:5001/lqs/3
+GET http://localhost:5001/lqs/2
 
 ### Updates
 ### ? Actualizar un LQ que no existe
@@ -20,9 +20,12 @@ PUT http://localhost:5001/lqs/45
 Content-Type: application/json
 
 {
-  "laboratorioId": 1,
-  "compuestoId": 1,
-  "valorLQ": 3
+  "laboratorioId": 2,
+  "compuestoId": 5,
+  "metodoId": 1,
+  "UMId": 2,
+  "valorLQ": 3,
+  "matrizId": 2
 }
 
 ### ? Actualizar un LQ
@@ -31,8 +34,11 @@ Content-Type: application/json
 
 {
   "laboratorioId": 1,
-  "compuestoId": 3,
-  "valorLQ": 3
+  "compuestoId": 10,
+  "metodoId": 1,
+  "UMId": 2,
+  "valorLQ": 3,
+  "matrizId": 2
 }
 
 
@@ -42,9 +48,12 @@ POST http://localhost:5001/lqs/
 Content-Type: application/json
 
 {
-  "laboratorioId": 4,
-  "compuestoId": 3,
-  "valorLQ": 4.1
+  "laboratorioId": 3,
+  "compuestoId": 4,
+  "metodoId": 2,
+  "UMId": 2,
+  "valorLQ": 4.1,
+  "matrizId": 1
 }
 
 ### Create
@@ -54,13 +63,16 @@ Content-Type: application/json
 
 {
   "laboratorioId": 4,
-  "compuestoId": 1,
-  "valorLQ": 300
+  "compuestoId": 5,
+  "metodoId": 1,
+  "UMId": 2,
+  "valorLQ": 2.1,
+  "matrizId": 2
 }
 
 ### Delete
 ### ? Borrar un LQS que no existe
-DELETE http://localhost:5001/lqs/35
+DELETE http://localhost:5001/lqs/5
 
 ### Delete
 ### ? Borrar una autoridad de aplicacion sí existe
