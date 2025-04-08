@@ -63,6 +63,36 @@ export default class LqsService {
         }
     }
 
+    static async getByCompuestoMetodoLab (triples) {
+        if (!triples.length) return [];
+
+        const conditions = triples.map(() => '(compuestoId = ? AND metodoId = ? AND laboratorioId = ?)').join(' OR ');
+        const values = triples.flatMap(t => [t.compuestoId, t.metodoId, t.laboratorioId]);
+
+        const sql = `SELECT laboratorioId, compuestoId, metodoId, UMId, valorLQ FROM LQs WHERE ${conditions}`;
+
+        try {
+            const [rows] = await pool.query(sql, values);
+            return rows;
+        } catch (error) {
+            throw dbErrorMsg(error.status, error.sqlMessage || error.message);
+        }
+    }
+
+    static async getByIds (ids) {
+        if (!ids.length) return [];
+
+        const placeholders = ids.map(() => '?').join(',');
+        const sql = `${selectBase} ${selectTables} WHERE ${mainTable}.id IN (${placeholders})`;
+
+        try {
+            const [rows] = await pool.query(sql, ids);
+            return rows;
+        } catch (error) {
+            throw dbErrorMsg(error.status, error.sqlMessage || error.message);
+        }
+    }
+
     static async create (lqToAdd) {
         try {
             const [rows] = await pool.query(`INSERT INTO ${table} SET ?`, [lqToAdd]);

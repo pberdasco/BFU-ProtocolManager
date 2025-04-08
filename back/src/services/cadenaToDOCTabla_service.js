@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, AlignmentType, WidthType, ShadingType, PageOrientation, Header, VerticalAlign } from 'docx';
+import LqsService from './lqs_service.js';
 
 export default class CadenaToDocTablaService {
     /**
@@ -15,7 +16,7 @@ export default class CadenaToDocTablaService {
     static async createDocx (proyectoNombre, fechaMuestreo, data) {
         const basePath = process.env.CADENA_DOCX_PATH;
         const fileName = `AT_${proyectoNombre}_${Date.now()}.docx`;
-        const doc = generateReport(proyectoNombre, fechaMuestreo, data);
+        const doc = await generateReport(proyectoNombre, fechaMuestreo, data);
         const fullPath = path.join(basePath, fileName);
 
         try {
@@ -57,7 +58,7 @@ export default class CadenaToDocTablaService {
     }
 }
 
-function generateReport (proyectoNombre, fechaMuestreo, data) {
+async function generateReport (proyectoNombre, fechaMuestreo, data) {
     const matrices = {
         1: 'Agua',
         2: 'FLNA',
@@ -92,6 +93,13 @@ function generateReport (proyectoNombre, fechaMuestreo, data) {
 
         return bloques;
     }
+
+    const triples = data.filas.map(x => {
+        // TODO: asume que los LQs son generales y no por laboratorio y que estan cargados todos al laboratorio 1
+        // la opcion seria tomar el laboratorio de la primera muestra.
+        return { compuestoId: x.compuestoId, metodoId: x.metodoId, laboratorioId: 1 };
+    });
+    const LQs = await LqsService.getByCompuestoMetodoLab(triples);
 
     const sections = [];
 
@@ -268,9 +276,11 @@ function generateReport (proyectoNombre, fechaMuestreo, data) {
                 const nivelGuia = data.nivelesGuia.find(n =>
                     n.compuestoId === fila.compuestoId && n.matrizId === Number(matrixId)
                 );
+                const LQ = LQs.find(x => x.compuestoId === fila.compuestoId && x.metodoId === fila.metodoId);
+                console.log('fila /  LQ:', fila, LQ);
 
-                const lc = nivelGuia?.valorReferencia ?? '';
-                const um = nivelGuia?.um ?? '';
+                const lc = LQ?.valorLQ ?? '-';
+                const um = LQ?.um ?? 'NE'; // TODO: quizas um tomarlo directo de la fila
 
                 return new TableRow({
                     children: [
@@ -280,14 +290,15 @@ function generateReport (proyectoNombre, fechaMuestreo, data) {
                         ...muestrasBloque.map(s => {
                             let val = fila[s.muestra];
                             if (val === -1) val = 'NC';
-                            else if (val === -2) val = 'NL';
-                            else if (val == null) val = '';
+                            else if (val === -2) val = 'ND';
+                            else if (val === -3) val = 'NA';
+                            else if (val == null) val = 'NA';
                             return new TableCell({
                                 children: [new Paragraph({ text: String(val), alignment: AlignmentType.CENTER })]
                             });
                         }),
                         new TableCell({
-                            children: [new Paragraph({ text: String(nivelGuia?.valorReferencia || ''), alignment: AlignmentType.CENTER })]
+                            children: [new Paragraph({ text: String(nivelGuia?.valorReferencia || 'NL'), alignment: AlignmentType.CENTER })]
                         })
                     ]
                 });
@@ -299,7 +310,7 @@ function generateReport (proyectoNombre, fechaMuestreo, data) {
             });
 
             const letra = { 1: 'a', 2: 'b', 3: 'c', 4: 'd' }[Number(matrixId)] || '';
-            const epigrafeTexto = `Tabla 1${letra}: (${bloqueIndex + 1}/${sampleBlocks.length}) Resultados de análisis sobre ${matrixName.toLowerCase()}${Number(matrixId) === 1 ? ' subterránea' : ''}. LC: límite de cuantificación del método. NC: no cuantificado. NL: no legislado.`;
+            const epigrafeTexto = `Tabla 1${letra}: (${bloqueIndex + 1}/${sampleBlocks.length}) Resultados de análisis sobre ${matrixName.toLowerCase()}${Number(matrixId) === 1 ? ' subterránea' : ''}. NC: No cuantificado. ND: No detectado. NA: No amalizado.  NL: No legislado.`;
 
             const epigrafe = new Paragraph({
                 children: [new TextRun({
