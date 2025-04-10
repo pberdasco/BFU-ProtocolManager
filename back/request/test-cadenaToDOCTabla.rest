@@ -17,8 +17,8 @@ Content-Type: application/json
         "nivelFreatico": "0.000",
         "profundidad": null,
         "flna": "0.000",
-        "cadenaOPDS": null,
-        "protocoloOPDS": null,
+        "cadenaOPDS": "cadOPDS",
+        "protocoloOPDS": "protOPDS",
         "matriz": 1,
         "cadenaCustodiaId": 13,
         "laboratorioId": 1
@@ -31,8 +31,8 @@ Content-Type: application/json
         "nivelFreatico": "0.000",
         "profundidad": null,
         "flna": "0.000",
-        "cadenaOPDS": null,
-        "protocoloOPDS": null,
+        "cadenaOPDS": "cadOPDS",
+        "protocoloOPDS": "protOPDS",
         "matriz": 1,
         "cadenaCustodiaId": 13,
         "laboratorioId": 1
@@ -45,8 +45,8 @@ Content-Type: application/json
         "nivelFreatico": "0.000",
         "profundidad": null,
         "flna": "0.000",
-        "cadenaOPDS": null,
-        "protocoloOPDS": null,
+        "cadenaOPDS": "cadOPDS",
+        "protocoloOPDS": "protOPDS",
         "matriz": 1,
         "cadenaCustodiaId": 13,
         "laboratorioId": 1
@@ -59,8 +59,8 @@ Content-Type: application/json
         "nivelFreatico": "0.000",
         "profundidad": null,
         "flna": "0.000",
-        "cadenaOPDS": null,
-        "protocoloOPDS": null,
+        "cadenaOPDS": "cadOPDS",
+        "protocoloOPDS": "protOPDS",
         "matriz": 1,
         "cadenaCustodiaId": 14,
         "laboratorioId": 1

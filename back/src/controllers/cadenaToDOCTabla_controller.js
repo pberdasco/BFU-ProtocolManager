@@ -15,9 +15,9 @@ export default class CadenaToDOCTablaController {
             if (errores.length !== 0) {
                 throw Object.assign(new Error('Problemas con el req.body'), { status: 400, fields: errores });
             }
-            const { proyectoNombre, fechaMuestreo, data } = validData;
+            const { proyecto, fecha, data } = validData;
 
-            const DOCGrabado = await CadenaToDocTablaService.createDocx(proyectoNombre, fechaMuestreo, data);
+            const DOCGrabado = await CadenaToDocTablaService.createDocx(proyecto, fecha, data);
             res.status(200).json(DOCGrabado);
         } catch (error) {
             showError(req, res, error);
