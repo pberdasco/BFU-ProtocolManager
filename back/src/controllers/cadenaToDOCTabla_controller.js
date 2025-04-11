@@ -27,7 +27,7 @@ export default class CadenaToDOCTablaController {
     static async download (req, res, next) {
         try {
             const { nombreArchivo } = req.params;
-            const filePath = CadenaToDocTablaService.getFilePath(nombreArchivo);
+            const filePath = await CadenaToDocTablaService.getFilePath(nombreArchivo);
 
             res.download(filePath, nombreArchivo, (err) => {
                 if (err) {

@@ -44,16 +44,17 @@ export default class CadenaToDocTablaService {
      * @param {string} nombreArchivo (sin path) - En el futuro podria venir un Id de cadena o evento para buscar en la cadena o en el evento el nombre
      * @returns nombre completo (path+nombre) o error si el archivo no existe
      */
-    static getFilePath (nombreArchivo) {
-        const basePath = process.env.CADENA_EXCEL_PATH;
+    static async getFilePath (nombreArchivo) {
+        const basePath = process.env.CADENA_DOCX_PATH;
         const filePath = path.join(basePath, nombreArchivo);
 
-        if (!fs.existsSync(filePath)) {
+        try {
+            await fs.access(filePath);
+            return filePath;
+        } catch {
             const error = new Error(`No se encuentra el archivo ${nombreArchivo} en el directorio correspondiente`);
             error.status = 404;
             throw error;
         }
-
-        return filePath;
     }
 }

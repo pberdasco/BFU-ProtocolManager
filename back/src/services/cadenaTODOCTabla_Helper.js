@@ -34,35 +34,6 @@ export function splitSamples (allSamples, MAX_MUESTRAS_COLS) {
     return bloques;
 }
 
-// * Titulos
-// export function createTitleSection (proyectoNombre) {
-//     return {
-//         // Se puede definir la orientación y márgenes según se requiera (se reutiliza la estructura usada en createTablaSeccionConEpigrafe)
-//         properties: {
-//             page: {
-//                 margin: { top: 1440, bottom: 1440, left: 1134, right: 850 }
-//             }
-//         },
-//         children: [createMainTitleParagraph(), new Paragraph('')],
-//         headers: {
-//             default: new Header({
-//                 children: [
-//                     new Paragraph({
-//                         children: [
-//                             new TextRun({
-//                                 text: `${proyectoNombre} / Anexo BfU de Argentina S.A.\t\t\t\t\tAnexo 3`,
-//                                 font: 'Times New Roman',
-//                                 size: 20
-//                             })
-//                         ],
-//                         alignment: AlignmentType.LEFT
-//                     })
-//                 ]
-//             })
-//         }
-//     };
-// }
-
 export function createMainTitleParagraph () {
     return new Paragraph({
         children: [
