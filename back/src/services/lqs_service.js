@@ -12,11 +12,11 @@ const allowedFields = {
     UMId: 'l.UMId',
     UM: 'u.nombre',
     valorLQ: 'l.valorLQ',
-    MatrizId: 'l.MatrizId'
+    matrizId: 'l.matrizId'
 };
 
 const table = 'Lqs';
-const selectBase = 'SELECT l.id, l.laboratorioId, b.nombre as laboratorio, l.compuestoId, c.nombre as compuesto, l.metodoId, m.nombre as metodo, l.UMId, u.nombre as UM, l.valorLQ ';
+const selectBase = 'SELECT l.id, l.laboratorioId, b.nombre as laboratorio, l.compuestoId, c.nombre as compuesto, l.metodoId, m.nombre as metodo, l.UMId, u.nombre as UM, l.valorLQ, l.matrizId ';
 const selectTables = 'FROM Lqs l ' +
                      'LEFT JOIN Laboratorios B ON L.LaboratorioId = B.id ' +
                      'LEFT JOIN Compuestos C ON L.compuestoId = C.id ' +
