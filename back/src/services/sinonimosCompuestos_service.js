@@ -64,7 +64,7 @@ export default class SinonimosCompuestosService {
                 compuesto
                     .normalize('NFD') // forma descompuesta de acentos unicode
                     .replace(/[\u0300-\u036f]/g, '') // elimina acentos
-                    .replace(/[.,;:_()*/+\-\s]/g, '')
+                    .replace(/[.,;:_()*/+\-\s[\]]/g, '')
                     .toLowerCase()
             );
 
