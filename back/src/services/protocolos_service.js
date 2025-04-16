@@ -234,7 +234,7 @@ async function insertResultadosProtocolo (conn, protocoloItems, protocoloMuestra
                     `INSERT INTO ResultadosProtocolo (itemProtocoloId, muestraProtocoloId, valor)
                      VALUES (?, ?, ?)`,
                     [protocoloItem.id, protocoloMuestra.id,
-                        compuesto[campo] === '' ? null : parseFloat(compuesto[campo])]
+                        (compuesto[campo] === '' || compuesto[campo] === null) ? null : parseFloat(compuesto[campo])]
                 );
 
                 protocoloResultados.push({ id: resultado.insertId, protocoloItemId: protocoloItem.id, protocoloMuestraId: protocoloMuestra.id, valor: compuesto[campo] });
