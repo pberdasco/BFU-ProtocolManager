@@ -1,6 +1,17 @@
 import { pool, dbErrorMsg } from '../database/db.js';
+import { processCompound } from './mannKendallCreateBook_service.js';
 
 export default class MannKendallService {
+    static async fullProcess (subproyectoId, fechaEvaluacion) {
+        const data = await MannKendallService.getDataForSubproyecto(subproyectoId, fechaEvaluacion);
+        data.compuestos.forEach(compuesto => {
+            compuesto.proyecto = data.proyecto;
+            compuesto.fechaEvaluacion = data.fechaEvaluacion;
+            compuesto.facility = data.facility;
+            processCompound(compuesto);
+        });
+    }
+
     static async getDataForSubproyecto (subproyectoId, fechaEvaluacion) {
         try {
             // Datos del subproyecto (para nombre del proyecto y facility)
@@ -42,7 +53,7 @@ export default class MannKendallService {
                 JOIN CadenaCustodia ccust ON ccust.eventoMuestreoId = em.id AND ccust.subproyectoId = ?
                 JOIN Muestras m ON m.cadenaCustodiaId = ccust.id AND m.tipo = 1
                 JOIN CadenaCompletaFilas cc ON cc.cadenaCustodiaId = ccust.id
-                JOIN CadenaCompletaValor cv ON cv.cadenaCompletaFilaId = cc.id AND cv.muestraId = m.id
+                JOIN CadenaCompletaValores cv ON cv.cadenaCompletaFilaId = cc.id AND cv.muestraId = m.id
                 WHERE em.subproyectoId = ?
                 AND cc.compuestoId IN (?) 
                 AND m.pozoId IN (?)`, [
@@ -60,7 +71,7 @@ export default class MannKendallService {
             const resultado = mkCompuestos.map(comp => {
                 const pozosCompuesto = mkPozos.map(pozo => ({
                     pozo: pozo.pozoNombre,
-                    hoja: pozo.hojaId === 1 ? 'Principal' : pozo.hojaId === 2 ? 'Secundaria' : `Hoja ${pozo.hojaId}`,
+                    hoja: `Hoja ${pozo.hojaId}`,
                     pozoId: pozo.pozoId
                 }));
 
@@ -72,10 +83,7 @@ export default class MannKendallService {
                 )).sort();
 
                 const mediciones = fechas.map(fecha => {
-                    const registros = muestrasConValores.filter(v =>
-                        v.compuestoId === comp.compuestoId &&
-            v.fecha.toISOString().split('T')[0] === fecha
-                    );
+                    const registros = muestrasConValores.filter(v => v.compuestoId === comp.compuestoId && v.fecha.toISOString().split('T')[0] === fecha);
 
                     const valores = mkPozos.map(p => {
                         const registro = registros.find(r => r.pozoId === p.pozoId);

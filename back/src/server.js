@@ -35,6 +35,7 @@ import { sinonimosMetodosRouter } from './routers/sinonimosMetodos_router.js';
 import { sinonimosUMsRouter } from './routers/sinonimosUMs_router.js';
 import { cadenaToExcelRouter } from './routers/cadenaToExcel_router.js';
 import { cadenaToDOCTablaRouter } from './routers/cadenaToDocTabla_router.js';
+import { mannKendallRouter } from './routers/mannKendall_router.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -79,6 +80,7 @@ app.use('/sinonimosmetodos', sinonimosMetodosRouter);
 app.use('/sinonimosums', sinonimosUMsRouter);
 app.use('/cadenatoexcel', cadenaToExcelRouter);
 app.use('/cadenatodoctabla', cadenaToDOCTablaRouter);
+app.use('/mannKendall', mannKendallRouter);
 
 // Servir archivos estáticos del frontend
 app.use(express.static(path.join(__dirname, '../../public')));

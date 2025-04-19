@@ -102,3 +102,17 @@ const logger = winston.createLogger({
 });
 
 export default logger;
+
+// Niveles estándar de Winston:
+//
+// logger.error('Mensaje de error grave');      // Nivel: error (fatal, se debe actuar)
+// logger.warn('Advertencia no crítica');       // Nivel: warn  (problemas menores)
+// logger.info('Mensaje informativo');          // Nivel: info  (estado general del sistema)
+// logger.verbose('Detalle adicional');         // Nivel: verbose (útil en desarrollo o auditoría)
+// logger.debug('Mensaje de depuración');       // Nivel: debug (muy detallado, para dev)
+// logger.silly('Detalle extremadamente fino'); // Nivel: silly (rara vez se usa)
+
+// En esta configuración además mira las variables de entorno:
+// logger.warn() y logger.error() van a consola solo si ERRORS_TO_CONSOLE=true
+// logger.info()                                     si INFO_TO_CONSOLE=true
+// logger.verbose() y logger.debug()                 si DEBUG_TO_CONSOLE=true

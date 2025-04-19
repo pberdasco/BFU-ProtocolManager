@@ -1,0 +1,7 @@
+### GET 
+### ? 
+GET http://localhost:5001/mannKendall/29?fecha=2025-04-12
+
+### GET 
+### ? sin fecha = today
+GET http://localhost:5001/mannKendall/29

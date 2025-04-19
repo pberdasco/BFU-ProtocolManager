@@ -41,17 +41,36 @@ src/
 3. Crear el archivo `.env` con configuración de entorno:
 
    ```dotenv
-   PORT=3000
+   PORT = 5001
+
    DB_HOST=localhost
    DB_USER=usuario
    DB_PASS=clave
    DB_NAME=nombre_basededatos
+   DB_PORT = 3306
+
+   CADENA_DOCX_PATH = C:/.../AnexoTablas/
+   CADENA_EXCEL_PATH = C:/.../ModeloCadena/
+   CADENA_EXCEL_MODELO_NAME = CadenaCustodiaNuevo.xlsx
+   MANNKENDALL_MODEL_PATH = C:/.../MannKendall/
+   MANNKENDALL_MODEL_NAME = MannKendall.xlsm
+   MANNKENDALL_FILES_PATH = C:/.../MannKendall/Files/
+
+   ERRORS_TO_CONSOLE = true
+   INFO_TO_CONSOLE = true
+   DEBUG_TO_CONSOLE = true
+   LOGGER_MIN_LEVEL = debug
    ```
 
 4. Iniciar el servidor:
    ```bash
    npm start
    ```
+   o
+   ```bash
+   node --expose-gc src/server.js
+   ```
+   dado que requiere `--expose-gc` habilitado para permitir la liberacion manual de memoria usada por WinAx
 
 ## 🔐 Autenticación (planificada)
 
