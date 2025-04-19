@@ -1,0 +1,57 @@
+## mkpozos 
+#* allowedFields = ["id", "subproyectoId", "pozoId", "hojaId"];
+
+### GET 
+### ? Todos los pozos en mkpozos
+GET http://localhost:5001/mkpozos/
+
+### ? mkpozos por el subproyectoId
+# Este request filtra pozos con subproyectoId = '29'
+# Formato interno: ["subproyectoId","=","29"]
+GET http://localhost:5001/mkpozos?$filter=[%22subproyectoId%22%2C%22%3D%22%2C%2229%22]
+
+
+### ? Get por ID
+GET http://localhost:5001/mkpozos/1
+
+### Updates
+### ? Actualizar un mkpozo que no existe
+PUT http://localhost:5001/mkpozos/45
+Content-Type: application/json
+
+{
+  "subproyectoId": 25,
+  "pozoId":22 ,
+  "hojaid": 1
+}
+
+### ? Actualizar un mkpozo
+PUT http://localhost:5001/mkpozos/1
+Content-Type: application/json
+
+{
+  "subproyectoId": 25,
+  "pozoId": 22,
+  "hojaId": 1
+}
+
+
+### Create
+### ? Crear un mkpozo
+POST http://localhost:5001/mkpozos/
+Content-Type: application/json
+
+{
+  "subproyectoId": 25,
+  "pozoId": 28,
+  "hojaId":1 
+}
+
+
+### Delete
+### ? Borrar un mkpozo que no existe
+DELETE http://localhost:5001/mkpozos/10
+
+### Delete
+### ? Borrar un mkpozo que sí existe
+DELETE http://localhost:5001/mkpozos/2

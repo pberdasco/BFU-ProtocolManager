@@ -1,0 +1,54 @@
+## mkcompuestos 
+#* allowedFields = ["id", "subproyectoId", "compuestoId"];
+
+### GET 
+### ? Todos los compuestos en mkcompuestos
+GET http://localhost:5001/mkcompuestos/
+
+### ? mkcompuestos por el subproyectoId
+# Este request filtra compuestos con subproyectoId = '25'
+# Formato interno: ["subproyectoId","=","25"]
+GET http://localhost:5001/mkcompuestos?$filter=[%22subproyectoId%22%2C%22%3D%22%2C%2225%22]
+
+
+### ? Get por ID
+GET http://localhost:5001/mkcompuestos/1
+
+### Updates
+### ? Actualizar un mkcompuestos que no existe
+PUT http://localhost:5001/mkcompuestos/45
+Content-Type: application/json
+
+{
+  "subproyectoId": 25,
+  "compuestoId":1 
+}
+
+### ? Actualizar un mkcompuesto
+PUT http://localhost:5001/mkcompuestos/1
+Content-Type: application/json
+
+{
+  "subproyectoId": 25,
+  "compuestoId": 2
+}
+
+
+### Create
+### ? Crear un mkcompuesto
+POST http://localhost:5001/mkcompuestos/
+Content-Type: application/json
+
+{
+  "subproyectoId": 25,
+  "compuestoId": 20
+}
+
+
+### Delete
+### ? Borrar un mkcompuesto que no existe
+DELETE http://localhost:5001/mkcompuestos/10
+
+### Delete
+### ? Borrar un mkcompuesto que sí existe
+DELETE http://localhost:5001/mkcompuestos/1
