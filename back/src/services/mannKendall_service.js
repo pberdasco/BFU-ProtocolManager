@@ -4,12 +4,14 @@ import { processCompound } from './mannKendallCreateBook_service.js';
 export default class MannKendallService {
     static async fullProcess (subproyectoId, fechaEvaluacion) {
         const data = await MannKendallService.getDataForSubproyecto(subproyectoId, fechaEvaluacion);
+        const filesCreated = [];
         data.compuestos.forEach(compuesto => {
             compuesto.proyecto = data.proyecto;
             compuesto.fechaEvaluacion = data.fechaEvaluacion;
             compuesto.facility = data.facility;
-            processCompound(compuesto);
+            filesCreated.push(processCompound(compuesto));
         });
+        return filesCreated;
     }
 
     static async getDataForSubproyecto (subproyectoId, fechaEvaluacion) {

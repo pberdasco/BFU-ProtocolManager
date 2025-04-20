@@ -21,7 +21,8 @@ src/
 - Node.js + Express
 - Base de datos: **MySQL** (vía `mysql2/promise`)
 - Arquitectura RESTful modular
-- Exportación de archivos Excel con formato personalizado
+- Exportación de archivos Excel con formato personalizado (ExcelJS y Winax -solo para MannKendall-)
+- Exportación de archivos Word (docx)
 
 ## 🚀 Instalación
 
@@ -38,7 +39,15 @@ src/
    npm install
    ```
 
-3. Crear el archivo `.env` con configuración de entorno:
+3. Instalación de winax (solo se utiliza para la funcionalidad Mann-Kendall)
+   ⚠️ winax requiere compilación nativa. Antes de instalarlo, asegurate de tener:
+
+   - Python 3.x accesible desde consola
+   - Visual Studio con herramientas de desarrollo C++ o Visual Studio Build Tools
+   - Windows SDK (para la version 10 u 11 segun sea el SO)
+     > ℹ️ Podés verificar tu entorno ejecutando el script `verificarInstalacion.ps1`.
+
+4. Crear el archivo `.env` con configuración de entorno:
 
    ```dotenv
    PORT = 5001
@@ -62,7 +71,7 @@ src/
    LOGGER_MIN_LEVEL = debug
    ```
 
-4. Iniciar el servidor:
+5. Iniciar el servidor:
    ```bash
    npm start
    ```

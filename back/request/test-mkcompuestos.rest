@@ -6,9 +6,9 @@
 GET http://localhost:5001/mkcompuestos/
 
 ### ? mkcompuestos por el subproyectoId
-# Este request filtra compuestos con subproyectoId = '25'
-# Formato interno: ["subproyectoId","=","25"]
-GET http://localhost:5001/mkcompuestos?$filter=[%22subproyectoId%22%2C%22%3D%22%2C%2225%22]
+# Este request filtra compuestos con subproyectoId = '29'
+# Formato interno: ["subproyectoId","=","29"]
+GET http://localhost:5001/mkcompuestos?$filter=[%22subproyectoId%22%2C%22%3D%22%2C%2229%22]
 
 
 ### ? Get por ID

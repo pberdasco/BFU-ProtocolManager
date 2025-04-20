@@ -1,10 +1,11 @@
-import { createRequire } from 'module';
 import fs from 'fs';
 import path from 'path';
 import logger from '../utils/logger.js';
-const require = createRequire(import.meta.url);
 
-const { Object: ActiveXObject } = require('winax'); // winax no tiene versión ECM
+// winax no tiene versión ECM => hay que importarlo como sigue:
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const { Object: ActiveXObject } = require('winax');
 
 const filaNombrePozos = 8;
 const filaInicio = 15;
@@ -14,7 +15,8 @@ const { MANNKENDALL_MODEL_PATH, MANNKENDALL_MODEL_NAME, MANNKENDALL_FILES_PATH }
 const baseTemplate = path.join(MANNKENDALL_MODEL_PATH, MANNKENDALL_MODEL_NAME);
 
 export function processCompound (compuesto) {
-    const newFilePath = copyExcelTemplate(compuesto);
+    const fileCreated = copyExcelTemplate(compuesto);
+    const newFilePath = path.join(fileCreated.path, fileCreated.file);
     const sheetGroups = groupSamples(compuesto);
 
     // Procesar cada grupo asignándolo a una hoja secuencial
@@ -22,6 +24,7 @@ export function processCompound (compuesto) {
         const sheetIndex = index + 1; // hojas numeradas a partir del 1
         processSheetGroup(newFilePath, sheetIndex, compuesto, grupo);
     });
+    return fileCreated;
 }
 
 // Función para copiar el archivo base y crear uno nuevo para el compuesto
@@ -34,7 +37,7 @@ function copyExcelTemplate (compuesto) {
         }
         fs.copyFileSync(baseTemplate, newFilePath);
         logger.info(`MannKendallService - Creada copia para ${fileName}`);
-        return newFilePath;
+        return { id: 0, path: MANNKENDALL_FILES_PATH, file: fileName, zipName: `MK_${compuesto.proyecto}_${compuesto.fechaEvaluacion}` };
     } catch (error) {
         logger.error(`Error al copiar el template para ${fileName}`);
         console.error(error);

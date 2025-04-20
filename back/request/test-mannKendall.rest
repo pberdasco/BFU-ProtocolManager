@@ -5,3 +5,32 @@ GET http://localhost:5001/mannKendall/29?fecha=2025-04-12
 ### GET 
 ### ? sin fecha = today
 GET http://localhost:5001/mannKendall/29
+
+
+### POST
+### ? Traer un zipfile con todos los xlsm
+POST http://localhost:5001/mannkendall/getzip
+Content-Type: application/json
+
+{
+  "archivos": [
+    {
+      "id": 0,
+      "path": "C:/Netrona/Clientes/BfU/ProcesoProtocolos/MannKendall/Files/",
+      "file": "MK_100000-100_HTP_2025-04-20.xlsm",
+      "zipName": "MK_100000-100_2025-04-20"
+    },
+    {
+      "id": 0,
+      "path": "C:/Netrona/Clientes/BfU/ProcesoProtocolos/MannKendall/Files/",
+      "file": "MK_100000-100_Benceno_2025-04-20.xlsm",
+      "zipName": "MK_100000-100_2025-04-20"
+    },
+    {
+      "id": 0,
+      "path": "C:/Netrona/Clientes/BfU/ProcesoProtocolos/MannKendall/Files/",
+      "file": "MK_100000-100_Tolueno_2025-04-20.xlsm",
+      "zipName": "MK_100000-100_2025-04-20"
+    }
+  ]
+}
