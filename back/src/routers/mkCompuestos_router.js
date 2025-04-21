@@ -11,3 +11,4 @@ mkCompuestosRouter.get('/:id', MkCompuestosController.getById);
 mkCompuestosRouter.post('/', MkCompuestosController.create);
 mkCompuestosRouter.put('/:id', MkCompuestosController.update);
 mkCompuestosRouter.delete('/:id', MkCompuestosController.delete);
+mkCompuestosRouter.post('/replace', MkCompuestosController.replace);

@@ -55,3 +55,25 @@ DELETE http://localhost:5001/mkpozos/10
 ### Delete
 ### ? Borrar un mkpozo que sí existe
 DELETE http://localhost:5001/mkpozos/2
+
+### Reemplazar todos los pozos de un subproyecto
+POST http://localhost:5001/mkpozos/replace
+Content-Type: application/json
+
+[
+  {
+    "subproyectoId": 29,
+    "pozoId": 31,
+    "hojaId": 1
+  },
+  {
+    "subproyectoId": 29,
+    "pozoId": 32,
+    "hojaId": 2
+  },
+  {
+    "subproyectoId": 29,
+    "pozoId": 33,
+    "hojaId": 1
+  }
+]

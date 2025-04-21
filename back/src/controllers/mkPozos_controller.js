@@ -1,6 +1,6 @@
 import MkPozosService from '../services/mkPozos_service.js';
 import { showError } from '../middleware/controllerErrors.js';
-import { mkPozosCreateSchema, mkPozosUpdateSchema } from '../models/mkPozos_schema.js';
+import { mkPozosCreateSchema, mkPozosUpdateSchema, mkPozosReplaceSchema } from '../models/mkPozos_schema.js';
 import { z } from 'zod';
 
 export default class MkPozosController {
@@ -69,14 +69,30 @@ export default class MkPozosController {
         }
     }
 
+    static async replace (req, res, next) {
+        try {
+            const [errores, pozos] = MkPozosController.bodyValidations(req.body, 'replace');
+            if (errores.length !== 0) {
+                throw Object.assign(new Error('Problemas con el req.body'), { status: 400, fields: errores });
+            }
+
+            await MkPozosService.replaceForSubproyecto(pozos);
+            res.status(204).send(); // ver si conviene 200 con pozos
+        } catch (error) {
+            showError(req, res, error);
+        }
+    }
+
     static bodyValidations (record, method) {
         let errores = [];
-        let mkPozo = null;
+        let resultado = null;
         try {
             if (method === 'update') {
-                mkPozo = mkPozosUpdateSchema.parse(record);
+                resultado = mkPozosUpdateSchema.parse(record);
             } else if (method === 'create') {
-                mkPozo = mkPozosCreateSchema.parse(record);
+                resultado = mkPozosCreateSchema.parse(record);
+            } else if (method === 'replace') {
+                resultado = mkPozosReplaceSchema.parse(record);
             }
         } catch (error) {
             if (error instanceof z.ZodError) {
@@ -88,6 +104,6 @@ export default class MkPozosController {
                 throw error;
             }
         }
-        return [errores, mkPozo];
+        return [errores, resultado];
     }
 }

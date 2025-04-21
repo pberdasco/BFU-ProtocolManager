@@ -6,3 +6,4 @@ export const mkCompuestosCreateSchema = z.object({
 });
 
 export const mkCompuestosUpdateSchema = mkCompuestosCreateSchema.partial();
+export const mkCompuestosReplaceSchema = z.array(mkCompuestosCreateSchema).min(1, 'Debe enviar al menos un compuesto');

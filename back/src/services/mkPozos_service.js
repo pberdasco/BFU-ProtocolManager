@@ -121,4 +121,38 @@ export default class MkPozosService {
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);
         }
     }
+
+    static async replaceForSubproyecto (mkPozosToAdd) {
+        if (!Array.isArray(mkPozosToAdd) || mkPozosToAdd.length === 0) {
+            throw dbErrorMsg(400, 'No se recibieron pozos para guardar');
+        }
+
+        const subproyectoId = mkPozosToAdd[0].subproyectoId;
+        if (!mkPozosToAdd.every(item => item.subproyectoId === subproyectoId)) {
+            throw dbErrorMsg(400, 'Todos los pozos deben pertenecer al mismo subproyecto');
+        }
+
+        const conn = await pool.getConnection();
+        try {
+            await conn.beginTransaction();
+
+            // Borrar los compuestos actuales del subproyecto
+            await conn.query(`DELETE FROM ${table} WHERE subproyectoId = ?`, [subproyectoId]);
+
+            // Insertar los nuevos
+            const insertSql = `INSERT INTO ${table} (subproyectoId, pozoId, hojaId) VALUES ?`;
+            const values = mkPozosToAdd.map(({ subproyectoId, pozoId, hojaId }) => [subproyectoId, pozoId, hojaId]);
+
+            await conn.query(insertSql, [values]);
+
+            await conn.commit();
+            return true;
+        } catch (error) {
+            await conn.rollback();
+            if (error?.code === 'ER_DUP_ENTRY') throw dbErrorMsg(409, yaExiste);
+            throw dbErrorMsg(error.status, error.sqlMessage || error.message);
+        } finally {
+            conn.release();
+        }
+    }
 }

@@ -52,3 +52,26 @@ DELETE http://localhost:5001/mkcompuestos/10
 ### Delete
 ### ? Borrar un mkcompuesto que sí existe
 DELETE http://localhost:5001/mkcompuestos/1
+
+### Reemplazar todos los pozos de un subproyecto
+POST http://localhost:5001/mkcompuestos/replace
+Content-Type: application/json
+
+[
+  {
+    "subproyectoId": 29,
+    "compuestoId": 1
+  },
+  {
+    "subproyectoId": 29,
+    "compuestoId": 26
+  },
+  {
+    "subproyectoId": 29,
+    "compuestoId": 27
+  },
+  {
+    "subproyectoId": 29,
+    "compuestoId": 28
+  }
+]

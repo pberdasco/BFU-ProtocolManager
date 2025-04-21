@@ -11,3 +11,4 @@ mkPozosRouter.get('/:id', MkPozosController.getById);
 mkPozosRouter.post('/', MkPozosController.create);
 mkPozosRouter.put('/:id', MkPozosController.update);
 mkPozosRouter.delete('/:id', MkPozosController.delete);
+mkPozosRouter.post('/replace', MkPozosController.replace);

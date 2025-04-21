@@ -8,3 +8,4 @@ export const mkPozosCreateSchema = z.object({
 });
 
 export const mkPozosUpdateSchema = mkPozosCreateSchema.partial();
+export const mkPozosReplaceSchema = z.array(mkPozosCreateSchema).min(1, 'Debe enviar al menos un compuesto');

@@ -103,4 +103,38 @@ export default class MkCompuestosService {
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);
         }
     }
+
+    static async replaceForSubproyecto (mkCompuestosToAdd) {
+        if (!Array.isArray(mkCompuestosToAdd) || mkCompuestosToAdd.length === 0) {
+            throw dbErrorMsg(400, 'No se recibieron compuestos para guardar');
+        }
+
+        const subproyectoId = mkCompuestosToAdd[0].subproyectoId;
+        if (!mkCompuestosToAdd.every(item => item.subproyectoId === subproyectoId)) {
+            throw dbErrorMsg(400, 'Todos los compuestos deben pertenecer al mismo subproyecto');
+        }
+
+        const conn = await pool.getConnection();
+        try {
+            await conn.beginTransaction();
+
+            // Borrar los compuestos actuales del subproyecto
+            await conn.query(`DELETE FROM ${table} WHERE subproyectoId = ?`, [subproyectoId]);
+
+            // Insertar los nuevos
+            const insertSql = `INSERT INTO ${table} (subproyectoId, compuestoId) VALUES ?`;
+            const values = mkCompuestosToAdd.map(({ subproyectoId, compuestoId }) => [subproyectoId, compuestoId]);
+
+            await conn.query(insertSql, [values]);
+
+            await conn.commit();
+            return true;
+        } catch (error) {
+            await conn.rollback();
+            if (error?.code === 'ER_DUP_ENTRY') throw dbErrorMsg(409, yaExiste);
+            throw dbErrorMsg(error.status, error.sqlMessage || error.message);
+        } finally {
+            conn.release();
+        }
+    }
 }

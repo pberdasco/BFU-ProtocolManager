@@ -1,6 +1,6 @@
 import MkCompuestosService from '../services/mkCompuestos_service.js';
 import { showError } from '../middleware/controllerErrors.js';
-import { mkCompuestosCreateSchema, mkCompuestosUpdateSchema } from '../models/mkCompuestos_schema.js';
+import { mkCompuestosCreateSchema, mkCompuestosUpdateSchema, mkCompuestosReplaceSchema } from '../models/mkCompuestos_schema.js';
 import { z } from 'zod';
 
 export default class MkCompuestosController {
@@ -68,14 +68,30 @@ export default class MkCompuestosController {
         }
     }
 
+    static async replace (req, res, next) {
+        try {
+            const [errores, compuestos] = MkCompuestosController.bodyValidations(req.body, 'replace');
+            if (errores.length !== 0) {
+                throw Object.assign(new Error('Problemas con el req.body'), { status: 400, fields: errores });
+            }
+
+            await MkCompuestosService.replaceForSubproyecto(compuestos);
+            res.status(204).send(); // ver si conviene 200 con compuestos
+        } catch (error) {
+            showError(req, res, error);
+        }
+    }
+
     static bodyValidations (record, method) {
         let errores = [];
-        let mkcompuesto = null;
+        let resultado = null;
         try {
             if (method === 'update') {
-                mkcompuesto = mkCompuestosUpdateSchema.parse(record);
+                resultado = mkCompuestosUpdateSchema.parse(record);
             } else if (method === 'create') {
-                mkcompuesto = mkCompuestosCreateSchema.parse(record);
+                resultado = mkCompuestosCreateSchema.parse(record);
+            } else if (method === 'replace') {
+                resultado = mkCompuestosReplaceSchema.parse(record);
             }
         } catch (error) {
             if (error instanceof z.ZodError) {
@@ -87,6 +103,6 @@ export default class MkCompuestosController {
                 throw error;
             }
         }
-        return [errores, mkcompuesto];
+        return [errores, resultado];
     }
 }
