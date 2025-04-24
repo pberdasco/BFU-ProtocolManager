@@ -1,0 +1,7 @@
+### Obtener todos los datos de cadenas para un subproyecto/matriz/Compuesto
+### Obtener datos para subproyecto 29, matriz 1, compuesto 25
+GET http://localhost:5001/cadenasSubproyectoCompuesto/29/1/1
+
+
+### Obtener datos
+

@@ -38,6 +38,7 @@ import { cadenaToDOCTablaRouter } from './routers/cadenaToDocTabla_router.js';
 import { mannKendallRouter } from './routers/mannKendall_router.js';
 import { mkPozosRouter } from './routers/mkPozos_router.js';
 import { mkCompuestosRouter } from './routers/mkCompuestos_router.js';
+import { cadenasSubproyectoCompuestoRouter } from './routers/cadenasSubproyectoCompuesto_router.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -85,6 +86,7 @@ app.use('/cadenatodoctabla', cadenaToDOCTablaRouter);
 app.use('/mannKendall', mannKendallRouter);
 app.use('/mkcompuestos', mkCompuestosRouter);
 app.use('/mkpozos', mkPozosRouter);
+app.use('/cadenasSubproyectoCompuesto', cadenasSubproyectoCompuestoRouter);
 
 // Servir archivos estáticos del frontend
 app.use(express.static(path.join(__dirname, '../../public')));

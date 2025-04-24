@@ -41,7 +41,7 @@ export default class MannKendallController {
             output.on('close', () => {
                 res.download(zipPath, zipName, err => {
                     if (err) return next(err);
-                    // fs.unlink(zipPath, () => {}); // eliminar el zip luego de la descarga
+                    fs.unlink(zipPath, () => {}); // eliminar el zip luego de la descarga
                 });
             });
 
