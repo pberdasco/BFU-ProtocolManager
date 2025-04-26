@@ -124,6 +124,18 @@ El backend expone recursos a través de endpoints REST. Cada recurso cuenta con 
 - Tests automatizados
 - Refactor de exportador Excel y eliminación de `testExcel.js`
 
+## 🔧 Scripts SQL de instalacion
+
+- `bfu-project-db-struct.sql`: crea la base y tablas.
+- `bfu-project-db-MasterData.sql`: inserta datos maestros (seeds).
+
+📝 Ejecutar con:
+
+```bash
+mysql -u root -p < sql/bfu-project-db-struct.sql
+mysql -u root -p < sql/bfu-project-db-MasterData.sql
+```
+
 ## 📅 Licencia
 
 Proyecto privado. Desarrollado por **Netrona**.
