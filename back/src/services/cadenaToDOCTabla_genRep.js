@@ -18,10 +18,9 @@ export async function generateReport (proyectoNombre, fechaMuestreo, data) {
         4: 'Gases'
     };
 
+    const laboratorioIdPrimeraMuestra = data.muestras[0]?.laboratorioId || 1;
     const LqKeysToSearch = data.filas.map(x => {
-        // TODO: asume que los LQs son generales y no por laboratorio y que están cargados todos al laboratorio 1.
-        // La opción sería tomar el laboratorio de la primera muestra.
-        return { compuestoId: x.compuestoId, metodoId: x.metodoId, laboratorioId: 1 };
+        return { compuestoId: x.compuestoId, metodoId: x.metodoId, laboratorioId: laboratorioIdPrimeraMuestra };
     });
     const LQs = await LqsService.getByCompuestoMetodoLab(LqKeysToSearch);
     const UMs = await UMService.getAll({ where: null, values: [], order: [], limit: 100, offset: 0 }); // nunca hay mas de 100 UMs (son menos de 20 en realidad)

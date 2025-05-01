@@ -12,8 +12,6 @@ export default class CadenasSubproyectoCompuestoService {
      * @returns {Object[]} - Array de objetos donde cada fila representa una fecha de evento con valores por pozo.
      */
     static async getCadenasPorSubproyectoCompuesto (subproyectoId, matrizCodigo, compuestoId) {
-        console.log('Entro: ', subproyectoId, matrizCodigo, compuestoId);
-
         try {
             // Obtener todas las cadenas del subproyecto y matriz
             const [cadenas] = await pool.query(
@@ -28,7 +26,6 @@ export default class CadenasSubproyectoCompuestoService {
             if (!cadenas.length) {
                 throw dbErrorMsg(404, 'No se encontraron cadenas para el subproyecto y matriz indicados.');
             }
-            console.log('cadenas:', cadenas.map(c => ({ id: c.cadenaId, fecha: c.fecha })));
 
             const cadenaIds = cadenas.map(c => c.cadenaId);
 
@@ -45,8 +42,6 @@ export default class CadenasSubproyectoCompuestoService {
                 throw dbErrorMsg(404, 'No se encontraron registros del compuesto en las cadenas seleccionadas.');
             }
 
-            console.log('filas:', filas);
-
             // Obtener los valores de esas filas
             const [valores] = await pool.query(
                 `SELECT v.cadenaCompletaFilaId, v.valor, m.Nombre AS muestra, m.PozoId, m.CadenaCustodiaId
@@ -55,9 +50,6 @@ export default class CadenasSubproyectoCompuestoService {
                  WHERE v.cadenaCompletaFilaId IN (?)`,
                 [filaIds]
             );
-
-            console.log('valores:', valores);
-            //
 
             const resultado = [];
 

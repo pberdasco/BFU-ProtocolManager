@@ -1,11 +1,14 @@
-### GET 
+### GET toma los datos para mandar a armar mannkendall - solo para pruebas porque el get std hace las 2 cosas
+GET http://localhost:5001/mannKendall/data/266
+
+
+### GET crea mannnKendall //TODO: cambiar a post
 ### ? 
 GET http://localhost:5001/mannKendall/29?fecha=2025-04-12
 
-### GET 
+### GET crea mannnKendall //TODO: cambiar a post
 ### ? sin fecha = today
-GET http://localhost:5001/mannKendall/29
-
+GET http://localhost:5001/mannKendall/266
 
 ### POST
 ### ? Traer un zipfile con todos los xlsm

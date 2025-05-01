@@ -50,7 +50,7 @@ export default class MannKendallService {
 
             // Muestras tipo 1 y sus eventos
             const [muestrasConValores] = await pool.query(`
-                SELECT em.fecha, m.id AS muestraId, m.pozoId, cc.compuestoId, cv.valor
+                SELECT em.fecha, m.id AS muestraId, m.pozoId, cc.compuestoId, cc.metodoId, cc.UMId, cv.valor, ccust.laboratorioId
                 FROM EventoMuestreo em
                 JOIN CadenaCustodia ccust ON ccust.eventoMuestreoId = em.id AND ccust.subproyectoId = ?
                 JOIN Muestras m ON m.cadenaCustodiaId = ccust.id AND m.tipo = 1
@@ -69,6 +69,26 @@ export default class MannKendallService {
                 throw dbErrorMsg(404, 'No se encontraron valores para las combinaciones configuradas');
             }
 
+            // Cargar MAP de LQs
+            const triplesSet = new Set();
+
+            muestrasConValores.forEach(v => {
+                const clave = `${v.compuestoId}-${v.metodoId}-${v.laboratorioId}`;
+                triplesSet.add(clave);
+            });
+
+            const triples = Array.from(triplesSet).map(c => {
+                const [compuestoId, metodoId, laboratorioId] = c.split('-').map(Number);
+                return { compuestoId, metodoId, laboratorioId };
+            });
+
+            const lqs = await getLQs(triples);
+            const lqMap = new Map();
+            lqs.forEach(lq => {
+                const clave = `${lq.compuestoId}-${lq.metodoId}-${lq.laboratorioId}`;
+                lqMap.set(clave, lq);
+            });
+
             // Agrupar por compuesto
             const resultado = mkCompuestos.map(comp => {
                 const pozosCompuesto = mkPozos.map(pozo => ({
@@ -84,12 +104,23 @@ export default class MannKendallService {
                         .map(v => v.fecha.toISOString().split('T')[0])
                 )).sort();
 
+                console.log(muestrasConValores);
+                console.log(fechas);
+                console.log(lqMap);
+
                 const mediciones = fechas.map(fecha => {
                     const registros = muestrasConValores.filter(v => v.compuestoId === comp.compuestoId && v.fecha.toISOString().split('T')[0] === fecha);
 
                     const valores = mkPozos.map(p => {
                         const registro = registros.find(r => r.pozoId === p.pozoId);
-                        return registro ? Number(registro.valor) : null;
+                        // return registro ? Number(registro.valor) : null;
+                        if (!registro) return null;
+                        const lq = lqMap.get(`${registro.compuestoId}-${registro.metodoId}-${registro.laboratorioId}`);
+                        console.log('registro: ', registro, lq);
+
+                        if (registro.valor <= -2) return null; // ND y NA => van como null
+                        if (registro.valor <= 0) return lq ? lq.valorLQ / 2 : 0.00001; // NC (0 o -1) debe ir como 1/2*LQ, si no encuentra el LQ => 0.00001
+                        return Number(registro.valor);
                     });
 
                     return { fecha, muestras: valores };
@@ -112,5 +143,21 @@ export default class MannKendallService {
         } catch (err) {
             throw dbErrorMsg(err.status || 500, err.message || 'Error interno al generar datos Mann-Kendall');
         }
+    }
+}
+
+async function getLQs (triples) {
+    if (!triples.length) return [];
+
+    const conditions = triples.map(() => '(compuestoId = ? AND metodoId = ? AND laboratorioId = ?)').join(' OR ');
+    const values = triples.flatMap(t => [t.compuestoId, t.metodoId, t.laboratorioId]);
+
+    const sql = `SELECT laboratorioId, compuestoId, metodoId, UMId, valorLQ FROM LQs WHERE ${conditions}`;
+
+    try {
+        const [rows] = await pool.query(sql, values);
+        return rows;
+    } catch (error) {
+        throw dbErrorMsg(error.status, error.sqlMessage || error.message);
     }
 }
