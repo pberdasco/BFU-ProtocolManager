@@ -5,3 +5,4 @@ import cadenasSubproyectoCompuestoController from '../controllers/cadenasSubproy
 export const cadenasSubproyectoCompuestoRouter = Router();
 
 cadenasSubproyectoCompuestoRouter.get('/:subproyectoId/:matrizCodigo/:compuestoId', cadenasSubproyectoCompuestoController.getCadenasPorSubproyecto);
+cadenasSubproyectoCompuestoRouter.get('/valoresSubproyecto/:subproyectoId', cadenasSubproyectoCompuestoController.getValoresSubproyecto);

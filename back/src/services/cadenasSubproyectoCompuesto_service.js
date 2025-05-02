@@ -72,4 +72,82 @@ export default class CadenasSubproyectoCompuestoService {
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);
         }
     }
+
+    /**
+     * Devuelve una tabla plana para todos los valores de un subproyecto.
+     *
+     * @param {number} subproyectoId - ID del subproyecto.
+     * @returns {Object[]} - Array de objetos {pozoId, pozoNombre, fecha, compuestoId, compuestoNombre, unidad, valor, tipodato:(compuesto, nivel, fase)}.
+     */
+    static async getValoresSubproyecto (subproyectoId) {
+        const sql = `-- Datos de compuestos desde CadenaCompletaValores
+                    SELECT
+                        p.subproyectoId,
+                        p.id AS pozoId,
+                        p.nombre AS pozoNombre,
+                        em.fecha,
+                        c.id AS compuestoId,
+                        c.nombre AS compuestoNombre,
+                        um.nombre AS unidad,
+                        CAST(ccv.valor AS DECIMAL(10,4)) AS valor,
+                        'compuesto' AS tipoDato
+                    FROM EventoMuestreo em
+                    JOIN CadenaCustodia cc ON cc.eventoMuestreoId = em.id
+                    JOIN Muestras m ON m.cadenaCustodiaId = cc.id
+                    JOIN Pozos p ON p.id = m.pozoId
+                    JOIN CadenaCompletaValores ccv ON ccv.muestraId = m.id
+                    JOIN CadenaCompletaFilas ccf ON ccf.id = ccv.cadenaCompletaFilaId
+                    JOIN Compuestos c ON c.id = ccf.compuestoId
+                    JOIN UM um ON um.id = ccf.umId
+                    WHERE p.subproyectoId = ?
+
+                    UNION ALL
+
+                    -- Nivel freático como "compuesto virtual"
+                    SELECT
+                        p.subproyectoId,
+                        p.id AS pozoId,
+                        p.nombre AS pozoNombre,
+                        em.fecha,
+                        -1 AS compuestoId,
+                        'Nivel freático' AS compuestoNombre,
+                        'm.b.b.p.' AS unidad,
+                        CAST(m.nivelFreatico AS DECIMAL(10,4)) AS valor,
+                        'nivel' AS tipoDato
+                    FROM EventoMuestreo em
+                    JOIN CadenaCustodia cc ON cc.eventoMuestreoId = em.id
+                    JOIN Muestras m ON m.cadenaCustodiaId = cc.id
+                    JOIN Pozos p ON p.id = m.pozoId
+                    WHERE m.nivelFreatico IS NOT NULL
+                    AND p.subproyectoId = ?
+
+                    UNION ALL
+
+                    -- FLNA como "compuesto virtual"
+                    SELECT
+                        p.subproyectoId,
+                        p.id AS pozoId,
+                        p.nombre AS pozoNombre,
+                        em.fecha,
+                        -2 AS compuestoId,
+                        'FLNA' AS compuestoNombre,
+                        'mg/L' AS unidad,
+                        CAST(m.flna AS DECIMAL(10,4)) AS valor,
+                        'fase' AS tipoDato
+                    FROM EventoMuestreo em
+                    JOIN CadenaCustodia cc ON cc.eventoMuestreoId = em.id
+                    JOIN Muestras m ON m.cadenaCustodiaId = cc.id
+                    JOIN Pozos p ON p.id = m.pozoId
+                    WHERE m.flna IS NOT NULL
+                    AND p.subproyectoId = ?;
+                `;
+
+        try {
+            // Obtener todas las cadenas del subproyecto y matriz
+            const [valores] = await pool.query(sql, [subproyectoId, subproyectoId, subproyectoId]);
+            return valores;
+        } catch (error) {
+            throw dbErrorMsg(error.status, error.sqlMessage || error.message);
+        }
+    }
 }
