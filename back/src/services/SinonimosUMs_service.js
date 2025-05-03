@@ -74,8 +74,6 @@ export default class SinonimosUMsService {
                 FROM SinonimosUM s
                 WHERE s.textoProcesado IN (${umsProcesados.map(() => '?').join(',')})
             `;
-            console.log('select: ', sql, ...umsProcesados);
-
             const [rows] = await pool.query(sql, [...umsProcesados]);
 
             umsOriginales.forEach((umOriginal, index) => {

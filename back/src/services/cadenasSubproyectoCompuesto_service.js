@@ -81,11 +81,13 @@ export default class CadenasSubproyectoCompuestoService {
      */
     static async getValoresSubproyecto (subproyectoId) {
         const sql = `-- Datos de compuestos desde CadenaCompletaValores
+                WITH DatosRaw AS (
                     SELECT
                         p.subproyectoId,
                         p.id AS pozoId,
                         p.nombre AS pozoNombre,
                         em.fecha,
+                        c.codigo AS compuestoCodigo,
                         c.id AS compuestoId,
                         c.nombre AS compuestoNombre,
                         um.nombre AS unidad,
@@ -109,10 +111,11 @@ export default class CadenasSubproyectoCompuestoService {
                         p.id AS pozoId,
                         p.nombre AS pozoNombre,
                         em.fecha,
+                        '00000001' AS compuestoCodigo,
                         -1 AS compuestoId,
                         'Nivel freático' AS compuestoNombre,
                         'm.b.b.p.' AS unidad,
-                        CAST(m.nivelFreatico AS DECIMAL(10,4)) AS valor,
+                        CAST(CASE WHEN m.nivelFreatico = 0 THEN -4 ELSE m.nivelFreatico END AS DECIMAL(10,4)) AS valor,
                         'nivel' AS tipoDato
                     FROM EventoMuestreo em
                     JOIN CadenaCustodia cc ON cc.eventoMuestreoId = em.id
@@ -129,17 +132,27 @@ export default class CadenasSubproyectoCompuestoService {
                         p.id AS pozoId,
                         p.nombre AS pozoNombre,
                         em.fecha,
+                        '00000002' AS compuestoCodigo,
                         -2 AS compuestoId,
                         'FLNA' AS compuestoNombre,
                         'mg/L' AS unidad,
-                        CAST(m.flna AS DECIMAL(10,4)) AS valor,
+                        CAST(CASE WHEN m.flna = 0 THEN -4 ELSE m.flna END AS DECIMAL(10,4)) AS valor,
                         'fase' AS tipoDato
                     FROM EventoMuestreo em
                     JOIN CadenaCustodia cc ON cc.eventoMuestreoId = em.id
                     JOIN Muestras m ON m.cadenaCustodiaId = cc.id
                     JOIN Pozos p ON p.id = m.pozoId
                     WHERE m.flna IS NOT NULL
-                    AND p.subproyectoId = ?;
+                    AND p.subproyectoId = ?
+                )
+                SELECT 
+                    dr.*,
+                    CASE
+                        WHEN dr.valor IN (-4, -3, -2) THEN NULL      -- NA o ND → null en chart
+                        WHEN dr.valor <= 0 THEN 0.00001          -- NC       → valor muy pequeño / podria ser 1/2*LQ
+                        ELSE dr.valor                            -- resto    → valor real
+                    END AS valorChart
+                    FROM DatosRaw dr;
                 `;
 
         try {
