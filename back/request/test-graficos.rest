@@ -1,0 +1,56 @@
+### Graficos/ 
+#* allowedFields = ["id", "nombre", "eje1", "eje2"];
+
+### GET 
+### ? Todos los Graficos
+GET http://localhost:5001/graficos/
+
+### ? Graficos por nombre
+# Este request filtra compuesto con nombre = 'NP-HTP'
+# Formato interno: ["nombre","=","NP-HTP"]
+GET http://localhost:5001/graficos?$filter=[%22nombre%22%2C%22%3D%22%2C%22NP-HTP%22]
+
+
+### ? Get por ID
+GET http://localhost:5001/graficos/1
+
+### Updates
+### ? Actualizar un grafico que no existe
+PUT http://localhost:5001/graficos/45
+Content-Type: application/json
+
+{
+  "nombre": "NP-FLNA",
+  "eje1": [-2],
+  "eje2": [-1]
+}
+
+### ? Actualizar un grafico
+PUT http://localhost:5001/graficos/2
+Content-Type: application/json
+
+{
+  "nombre": "NP-FLNA",
+  "eje1": [-2],
+  "eje2": [-1]
+}
+
+
+### Create
+### ? Crear un Grafico 
+POST http://localhost:5001/graficos/
+Content-Type: application/json
+
+{
+  "nombre": "NP-HTP",
+  "eje1": [1],
+  "eje2": [-1]
+}
+
+### Delete
+### ? Borrar un grafico que no existe
+DELETE http://localhost:5001/graficos/35
+
+### Delete
+### ? Borrar un labortorio que sí existe
+DELETE http://localhost:5001/graficos/3
