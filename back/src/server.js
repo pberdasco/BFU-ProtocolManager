@@ -40,6 +40,7 @@ import { mkPozosRouter } from './routers/mkPozos_router.js';
 import { mkCompuestosRouter } from './routers/mkCompuestos_router.js';
 import { cadenasSubproyectoCompuestoRouter } from './routers/cadenasSubproyectoCompuesto_router.js';
 import { graficosRouter } from './routers/graficos_router.js';
+import { graficosGruposRouter } from './routers/graficosGrupos_router.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -89,6 +90,7 @@ app.use('/mkcompuestos', mkCompuestosRouter);
 app.use('/mkpozos', mkPozosRouter);
 app.use('/cadenasSubproyectoCompuesto', cadenasSubproyectoCompuestoRouter);
 app.use('/graficos', graficosRouter);
+app.use('/graficosGrupos', graficosGruposRouter);
 
 // Servir archivos estáticos del frontend
 app.use(express.static(path.join(__dirname, '../../public')));
