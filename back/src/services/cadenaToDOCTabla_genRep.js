@@ -7,8 +7,8 @@ import {
 import LqsService from './lqs_service.js';
 import UMService from './um_service.js';
 
-const MAX_MUESTRAS_COLS = 5;
-const MAX_FILAS_LINES = 10;
+const MAX_MUESTRAS_COLS = 8;
+const MAX_FILAS_LINES = 30;
 
 export async function generateReport (proyectoNombre, fechaMuestreo, data) {
     const matrices = {
