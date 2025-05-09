@@ -1,0 +1,11 @@
+### umConvert/ 
+
+### GET 
+### ? Todas las Conversiones de unidades de medida
+GET http://localhost:5001/umConvert/
+
+
+### ? Obtener un factor
+### convertir la um 2 en la um 1
+GET http://localhost:5001/umConvert/2/1
+

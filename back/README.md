@@ -2,6 +2,8 @@
 
 Este es el backend de un sistema para la gestión de eventos de muestreo, cadenas de custodia, análisis de laboratorio y generación de reportes Excel. Desarrollado con Node.js y Express, sigue una estructura modular orientada a recursos REST.
 
+- 🔗 [Repositorio en Deepwiki - BFU Protocol Manager](https://deepwiki.com/pberdasco/BFU-ProtocolManager)
+
 ## 📁 Estructura del proyecto
 
 ```
