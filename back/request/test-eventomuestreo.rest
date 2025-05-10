@@ -27,7 +27,7 @@ Content-Type: application/json
   "fecha": "2024-09-01",
   "subproyectoId": 1,
   "nombre": "Ev Muestr cc-Xs-22",
-  "cadenaCustodiaLink": "cadenCustodiaLink cc-Xs-22"
+  "cadenasCustodiaPDFLink": "cadenCustodiaLink cc-Xs-22"
 }
 
 ### ? Actualizar un evento de muestreo
@@ -38,7 +38,7 @@ Content-Type: application/json
   "fecha": "2024-09-01",
   "subproyectoId": 1,
   "nombre": "Ev Muestr cc-Xs-22",
-  "cadenaCustodiaLink": "cadenaCustodiaLink cc-Xs-22"
+  "cadenasCustodiaPDFLink": "cadenaCustodiaLink cc-Xs-22"
 }
 
 ### Create
@@ -48,9 +48,10 @@ Content-Type: application/json
 
 {
   "fecha": "2023-07-15",
-  "subproyectoId": 5,
+  "subproyectoId": 266,
   "nombre": "Ev Muestr TRXA -23-07-15",
-  "cadenaCustodiaLink": "cadenaCustodiaLink TRXA - 23-07-15"
+  "soloMuestras": true,
+  "cadenasCustodiaPDFLink": null
 }
 
 ### Delete

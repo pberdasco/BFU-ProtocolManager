@@ -7,11 +7,12 @@ const allowedFields = {
     subproyectoId: 'E.subproyectoId',
     subproyecto: 'S.codigo',
     nombre: 'E.nombre',
-    cadenasCustodiaPDFLink: 'E.cadenasCustodiaPDFLink'
+    cadenasCustodiaPDFLink: 'E.cadenasCustodiaPDFLink',
+    soloMuestras: 'E.soloMuestras'
 };
 
 const table = 'Eventomuestreo';
-const selectBase = 'SELECT E.id, E.fecha, E.subproyectoId, S.codigo as subproyecto, E.nombre, E.cadenasCustodiaPDFLink ';
+const selectBase = 'SELECT E.id, E.fecha, E.subproyectoId, S.codigo as subproyecto, E.nombre, E.cadenasCustodiaPDFLink, E.soloMuestras ';
 const selectTables = 'FROM Eventomuestreo E ' +
                      'LEFT JOIN Subproyectos S ON E.subproyectoId = S.id ';
 const mainTable = 'E';
@@ -39,7 +40,7 @@ export default class EventomuestreoService {
             values.push(limit, offset);
             const [rows] = await pool.query(sql, values);
 
-            return { data: rows, totalCount };
+            return { data: Evento.fromRows(rows), totalCount };
         } catch (error) {
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);
         }
@@ -96,7 +97,8 @@ export default class EventomuestreoService {
                 SELECT 
                     E.id AS eventoMuestreoId, 
                     E.fecha, 
-                    E.subproyectoId, 
+                    E.subproyectoId,
+                    E.soloMuestras, 
                     S.codigo AS proyecto, 
                     C.nombre AS cliente, 
                     L.nombre AS laboratorio, 

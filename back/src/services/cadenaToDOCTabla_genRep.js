@@ -70,7 +70,7 @@ export async function generateReport (proyectoNombre, fechaMuestreo, data) {
 
             // * == Detalle de las tablas == *
             const filasForMatrix = data.filas.filter(fila =>
-                nombresMuestras.some(sampleName => Object.prototype.hasOwnProperty.call(fila, sampleName))
+                nombresMuestras.some(sampleName => Object.prototype.hasOwnProperty.call(fila, sampleName)) // ~= fila.hasOwnProperty(sampleName)
             );
 
             // Modificación para usar las nuevas funciones de conversión
