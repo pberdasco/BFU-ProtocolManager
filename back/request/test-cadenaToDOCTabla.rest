@@ -413,3 +413,129 @@ GET http://localhost:5001/cadenatoexcel/200184-076-EneroGeneral01.xlsx
 
 ### ? Esto es mejor probarlo poniendo en en navegador
 ### ? http://localhost:5001/cadenatoexcel/200184-076-EneroGeneral01.xlsx
+
+
+### Create TEST um
+### ? Crear un LQ 
+POST http://localhost:5001/cadenatodoctabla/
+Content-Type: application/json
+
+{
+  "proyecto": "200125-236",
+  "fecha": "2025-04-03T12:00:00.000Z",
+  "data": {
+    "muestras": [
+      {
+        "muestraId": 20,
+        "muestra": "MA PM1/1",
+        "tipo": 1,
+        "pozo": 22,
+        "nivelFreatico": "0.000",
+        "profundidad": null,
+        "flna": "0.000",
+        "cadenaOPDS": "cadOPDS",
+        "protocoloOPDS": "protOPDS",
+        "matriz": 1,
+        "cadenaCustodiaId": 13,
+        "laboratorioId": 1
+      },
+      {
+        "muestraId": 21,
+        "muestra": "MA PM2/1",
+        "tipo": 1,
+        "pozo": 23,
+        "nivelFreatico": "0.000",
+        "profundidad": null,
+        "flna": "0.000",
+        "cadenaOPDS": "cadOPDS",
+        "protocoloOPDS": "protOPDS",
+        "matriz": 1,
+        "cadenaCustodiaId": 13,
+        "laboratorioId": 1
+      }
+    ],
+    "filas": [
+      {
+        "id": 1,
+        "cadenaCustodiaId": 13,
+        "compuestoId": 1,
+        "metodoId": 2,
+        "umId": 1,
+        "estado": 2,
+        "protocoloItemId": 207,
+        "MA PM1/1": 0.17,
+        "MA PM2/1": -2,
+        "codigo": "10100000"
+      },
+      {
+        "id": 2,
+        "cadenaCustodiaId": 13,
+        "compuestoId": 2,
+        "metodoId": 2,
+        "umId": 2,
+        "estado": 2,
+        "protocoloItemId": 208,
+        "MA PM1/1": -1,
+        "MA PM2/1": 0.03,
+        "codigo": "10101010"
+      },
+      {
+        "id": 3,
+        "cadenaCustodiaId": 13,
+        "compuestoId": 3,
+        "metodoId": 2,
+        "umId": 1,
+        "estado": 2,
+        "protocoloItemId": 209,
+        "MA PM1/1": -1,
+        "MA PM2/1": 0.5,
+        "codigo": "10101020"
+      },
+      {
+        "id": 4,
+        "cadenaCustodiaId": 13,
+        "compuestoId": 4,
+        "metodoId": 2,
+        "umId": 1,
+        "estado": 2,
+        "protocoloItemId": 210,
+        "MA PM1/1": 0.25,
+        "MA PM2/1": 0.26,
+        "codigo": "10101030"
+      }
+    ],
+    "compuestos": [
+      { "id": 1, "nombre": "HTP" },
+      { "id": 2, "nombre": "GRO" },
+      { "id": 3, "nombre": "DRO" },
+      { "id": 4, "nombre": "MRO" },
+      { "id": 25, "nombre": "Benceno" },
+      { "id": 26, "nombre": "Etilbenceno" },
+      { "id": 27, "nombre": "Tolueno" },
+      { "id": 28, "nombre": "Xilenos" },
+      { "id": 29, "nombre": "MTBE" },
+      { "id": 31, "nombre": "Acenafteno" },
+      { "id": 33, "nombre": "Acenaftileno" },
+      { "id": 35, "nombre": "Antraceno" },
+      { "id": 37, "nombre": "Benzo(a)antraceno" },
+      { "id": 302, "nombre": "Benzo(a)pireno" },
+      { "id": 303, "nombre": "Benzo(b)fluorateno" },
+      { "id": 474, "nombre": "Benzo(g,h,i)perileno" }
+    ],
+    "nivelesGuia": [
+      { "compuestoId": 1, "valorReferencia": "-1", "um": "mg/L", "umId": 1, "matrizId": 1 },
+      { "compuestoId": 2, "valorReferencia": "-1", "um": "mg/L", "umId": 1, "matrizId": 1 },
+      { "compuestoId": 3, "valorReferencia": "0.015", "um": "mg/L", "umId": 1, "matrizId": 1 },
+      { "compuestoId": 4, "valorReferencia": "0.020", "um": "ug/L", "umId": 2, "matrizId": 1 }
+    ],
+    "laboratorios": [
+      { "id": 1, "nombre": "Induser" },
+      { "id": 2, "nombre": "Labca" }
+    ]
+  }
+}
+
+// Mas pruebas
+// - compuestos sin niveles guia
+// - niveles guia SAT
+// - juego de UMs que no tengan conversion

@@ -4,26 +4,33 @@ import {
     splitSamples, createFechaMuestreoRow, createLaboratorioRow, createOPDSRows, setNombresMuestras, setSustanciaProfundidad, setSustanciaMuestra,
     createCompoundRow, createEpigrafeParagraph, createTablaSeccionConEpigrafe, createSubTitleParagraph, createMainTitleParagraph, buildDoc
 } from './cadenaTODOCTabla_Helper.js';
+import { determinarUMFila, verificarConversionesFallidas } from './cadenaTODOCTabla_UMs.js';
 import LqsService from './lqs_service.js';
 import UMService from './um_service.js';
+import UMConvertService from './umConvert_service.js';
 
 const MAX_MUESTRAS_COLS = 8;
 const MAX_FILAS_LINES = 30;
 
-export async function generateReport (proyectoNombre, fechaMuestreo, data) {
-    const matrices = {
-        1: 'Agua',
-        2: 'FLNA',
-        3: 'Suelo',
-        4: 'Gases'
-    };
+const matrices = {
+    1: 'Agua',
+    2: 'FLNA',
+    3: 'Suelo',
+    4: 'Gases'
+};
 
+export async function generateReport (proyectoNombre, fechaMuestreo, data) {
+    // seleccionar el laboratorio de la primera muestra para definir que tabla de LQs usar
     const laboratorioIdPrimeraMuestra = data.muestras[0]?.laboratorioId || 1;
     const LqKeysToSearch = data.filas.map(x => {
         return { compuestoId: x.compuestoId, metodoId: x.metodoId, laboratorioId: laboratorioIdPrimeraMuestra };
     });
     const LQs = await LqsService.getByCompuestoMetodoLab(LqKeysToSearch);
     const UMs = await UMService.getAll({ where: null, values: [], order: [], limit: 100, offset: 0 }); // nunca hay mas de 100 UMs (son menos de 20 en realidad)
+    const umConvert = await UMConvertService.getAll();
+
+    // Crear un array para rastrear conversiones fallidas
+    const conversionesFallidas = [];
 
     const sections = [];
     let mainTitleAdded = false;
@@ -65,7 +72,30 @@ export async function generateReport (proyectoNombre, fechaMuestreo, data) {
             const filasForMatrix = data.filas.filter(fila =>
                 nombresMuestras.some(sampleName => Object.prototype.hasOwnProperty.call(fila, sampleName))
             );
-            const compoundRows = filasForMatrix.map(fila => createCompoundRow(fila, data, LQs, UMs, muestrasBloque, matrixId));
+
+            // Modificación para usar las nuevas funciones de conversión
+            const compoundRows = filasForMatrix.map(fila => {
+                // Determinar nivel guía para este compuesto/matriz
+                const nivelGuia = data.nivelesGuia.find(n =>
+                    n.compuestoId === fila.compuestoId && n.matrizId === Number(matrixId)
+                );
+
+                // Determinar la UM correcta para esta fila
+                const umFila = determinarUMFila(fila, nivelGuia, UMs);
+
+                // Crear la fila con la información de UM
+                return createCompoundRow(
+                    fila,
+                    data,
+                    LQs,
+                    UMs,
+                    muestrasBloque,
+                    matrixId,
+                    umFila,
+                    umConvert,
+                    conversionesFallidas
+                );
+            });
 
             const totalChunks = Math.ceil(compoundRows.length / MAX_FILAS_LINES);
             totalSubtables = totalChunks * bloquesMuestras.length;
@@ -102,10 +132,20 @@ export async function generateReport (proyectoNombre, fechaMuestreo, data) {
         });
     });
 
+    // Verificar si hay datos para generar el reporte
     if (sections.length === 0) {
         const error = new Error('No hay datos disponibles para generar el reporte.');
         error.status = 204;
         error.code = 'NO_DATA';
+        throw error;
+    }
+
+    // Verificar si hay conversiones fallidas
+    const errorConversiones = verificarConversionesFallidas(conversionesFallidas, UMs);
+    if (errorConversiones) {
+        const error = new Error(errorConversiones);
+        error.status = 400;
+        error.code = 'CONVERSION_ERROR';
         throw error;
     }
 

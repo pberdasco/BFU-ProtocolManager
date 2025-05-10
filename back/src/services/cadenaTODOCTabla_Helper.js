@@ -1,4 +1,5 @@
 import { Document, Paragraph, TextRun, TableRow, TableCell, AlignmentType, WidthType, ShadingType, PageOrientation, Header, VerticalAlign } from 'docx';
+import { convertirValor } from './cadenaTODOCTabla_UMs.js';
 
 const HEADER_COLOR = 'D9D9D9';
 /**
@@ -231,20 +232,37 @@ export function setSustanciaMuestra (muestrasBloque) {
 }
 
 // * Lineas de detalle (compuestos)
-export function createCompoundRow (fila, data, LQs, UMs, muestrasBloque, matrixId) {
+export function createCompoundRow (fila, data, LQs, UMs, muestrasBloque, matrixId, umFila, umConvert, conversionesFallidas) {
     const comp = data.compuestos.find(c => c.id === fila.compuestoId);
     const compoundName = comp ? comp.nombre : `Compuesto ${fila.compuestoId}`;
 
+    // Obtener el LQ para este compuesto/método
     const LQ = LQs.find(x => x.compuestoId === fila.compuestoId && x.metodoId === fila.metodoId);
-    const lc = LQ?.valorLQ ?? '-';
+    let lc = LQ?.valorLQ ?? '-';
+
+    // Convertir LC a la unidad de la fila si es necesario
+    if (LQ && LQ.UMId && umFila.umId !== LQ.UMId) {
+        lc = convertirValor(lc, LQ.UMId, umFila.umId, umConvert, conversionesFallidas);
+    }
+
+    // Formatear LC
     const lcFormateado = isNaN(Number(lc)) ? lc : Number(lc).toFixed(3);
 
-    const um = UMs.data.find(x => x.id === fila.umId);
-    const umFormateado = um?.nombre ?? '-';
+    // Usar la UM de la fila determinada según las reglas
+    const umFormateado = umFila.umNombre;
 
+    // Obtener el nivel guía para este compuesto/matriz
     const nivelGuia = data.nivelesGuia.find(n =>
         n.compuestoId === fila.compuestoId && n.matrizId === Number(matrixId)
     );
+
+    // Para el valor de referencia del nivel guía no es necesaria conversion porque es la UM que manda
+    let valorReferencia = getValorReferencia(nivelGuia?.valorReferencia);
+
+    // Formatear el valor de referencia
+    if (valorReferencia !== 'NL' && !isNaN(Number(valorReferencia))) {
+        valorReferencia = Number(valorReferencia).toFixed(3);
+    }
 
     return new TableRow({
         children: [
@@ -252,20 +270,36 @@ export function createCompoundRow (fila, data, LQs, UMs, muestrasBloque, matrixI
             new TableCell({ children: [new Paragraph({ text: lcFormateado, alignment: AlignmentType.CENTER })] }),
             new TableCell({ children: [new Paragraph({ text: umFormateado, alignment: AlignmentType.CENTER })] }),
             ...muestrasBloque.map(s => {
+                // Obtener el valor de la medición
                 let val = fila[s.muestra];
+
+                // Convertir el valor de la medición si es necesario
+                if (val !== -1 && val !== -2 && val !== -3 && val != null) {
+                    val = convertirValor(val, fila.umId, umFila.umId, umConvert, conversionesFallidas);
+                }
+
+                // Formatear el valor
                 if (val === -1) val = 'NC';
                 else if (val === -2) val = 'ND';
                 else if (val === -3) val = 'NA';
                 else if (val == null) val = 'NA';
+                else if (!isNaN(Number(val))) val = Number(val).toFixed(3);
+
                 return new TableCell({
                     children: [new Paragraph({ text: String(val), alignment: AlignmentType.CENTER })]
                 });
             }),
             new TableCell({
-                children: [new Paragraph({ text: String(nivelGuia?.valorReferencia || 'NL'), alignment: AlignmentType.CENTER })]
+                children: [new Paragraph({ text: String(valorReferencia), alignment: AlignmentType.CENTER })]
             })
         ]
     });
+}
+
+function getValorReferencia (valor) {
+    if (valor === '-1') return '<LC';
+    if (valor === '-2') return 'SAT';
+    return valor || 'NL';
 }
 
 function getMatrixLetter (matrixId) {

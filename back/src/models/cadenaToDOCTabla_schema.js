@@ -37,10 +37,17 @@ const compuestoSchema = z.object({
 
 // Schema para cada nivel de guía
 const nivelGuiaSchema = z.object({
+    id: z.number().int().positive().optional(),
+    autAplicacionId: z.number().int().positive().optional(),
+    autoridad: z.string().min(1).optional(),
+    fechaVigencia: z.string().datetime().optional(),
     compuestoId: z.number().int().positive(),
+    compuesto: z.string().min(1).optional(),
+    norma: z.string().min(1).optional(),
     valorReferencia: z.string().min(1),
-    um: z.string().min(1),
-    matrizId: z.number().int().positive()
+    matrizId: z.number().int().positive(),
+    umId: z.number().int().positive(),
+    um: z.string().min(1)
 });
 
 // Schema para cada laboratorio
