@@ -56,7 +56,7 @@ export default class MannKendallService {
                 JOIN Muestras m ON m.cadenaCustodiaId = ccust.id AND m.tipo = 1
                 JOIN CadenaCompletaFilas cc ON cc.cadenaCustodiaId = ccust.id
                 JOIN CadenaCompletaValores cv ON cv.cadenaCompletaFilaId = cc.id AND cv.muestraId = m.id
-                WHERE em.subproyectoId = ?
+                WHERE em.soloMuestras = false AND em.subproyectoId = ?
                 AND cc.compuestoId IN (?) 
                 AND m.pozoId IN (?)`, [
                 subproyectoId,

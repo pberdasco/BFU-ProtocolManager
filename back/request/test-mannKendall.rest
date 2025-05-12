@@ -1,5 +1,5 @@
 ### GET toma los datos para mandar a armar mannkendall - solo para pruebas porque el get std hace las 2 cosas
-GET http://localhost:5001/mannKendall/data/266
+GET http://localhost:5001/mannKendall/data/55
 
 
 ### GET crea mannnKendall //TODO: cambiar a post

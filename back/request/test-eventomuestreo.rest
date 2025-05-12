@@ -10,6 +10,11 @@ GET http://localhost:5001/eventomuestreo/
 # Formato interno: ["subproyectoId","=","4"]
 GET http://localhost:5001/eventomuestreo?$filter=[%22subproyectoId%22%2C%22%3D%22%2C%222%22]
 
+### ? Filtra Eventos de Muestreo  
+# Este request filtra los Eventos de Muestreo del subproyectoId  = 4
+# Formato interno: ["soloMuestras", "!=", true]
+GET http://localhost:5001/eventomuestreo?$filter=[%22soloMuestras%22%2C%22!%3D%22%2Ctrue]
+
 ### GET by Id
 ### ? 
 GET http://localhost:5001/eventomuestreo/8

@@ -25,7 +25,10 @@ const filaSchema = z.object({
     umId: z.number().int().positive(),
     estado: z.number(),
     protocoloItemId: z.number().int().positive().nullable(),
-    codigo: z.string().min(1)
+    codigo: z.string().min(1),
+    nivelGuia: z.number().nullable(),
+    nivelGuiaOriginal: z.number().nullable(),
+    nivelGuiaOriginalUM: z.number().int().nullable()
 })
     .catchall(z.number()); // Cualquier otra propiedad (los valores asociados a cada muestra) deben ser números
 

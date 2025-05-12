@@ -465,7 +465,10 @@ Content-Type: application/json
         "protocoloItemId": 207,
         "MA PM1/1": 0.17,
         "MA PM2/1": -2,
-        "codigo": "10100000"
+        "codigo": "10100000",
+        "nivelGuia": 0.15,
+        "nivelGuiaOriginal": 0.15,
+        "nivelGuiaOriginalUM": 2
       },
       {
         "id": 2,
@@ -477,7 +480,10 @@ Content-Type: application/json
         "protocoloItemId": 208,
         "MA PM1/1": -1,
         "MA PM2/1": 0.03,
-        "codigo": "10101010"
+        "codigo": "10101010",
+        "nivelGuia": 0.15,
+        "nivelGuiaOriginal": 0.15,
+        "nivelGuiaOriginalUM": 2
       },
       {
         "id": 3,
@@ -489,7 +495,10 @@ Content-Type: application/json
         "protocoloItemId": 209,
         "MA PM1/1": -1,
         "MA PM2/1": 0.5,
-        "codigo": "10101020"
+        "codigo": "10101020",
+        "nivelGuia": null,
+        "nivelGuiaOriginal": null,
+        "nivelGuiaOriginalUM": null
       },
       {
         "id": 4,
@@ -501,7 +510,10 @@ Content-Type: application/json
         "protocoloItemId": 210,
         "MA PM1/1": 0.25,
         "MA PM2/1": 0.26,
-        "codigo": "10101030"
+        "codigo": "10101030",
+        "nivelGuia": 0.25,
+        "nivelGuiaOriginal": 0.25,
+        "nivelGuiaOriginalUM": 1
       }
     ],
     "compuestos": [
