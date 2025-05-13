@@ -93,18 +93,42 @@ export default class GraficosGruposService {
 
     static async update (id, group) {
         try {
-            const pozos = await GraficosGruposService.sanitizeIds(group.pozos, 'pozos');
-            const graficos = await GraficosGruposService.sanitizeIds(group.graficos, 'graficos');
-            const [res] = await pool.query(
-                `UPDATE ${table}
-           SET subproyectoId = ?,
-               nombre        = ?,
-               pozos         = CAST(? AS JSON),
-               graficos      = CAST(? AS JSON)
-         WHERE id = ?`,
-                [group.subproyectoId, group.nombre, JSON.stringify(pozos), JSON.stringify(graficos), id]
-            );
+            const sets = [];
+            const values = [];
+
+            if (group.subproyectoId !== undefined) {
+                sets.push('subproyectoId = ?');
+                values.push(group.subproyectoId);
+            }
+
+            if (group.nombre !== undefined) {
+                sets.push('nombre = ?');
+                values.push(group.nombre);
+            }
+
+            if (group.pozos !== undefined) {
+                const pozos = await GraficosGruposService.sanitizeIds(group.pozos, 'pozos');
+                sets.push('pozos = CAST(? AS JSON)');
+                values.push(JSON.stringify(pozos));
+            }
+
+            if (group.graficos !== undefined) {
+                const graficos = await GraficosGruposService.sanitizeIds(group.graficos, 'graficos');
+                sets.push('graficos = CAST(? AS JSON)');
+                values.push(JSON.stringify(graficos));
+            }
+
+            // Si no llegó ningún campo para actualizar, devolvemos el registro tal cual
+            if (sets.length === 0) {
+                return GraficosGruposService.getById(id);
+            }
+
+            const sql = `UPDATE ${table} SET ${sets.join(', ')} WHERE id = ?`;
+            values.push(id);
+
+            const [res] = await pool.query(sql, values);
             if (res.affectedRows !== 1) throw dbErrorMsg(404, noExiste);
+
             return GraficosGruposService.getById(id);
         } catch (error) {
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);

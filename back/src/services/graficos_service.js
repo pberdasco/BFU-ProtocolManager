@@ -88,13 +88,32 @@ export default class GraficosService {
 
     static async update (id, grafico) {
         try {
-            const eje1 = await GraficosService.sanitizeCompuestoIds(grafico.eje1);
-            const eje2 = await GraficosService.sanitizeCompuestoIds(grafico.eje2);
-            const [res] = await pool.query(
-                `UPDATE ${table} SET nombre = ?, eje1 = CAST(? AS JSON), eje2 = CAST(? AS JSON) WHERE id = ?`,
-                [grafico.nombre, JSON.stringify(eje1), JSON.stringify(eje2), id]
-            );
+            // 1) Determinar qué campos llegaron
+            const sets = [];
+            const values = [];
+
+            if (grafico.nombre !== undefined) {
+                sets.push('nombre = ?');
+                values.push(grafico.nombre);
+            }
+            if (grafico.eje1 !== undefined) {
+                const eje1 = await GraficosService.sanitizeCompuestoIds(grafico.eje1);
+                sets.push('eje1 = CAST(? AS JSON)');
+                values.push(JSON.stringify(eje1));
+            }
+            if (grafico.eje2 !== undefined) {
+                const eje2 = await GraficosService.sanitizeCompuestoIds(grafico.eje2);
+                sets.push('eje2 = CAST(? AS JSON)');
+                values.push(JSON.stringify(eje2));
+            }
+
+            if (sets.length === 0) return GraficosService.getById(id); // Nada que actualizar
+
+            const sql = `UPDATE ${table} SET ${sets.join(', ')} WHERE id = ?`;
+            values.push(id);
+            const [res] = await pool.query(sql, values);
             if (res.affectedRows !== 1) throw dbErrorMsg(404, noExiste);
+
             return GraficosService.getById(id);
         } catch (error) {
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);

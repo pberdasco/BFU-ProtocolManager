@@ -1,10 +1,7 @@
 # Backend para Gestión de Cadenas de Custodia y Análisis de Muestras
 
-![Node.js](https://img.shields.io/badge/Node.js-22.12-blue?logo=node.js)
-![License](https://img.shields.io/badge/Licencia-Privado-lightgrey)
-![Estado](https://img.shields.io/badge/Estado-En%20desarrollo-yellow)
-![MannKendall](https://img.shields.io/badge/Mann--Kendall-WinAx%20Required-critical)
-![Base de Datos](https://img.shields.io/badge/MySQL-v8.x-brightgreen?logo=mysql)
+![Node.js](https://img.shields.io/badge/Node%2Ejs-v22%2Ex-blue?logo=node%2Ejs) ![Base de Datos](https://img.shields.io/badge/MySQL-v8%2Ex-blue?logo=mysql)
+![Estado](https://img.shields.io/badge/Estado-En%20desarrollo-yellow) ![MannKendall](https://img.shields.io/badge/Mann--Kendall-WinAx%20Required-orange) ![License](https://img.shields.io/badge/Licencia-Privado-lightgrey)
 
 Este es el backend de un sistema para la gestión de eventos de muestreo, cadenas de custodia, análisis de laboratorio y generación de reportes Excel. Desarrollado con Node.js y Express, sigue una estructura modular orientada a recursos REST.
 
