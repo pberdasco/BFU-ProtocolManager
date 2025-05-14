@@ -26,7 +26,7 @@ function getUniqueCompounds (records) {
             map.set(key, { nombre: r.compuestoNombre, unidad: r.unidad });
         }
     });
-    return Array.from(map.values());
+    return Array.from(map.entries()).map(([_, value]) => value);
 }
 
 /**
@@ -45,8 +45,11 @@ function getUniqueDates (records) {
 function writeCompoundHeaders (sheet, compounds) {
     compounds.forEach((c, idx) => {
         const col = 2 + idx;
-        sheet.getCell(2, col).value = c.nombre;
-        sheet.getCell(3, col).value = c.unidad;
+        const cellName = columnNumberToName(col) + '2';
+        const unitCell = columnNumberToName(col) + '3';
+
+        sheet.getCell(cellName).value = c.nombre;
+        sheet.getCell(unitCell).value = c.unidad;
     });
 }
 
@@ -56,8 +59,9 @@ function writeCompoundHeaders (sheet, compounds) {
 function writeDates (sheet, dates) {
     dates.forEach((d, idx) => {
         const row = 4 + idx;
-        sheet.getCell(row, 1).value = d;
-        sheet.getCell(row, 1).numFmt = 'yyyy-mm-dd';
+        const cellRef = 'A' + row;
+        sheet.getCell(cellRef).value = d;
+        sheet.getCell(cellRef).numFmt = 'yyyy-mm-dd';
     });
 }
 
@@ -65,8 +69,10 @@ function writeDates (sheet, dates) {
  * Populate intersection cells with valorChart
  */
 function writeValues (sheet, records, compounds, dates) {
+    // Create lookup maps for faster access
     const compIndex = new Map();
     compounds.forEach((c, idx) => compIndex.set(c.nombre, 2 + idx));
+
     const dateIndex = new Map();
     dates.forEach((d, idx) => dateIndex.set(d.getTime(), 4 + idx));
 
@@ -74,15 +80,29 @@ function writeValues (sheet, records, compounds, dates) {
         const nombre = r.compuestoNombre;
         const col = compIndex.get(nombre);
         const row = dateIndex.get(new Date(r.fecha).getTime());
-        if (col != null && row != null) {
-            sheet.getCell(row, col).value = parseFloat(r.valorChart);
+
+        if (col !== undefined && row !== undefined) {
+            const cellRef = columnNumberToName(col) + row;
+            let value = null;
+
+            // Ensure we have a valid number
+            if (r.valorChart !== null && r.valorChart !== undefined) {
+                if (typeof r.valorChart === 'string') {
+                    value = parseFloat(r.valorChart);
+                    // Check if value is NaN
+                    if (isNaN(value)) value = null;
+                } else if (typeof r.valorChart === 'number') {
+                    value = r.valorChart;
+                }
+            }
+
+            sheet.getCell(cellRef).value = value;
         }
     });
 }
 
 /**
  * Build the workbook given measurements and configuration
- * @returns {Promise<{workbook: ExcelJS.Workbook, indexByPozo: object[], indexByCompuesto: object[]}>}
  */
 async function buildWorkbook (measurements, config) {
     const wb = new ExcelJS.Workbook();
@@ -101,16 +121,20 @@ async function buildWorkbook (measurements, config) {
             config.flatMap(item => item.pozos)
         )
     );
+
     // For each pozo in config
     uniquePozos.forEach(pozoId => {
         const records = byPozo[pozoId] || [];
         if (!records.length) return;
 
         const pozoName = records[0].pozoNombre;
+        // Sanitize worksheet name (Excel has restrictions on worksheet names)
+        const safePozoName = pozoName.replace(/[*?:/\\[\]]/g, '_').substring(0, 31);
+
         const compounds = getUniqueCompounds(records);
         const dates = getUniqueDates(records);
 
-        const sheet = wb.addWorksheet(pozoName);
+        const sheet = wb.addWorksheet(safePozoName);
         sheet.getCell('A1').value = pozoName;
 
         writeCompoundHeaders(sheet, compounds);
