@@ -4,4 +4,4 @@ GET http://localhost:5001/cadenasSubproyectoCompuesto/266/1/1
 
 
 ### Obtener valores en tabla plana
-GET http://localhost:5001/cadenasSubproyectoCompuesto/valoresSubproyecto/55
+GET http://localhost:5001/cadenasSubproyectoCompuesto/valoresSubproyecto/266

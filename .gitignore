@@ -3,3 +3,4 @@ back/.env
 back/logs/
 ./.gitignore
 public
+output.xlsx
