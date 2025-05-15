@@ -23,7 +23,7 @@ Content-Type: application/json
     "graficosConfig": [
         { "id": 1, 
           "nombre": "NP-BTEX", 
-          "eje1": [26, 27, 28, 29], 
+          "eje1": [26, 27, 28, 129], 
           "eje2": [-1] 
         },
         { "id": 3, 

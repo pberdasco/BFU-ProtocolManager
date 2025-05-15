@@ -12,8 +12,8 @@ export default class evolucionCDIService {
         const { indexByPozo, indexByCompuesto, createdFile } = await createWellTables(proyectoNombre, gruposConfig, measurements);
 
         const workbookPath = path.resolve(createdFile.path, createdFile.file);
-        generateGraphs(indexByPozo, indexByCompuesto, gruposConfig, graficosConfig, workbookPath);
-
-        return createdFile;
+        const result = generateGraphs(indexByPozo, indexByCompuesto, gruposConfig, graficosConfig, workbookPath);
+        result.createdFile = createdFile;
+        return result;
     }
 }

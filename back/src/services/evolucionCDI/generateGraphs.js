@@ -14,6 +14,9 @@ const LEFT_PADDING = 20;
 export function generateGraphs (indexByWell, indexByCompound, grupos, graficosConfig, workbookPath) {
     let excel;
     let workbook;
+    const warnings = [];
+    const failedGraphs = [];
+
     try {
         excel = openExcel();
         workbook = openWorkbook(excel, workbookPath);
@@ -35,36 +38,72 @@ export function generateGraphs (indexByWell, indexByCompound, grupos, graficosCo
                 try {
                     grupo.graficos.forEach((grafId, idx) => {
                         const graficoConfig = lookupGraficoConfig(grafId, graficosConfig);
+                        const missingCompounds = [];
 
-                        // mapeamos cada cpId a su columna, validando existencia
-                        const eje1Cols = graficoConfig.eje1.map(cpId => {
+                        // map de cada cpId a su columna, recolectando los que faltan
+                        const eje1Cols = graficoConfig.eje1.reduce((cols, cpId) => {
                             const col = compoundMap[cpId];
-                            if (!col) throw stdErrorMsg(400, `[generateGraphs] Sin columna para el compuestoId=${cpId} en pozo=${pozoId}, eje 1.`);
-                            return col;
-                        });
-                        const eje2Cols = graficoConfig.eje2.map(cpId => {
+                            if (!col) {
+                                missingCompounds.push(cpId);
+                                warnings.push(`Sin columna para el compuestoId=${cpId} en pozo=${pozoId}, eje 1.`);
+                            } else {
+                                cols.push(col);
+                            }
+                            return cols;
+                        }, []);
+
+                        const eje2Cols = graficoConfig.eje2.reduce((cols, cpId) => {
                             const col = compoundMap[cpId];
-                            if (!col) throw stdErrorMsg(400, `[generateGraphs] Sin columna para el compuestoId=${cpId} en pozo=${pozoId}, eje 2.`);
-                            return col;
-                        });
+                            if (!col) {
+                                missingCompounds.push(cpId);
+                                warnings.push(`Sin columna para el compuestoId=${cpId} en pozo=${pozoId}, eje 2.`);
+                            } else {
+                                cols.push(col);
+                            }
+                            return cols;
+                        }, []);
+
+                        // Si no hay columnas para ningún eje, registrar el gráfico fallido y continuar
+                        if (eje1Cols.length === 0 && eje2Cols.length === 0) {
+                            const warningMsg = `No se pudo generar el gráfico ${graficoConfig.nombre} en pozo=${pozoId} porque no había columnas para ninguno de los compuestos.`;
+                            warnings.push(warningMsg);
+                            failedGraphs.push({
+                                pozo: pozoId,
+                                grafico: graficoConfig.id,
+                                nombre: graficoConfig.nombre,
+                                mensaje: warningMsg
+                            });
+                            return; // Salta este gráfico y continúa con el siguiente
+                        }
 
                         const chartName = `${sheetName} ${graficoConfig.nombre}`;
                         const pos = calculateChartPosition(idx, wellIndex.filaFin);
-                        addScatterChart({
-                            excel,
-                            sheet,
-                            chartName,
-                            eje1Cols,
-                            eje2Cols,
-                            fechaInicio: new Date(wellIndex.fechaInicio),
-                            fechaFin: new Date(wellIndex.fechaFin),
-                            filaInicio: wellIndex.filaInicio,
-                            filaFin: wellIndex.filaFin,
-                            left: pos.left,
-                            top: pos.top,
-                            width: GRAPH_WIDTH,
-                            height: GRAPH_HEIGHT
-                        });
+
+                        try {
+                            addScatterChart({
+                                excel,
+                                sheet,
+                                chartName,
+                                eje1Cols,
+                                eje2Cols,
+                                fechaInicio: new Date(wellIndex.fechaInicio),
+                                fechaFin: new Date(wellIndex.fechaFin),
+                                filaInicio: wellIndex.filaInicio,
+                                filaFin: wellIndex.filaFin,
+                                left: pos.left,
+                                top: pos.top,
+                                width: GRAPH_WIDTH,
+                                height: GRAPH_HEIGHT
+                            });
+                        } catch (chartError) {
+                            warnings.push(`Error al crear el gráfico ${graficoConfig.nombre} en pozo=${pozoId}: ${chartError.message}`);
+                            failedGraphs.push({
+                                pozo: pozoId,
+                                grafico: graficoConfig.id,
+                                nombre: graficoConfig.nombre,
+                                mensaje: chartError.message
+                            });
+                        }
                     });
                 } finally {
                     if (sheet) release(sheet);
@@ -72,8 +111,18 @@ export function generateGraphs (indexByWell, indexByCompound, grupos, graficosCo
             });
         });
 
+        // Si no se pudo crear ningún gráfico, lanzar un error
+        if (failedGraphs.length === grupos.reduce((total, grupo) => total + grupo.pozos.length * grupo.graficos.length, 0)) {
+            throw stdErrorMsg(400, '[generateGraphs] No se pudo crear ningún gráfico debido a errores con los compuestos');
+        }
+
         saveAndClose(workbook, excel);
-        return true;
+        return {
+            success: true,
+            warnings: warnings.length > 0,
+            warningMessages: warnings,
+            failedGraphs
+        };
     } catch (error) {
         throw stdErrorMsg(error.status, error.message || '[evolucionCDI] generateGraphs error');
     } finally {
@@ -181,7 +230,7 @@ function addScatterChart ({ excel, sheet, chartName, eje1Cols, eje2Cols, fechaIn
             addSeries(chart, sheet, col, filaInicio, filaFin, fechasExcel, xlAxisGroup.xlPrimary, index);
         } catch (error) {
             console.error(`[generateGraphs] - Error agregando serie para columna ${col}:`, error);
-            throw stdErrorMsg(400, `[generateGraphs] Error agregando serie para columna ${col}`);
+            console.warn(`Omitiendo serie para columna ${col} debido a error: ${error.message}`);
         }
     });
 
@@ -191,7 +240,7 @@ function addScatterChart ({ excel, sheet, chartName, eje1Cols, eje2Cols, fechaIn
             addSeries(chart, sheet, col, filaInicio, filaFin, fechasExcel, xlAxisGroup.xlSecondary, eje1Cols.length + index);
         } catch (error) {
             console.error(`[generateGraphs] - Error agregando serie para columna ${col}:`, error);
-            throw stdErrorMsg(400, `[generateGraphs] Error agregando serie para columna ${col}`);
+            console.warn(`Omitiendo serie para columna ${col} debido a error: ${error.message}`);
         }
     });
 
@@ -237,7 +286,7 @@ function addScatterChart ({ excel, sheet, chartName, eje1Cols, eje2Cols, fechaIn
         }
     } catch (error) {
         console.error('[generateGraphs] - Error configurando títulos de ejes:', error);
-        throw stdErrorMsg(500, '[generateGraphs] Error configurando títulos de ejes');
+        throw error; // Propagamos el error para manejar este caso de fallo en la función superior
     } finally {
         if (secondaryAxis) release(secondaryAxis);
         if (primaryAxis) release(primaryAxis);
@@ -267,6 +316,7 @@ function addSeries (chart, sheet, column, rowStart, rowEnd, xValues, axisGroup, 
         series.Name = headerCell.Value;
 
         // ? Importante: Hay que usar el método específico Formula para asignar los valores
+        // ? =SERIES(nombre_serie, valores_x, valores_y, trazado) -trazado es el orden de la serie en el grafico-
         // ? ⚠ Importante: en gráficos tipo scatter (xlXYScatter), el eje X es de valores (no categórico).
         // ? Por eso, los valores de fecha deben pasarse como números de serie de Excel en el segundo argumento de la fórmula.
         // ? En este caso se insertan como una constante (de fechas serializadas en formato Excel) en línea: {xValues.join(',')}.
