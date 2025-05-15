@@ -1,4 +1,4 @@
-import MkPozosService from '../services/mkPozos_service.js';
+import MkPozosService from '../services/reportes/mannKendall/mkPozos_service.js';
 import { showError } from '../middleware/controllerErrors.js';
 import { mkPozosCreateSchema, mkPozosUpdateSchema, mkPozosReplaceSchema } from '../models/mkPozos_schema.js';
 import { z } from 'zod';

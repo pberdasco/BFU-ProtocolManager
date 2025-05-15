@@ -1,4 +1,4 @@
-import EvolucionCDIService from '../services/evolucionCDI/evolucionCDI_service.js';
+import EvolucionCDIService from '../services/reportes/evolucionCDI/evolucionCDI_service.js';
 import { showError } from '../middleware/controllerErrors.js';
 import { configSchema } from '../models/evolucionCDI_schema.js';
 import { z } from 'zod';
@@ -13,6 +13,24 @@ export default class EvolucionCDIController {
             console.log(typeof result, result);
 
             res.status(200).json(result);
+        } catch (error) {
+            showError(req, res, error);
+        }
+    }
+
+    static async download (req, res, next) {
+        try {
+            const { nombreArchivo } = req.params;
+            const filePath = await EvolucionCDIService.getFilePath(nombreArchivo);
+
+            res.download(filePath, nombreArchivo, (err) => {
+                if (err) {
+                    const error = new Error('Error al descargar el archivo');
+                    error.status = 500;
+                    error.stack = err.stack;
+                    showError(req, res, error);
+                }
+            });
         } catch (error) {
             showError(req, res, error);
         }

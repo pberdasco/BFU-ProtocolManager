@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { Packer } from 'docx';
-import { generarNombreArchivoConFecha } from '../utils/filenameGenerator.js';
+import { generarNombreArchivoConFecha } from '../../../utils/filenameGenerator.js';
 import { generateReport } from './cadenaToDOCTabla_genRep.js';
 
 export default class CadenaToDocTablaService {

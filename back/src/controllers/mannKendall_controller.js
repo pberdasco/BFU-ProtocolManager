@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import archiver from 'archiver';
 
-import MannKendallService from '../services/mannKendall_service.js';
+import MannKendallService from '../services/reportes/mannKendall/mannKendall_service.js';
 import { showError } from '../middleware/controllerErrors.js';
 
 export default class MannKendallController {

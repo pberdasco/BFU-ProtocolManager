@@ -1,4 +1,4 @@
-import { pool, dbErrorMsg } from '../../database/db.js';
+import { pool, dbErrorMsg } from '../../../database/db.js';
 /**
      * Devuelve una tabla plana para todos los valores de un subproyecto.
      *

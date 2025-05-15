@@ -1,4 +1,4 @@
-import GraficosGruposService from '../services/graficosGrupos_service.js';
+import GraficosGruposService from '../services/reportes/evolucionCDI/configGrupos_service.js';
 import { showError } from '../middleware/controllerErrors.js';
 import { graficoGrupoCreateSchema, graficoGrupoUpdateSchema } from '../models/graficosGrupos_schema.js';
 import { z } from 'zod';

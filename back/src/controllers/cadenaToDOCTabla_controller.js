@@ -1,4 +1,4 @@
-import CadenaToDocTablaService from '../services/cadenaToDOCTabla_service.js';
+import CadenaToDocTablaService from '../services/reportes/tablasAnaliticas/cadenaToDOCTabla_service.js';
 import { showError } from '../middleware/controllerErrors.js';
 import { cadenaToDOCTablaSchema } from '../models/cadenaToDOCTabla_schema.js';
 import { z } from 'zod';

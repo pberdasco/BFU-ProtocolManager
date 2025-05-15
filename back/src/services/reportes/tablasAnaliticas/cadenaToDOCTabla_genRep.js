@@ -5,9 +5,9 @@ import {
     createCompoundRow, createEpigrafeParagraph, createTablaSeccionConEpigrafe, createSubTitleParagraph, createMainTitleParagraph, buildDoc
 } from './cadenaTODOCTabla_Helper.js';
 import { determinarUMFila, verificarConversionesFallidas } from './cadenaTODOCTabla_UMs.js';
-import LqsService from './lqs_service.js';
-import UMService from './um_service.js';
-import UMConvertService from './umConvert_service.js';
+import LqsService from '../../lqs_service.js';
+import UMService from '../../um_service.js';
+import UMConvertService from '../../umConvert_service.js';
 
 const MAX_MUESTRAS_COLS = 8;
 const MAX_FILAS_LINES = 30;

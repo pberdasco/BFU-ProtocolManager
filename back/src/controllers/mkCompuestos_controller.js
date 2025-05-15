@@ -1,4 +1,4 @@
-import MkCompuestosService from '../services/mkCompuestos_service.js';
+import MkCompuestosService from '../services/reportes/mannKendall/mkCompuestos_service.js';
 import { showError } from '../middleware/controllerErrors.js';
 import { mkCompuestosCreateSchema, mkCompuestosUpdateSchema, mkCompuestosReplaceSchema } from '../models/mkCompuestos_schema.js';
 import { z } from 'zod';

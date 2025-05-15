@@ -1,4 +1,4 @@
-import GraficosService from '../services/graficos_service.js';
+import GraficosService from '../services/reportes/evolucionCDI/configGraficos_service.js';
 import { showError } from '../middleware/controllerErrors.js';
 import { graficoCreateSchema, graficoUpdateSchema } from '../models/graficos_schema.js';
 import { z } from 'zod';

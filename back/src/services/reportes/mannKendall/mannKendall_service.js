@@ -1,4 +1,4 @@
-import { pool, dbErrorMsg } from '../database/db.js';
+import { pool, dbErrorMsg } from '../../../database/db.js';
 import { processCompound } from './mannKendallCreateBook_service.js';
 
 export default class MannKendallService {

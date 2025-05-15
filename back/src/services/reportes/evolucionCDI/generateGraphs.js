@@ -1,5 +1,5 @@
 import { xlChartType, xlAxisType, xlAxisGroup, xlMarkerStyle, xlLegendPosition, XlDisplayBlanksAs } from './excelConstants.js';
-import { stdErrorMsg } from '../../utils/stdError.js';
+import { stdErrorMsg } from '../../../utils/stdError.js';
 
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);

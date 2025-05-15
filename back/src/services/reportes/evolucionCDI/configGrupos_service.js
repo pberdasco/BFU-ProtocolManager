@@ -1,5 +1,5 @@
-import { pool, dbErrorMsg } from '../database/db.js';
-import GraficoGrupo from '../models/graficosGrupos_model.js';
+import { pool, dbErrorMsg } from '../../../database/db.js';
+import GraficoGrupo from '../../../models/graficosGrupos_model.js';
 
 const allowedFields = {
     id: 'gg.id',

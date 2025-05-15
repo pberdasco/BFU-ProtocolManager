@@ -1,24 +1,25 @@
-import { pool, dbErrorMsg } from '../database/db.js';
-import MkCompuestos from '../models/mkCompuestos_models.js';
+import { pool, dbErrorMsg } from '../../../database/db.js';
+import MkPozos from '../../../models/mkPozos_models.js';
 
 const allowedFields = {
     id: 'm.id',
     subproyectoId: 'm.subproyectoId',
     subproyecto: 's.nombrelocacion',
-    compuestoId: 'm.compuestoid',
-    compuesto: 'c.nombre'
+    pozoId: 'm.pozoId',
+    pozo: 'p.nombre',
+    hojaId: 'm.hojaid'
 };
 
-const table = 'mkcompuestos';
-const selectBase = 'SELECT m.id, m.subproyectoId, s.nombrelocacion as subproyecto, m.compuestoId, c.nombre as compuesto ';
-const selectTables = 'FROM mkcompuestos m ' +
+const table = 'mkpozos';
+const selectBase = 'SELECT m.id, m.subproyectoId, s.nombrelocacion as subproyecto, m.pozoId, p.nombre as pozo, m.hojaId ';
+const selectTables = 'FROM mkpozos m ' +
                      'LEFT JOIN subproyectos s ON m.subproyectoId= s.id ' +
-                     'LEFT JOIN compuestos c ON m.compuestoId = c.id ';
+                     'LEFT JOIN pozos p ON m.subproyectoId = p.subproyectoId AND m.pozoId = p.id ';
 const mainTable = 'm';
-const noExiste = 'El compuesto para incluir en Mann-Kendall no fue seleccionado para el subproyecto';
-const yaExiste = 'El compuesto para incluir en Mann-Kendall ya fue seleccionado para el subproyecto';
+const noExiste = 'El Pozo no fue incluido para el informe Mann-Kendall';
+const yaExiste = 'El Pozo ya fue incluido para el informe Mann-Kendall';
 
-export default class MkCompuestosService {
+export default class MkPozosService {
     static getAllowedFields () {
         return allowedFields;
     }
@@ -49,7 +50,23 @@ export default class MkCompuestosService {
         try {
             const [rows] = await pool.query(`${selectBase} ${selectTables} WHERE ${mainTable}.id = ?`, [id]);
             if (rows.length === 0) throw dbErrorMsg(404, noExiste);
-            return new MkCompuestos(rows[0]);
+            return new MkPozos(rows[0]);
+        } catch (error) {
+            throw dbErrorMsg(error.status, error.sqlMessage || error.message);
+        }
+    }
+
+    static async getBysubproyectoPozo (dobles) {
+        if (!dobles.length) return [];
+
+        const conditions = dobles.map(() => '(subproyectoId = ? AND pozoId = ?)').join(' OR ');
+        const values = dobles.flatMap(t => [t.subproyectoId, t.pozoId]);
+
+        const sql = `SELECT subproyectoId, pozoId, hojaId FROM mkpozos WHERE ${conditions}`;
+
+        try {
+            const [rows] = await pool.query(sql, values);
+            return rows;
         } catch (error) {
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);
         }
@@ -69,22 +86,23 @@ export default class MkCompuestosService {
         }
     }
 
-    static async create (MkCompuestoToAdd) {
+    static async create (MkPozoToAdd) {
         try {
-            const [rows] = await pool.query(`INSERT INTO ${table} SET ?`, [MkCompuestoToAdd]);
-            MkCompuestoToAdd.id = rows.insertId;
-            return new MkCompuestos(MkCompuestoToAdd);
+            const [rows] = await pool.query(`INSERT INTO ${table} SET ?`, [MkPozoToAdd]);
+            console.log('fila para agregar', rows);
+            MkPozoToAdd.id = rows.insertId;
+            return new MkPozos(MkPozoToAdd);
         } catch (error) {
             if (error?.code === 'ER_DUP_ENTRY') throw dbErrorMsg(409, yaExiste);
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);
         }
     }
 
-    static async update (id, mkcompuesto) {
+    static async update (id, mkpozos) {
         try {
-            const [rows] = await pool.query(`UPDATE ${table} SET ? WHERE id = ?`, [mkcompuesto, id]);
+            const [rows] = await pool.query(`UPDATE ${table} SET ? WHERE id = ?`, [mkpozos, id]);
             if (rows.affectedRows !== 1) throw dbErrorMsg(404, noExiste);
-            return MkCompuestosService.getById(id);
+            return MkPozosService.getById(id);
         } catch (error) {
             if (error?.code === 'ER_DUP_ENTRY') throw dbErrorMsg(409, yaExiste);
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);
@@ -104,14 +122,14 @@ export default class MkCompuestosService {
         }
     }
 
-    static async replaceForSubproyecto (mkCompuestosToAdd) {
-        if (!Array.isArray(mkCompuestosToAdd) || mkCompuestosToAdd.length === 0) {
-            throw dbErrorMsg(400, 'No se recibieron compuestos para guardar');
+    static async replaceForSubproyecto (mkPozosToAdd) {
+        if (!Array.isArray(mkPozosToAdd) || mkPozosToAdd.length === 0) {
+            throw dbErrorMsg(400, 'No se recibieron pozos para guardar');
         }
 
-        const subproyectoId = mkCompuestosToAdd[0].subproyectoId;
-        if (!mkCompuestosToAdd.every(item => item.subproyectoId === subproyectoId)) {
-            throw dbErrorMsg(400, 'Todos los compuestos deben pertenecer al mismo subproyecto');
+        const subproyectoId = mkPozosToAdd[0].subproyectoId;
+        if (!mkPozosToAdd.every(item => item.subproyectoId === subproyectoId)) {
+            throw dbErrorMsg(400, 'Todos los pozos deben pertenecer al mismo subproyecto');
         }
 
         const conn = await pool.getConnection();
@@ -122,8 +140,8 @@ export default class MkCompuestosService {
             await conn.query(`DELETE FROM ${table} WHERE subproyectoId = ?`, [subproyectoId]);
 
             // Insertar los nuevos
-            const insertSql = `INSERT INTO ${table} (subproyectoId, compuestoId) VALUES ?`;
-            const values = mkCompuestosToAdd.map(({ subproyectoId, compuestoId }) => [subproyectoId, compuestoId]);
+            const insertSql = `INSERT INTO ${table} (subproyectoId, pozoId, hojaId) VALUES ?`;
+            const values = mkPozosToAdd.map(({ subproyectoId, pozoId, hojaId }) => [subproyectoId, pozoId, hojaId]);
 
             await conn.query(insertSql, [values]);
 

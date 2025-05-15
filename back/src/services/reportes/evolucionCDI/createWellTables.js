@@ -1,6 +1,6 @@
 import ExcelJS from 'exceljs';
-import { stdErrorMsg } from '../../utils/stdError.js';
-import { generarNombreArchivoConFecha } from '../../utils/filenameGenerator.js';
+import { stdErrorMsg } from '../../../utils/stdError.js';
+import { generarNombreArchivoConFecha } from '../../../utils/filenameGenerator.js';
 import fs from 'fs';
 import path from 'path';
 

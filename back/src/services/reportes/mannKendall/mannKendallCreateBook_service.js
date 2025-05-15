@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import logger from '../utils/logger.js';
+import logger from '../../../utils/logger.js';
 
 // winax no tiene versión ECM => hay que importarlo como sigue:
 import { createRequire } from 'module';

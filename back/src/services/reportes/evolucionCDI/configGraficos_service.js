@@ -1,5 +1,5 @@
-import { pool, dbErrorMsg } from '../database/db.js';
-import Grafico from '../models/graficos_model.js';
+import { pool, dbErrorMsg } from '../../../database/db.js';
+import Grafico from '../../../models/graficos_model.js';
 
 const allowedFields = {
     id: 'g.id',
