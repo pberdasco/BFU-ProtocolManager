@@ -1,100 +1,16 @@
-// Node.js + Winax script to add scatter-with-lines charts to each well sheet
-import path from 'path';
+import { xlChartType, xlAxisType, xlAxisGroup, xlMarkerStyle, xlLegendPosition } from './excelConstants.js';
+import { stdErrorMsg } from '../stdError.js';
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 const { Object: ActiveXObject } = require('winax');
 
-// Configuration (fill mapping of pozoId to sheet name if needed)
-const workbookPath = path.resolve(process.cwd(), 'output.xlsx');
-
 const GRAPH_WIDTH = 400;
 const GRAPH_HEIGHT = 250;
-const ALTO_FILA_EN_PX = 13.5;
+const ALTO_FILA_EN_PX = 13.8;
 const TOP_PADDING = 20;
 const LEFT_PADDING = 20;
 
-// Indices loaded or imported
-const indexByWell = [
-    { pozo: 'PM1', fechaInicio: '2015-12-05T03:00:00.000Z', filaInicio: 4, fechaFin: '2024-12-05T03:00:00.000Z', filaFin: 18 },
-    { pozo: 'PM2', fechaInicio: '2015-12-05T03:00:00.000Z', filaInicio: 4, fechaFin: '2024-12-05T03:00:00.000Z', filaFin: 18 },
-    { pozo: 'PM3', fechaInicio: '2015-12-05T03:00:00.000Z', filaInicio: 4, fechaFin: '2024-12-05T03:00:00.000Z', filaFin: 18 },
-    { pozo: 'PM4', fechaInicio: '2015-12-05T03:00:00.000Z', filaInicio: 4, fechaFin: '2024-12-05T03:00:00.000Z', filaFin: 18 },
-    { pozo: 'PM6', fechaInicio: '2015-12-05T03:00:00.000Z', filaInicio: 4, fechaFin: '2024-12-05T03:00:00.000Z', filaFin: 18 }
-];
-const indexByCompound = [
-    { pozoId: 30, pozo: 'PM1', compuestoId: 1, compuesto: 'HTP', columna: 'B' },
-    { pozoId: 30, pozo: 'PM1', compuestoId: 26, compuesto: 'Benceno', columna: 'C' },
-    { pozoId: 30, pozo: 'PM1', compuestoId: 27, compuesto: 'Tolueno', columna: 'D' },
-    { pozoId: 30, pozo: 'PM1', compuestoId: 28, compuesto: 'Etilbenceno', columna: 'E' },
-    { pozoId: 30, pozo: 'PM1', compuestoId: 29, compuesto: 'Xilenos', columna: 'F' },
-    { pozoId: 30, pozo: 'PM1', compuestoId: 40, compuesto: 'Naftaleno', columna: 'G' },
-    { pozoId: 30, pozo: 'PM1', compuestoId: 41, compuesto: 'Fenantreno', columna: 'H' },
-    { pozoId: 30, pozo: 'PM1', compuestoId: 42, compuesto: 'Fluoreno', columna: 'I' },
-    { pozoId: 30, pozo: 'PM1', compuestoId: 43, compuesto: 'MTBE', columna: 'J' },
-    { pozoId: 30, pozo: 'PM1', compuestoId: -1, compuesto: 'Nivel freático', columna: 'K' },
-    { pozoId: 30, pozo: 'PM1', compuestoId: -2, compuesto: 'FLNA', columna: 'L' },
-    { pozoId: 31, pozo: 'PM2', compuestoId: 1, compuesto: 'HTP', columna: 'B' },
-    { pozoId: 31, pozo: 'PM2', compuestoId: 26, compuesto: 'Benceno', columna: 'C' },
-    { pozoId: 31, pozo: 'PM2', compuestoId: 27, compuesto: 'Tolueno', columna: 'D' },
-    { pozoId: 31, pozo: 'PM2', compuestoId: 28, compuesto: 'Etilbenceno', columna: 'E' },
-    { pozoId: 31, pozo: 'PM2', compuestoId: 29, compuesto: 'Xilenos', columna: 'F' },
-    { pozoId: 31, pozo: 'PM2', compuestoId: 40, compuesto: 'Naftaleno', columna: 'G' },
-    { pozoId: 31, pozo: 'PM2', compuestoId: 41, compuesto: 'Fenantreno', columna: 'H' },
-    { pozoId: 31, pozo: 'PM2', compuestoId: 42, compuesto: 'Fluoreno', columna: 'I' },
-    { pozoId: 31, pozo: 'PM2', compuestoId: 43, compuesto: 'MTBE', columna: 'J' },
-    { pozoId: 31, pozo: 'PM2', compuestoId: -1, compuesto: 'Nivel freático', columna: 'K' },
-    { pozoId: 31, pozo: 'PM2', compuestoId: -2, compuesto: 'FLNA', columna: 'L' },
-    { pozoId: 35, pozo: 'PM6', compuestoId: 1, compuesto: 'HTP', columna: 'B' },
-    { pozoId: 35, pozo: 'PM6', compuestoId: 26, compuesto: 'Benceno', columna: 'C' },
-    { pozoId: 35, pozo: 'PM6', compuestoId: 27, compuesto: 'Tolueno', columna: 'D' },
-    { pozoId: 35, pozo: 'PM6', compuestoId: 28, compuesto: 'Etilbenceno', columna: 'E' },
-    { pozoId: 35, pozo: 'PM6', compuestoId: 29, compuesto: 'Xilenos', columna: 'F' },
-    { pozoId: 35, pozo: 'PM6', compuestoId: 40, compuesto: 'Naftaleno', columna: 'G' },
-    { pozoId: 35, pozo: 'PM6', compuestoId: 41, compuesto: 'Fenantreno', columna: 'H' },
-    { pozoId: 35, pozo: 'PM6', compuestoId: 42, compuesto: 'Fluoreno', columna: 'I' },
-    { pozoId: 35, pozo: 'PM6', compuestoId: 43, compuesto: 'MTBE', columna: 'J' },
-    { pozoId: 35, pozo: 'PM6', compuestoId: -1, compuesto: 'Nivel freático', columna: 'K' },
-    { pozoId: 35, pozo: 'PM6', compuestoId: -2, compuesto: 'FLNA', columna: 'L' }
-];
-
-const grupos = [
-    { id: 1, nombre: 'Gr1', pozos: [30, 31], graficos: [1] },
-    { id: 7, nombre: 'Gr2', pozos: [35], graficos: [1, 4] }
-];
-
-const graficosConfig = [
-    { id: 1, nombre: 'NP-BTEX', eje1: [26, 27, 28, 29], eje2: [-1] },
-    { id: 4, nombre: 'PAHs-HTP', eje1: [41, 42], eje2: [1] }
-];
-
-// Excel constants
-const xlChartType = {
-    xlXYScatterLines: 74 // Valor correcto para XY Scatter with Smooth Lines
-};
-const xlAxisType = {
-    xlCategory: 1,
-    xlValue: 2
-};
-const xlAxisGroup = {
-    xlPrimary: 1,
-    xlSecondary: 2
-};
-// const xlLineStyle = {
-//     xlContinuous: 1
-// };
-const xlMarkerStyle = {
-    xlMarkerStyleCircle: 8
-};
-const xlLegendPosition = {
-    xlLegendPositionBottom: -4107,
-    xlLegendPositionTop: -4160,
-    xlLegendPositionRight: -4152,
-    xlLegendPositionLeft: -4131,
-    xlLegendPositionCorner: 2
-};
-
-// Entry point
-function run () {
+export function generateGraphs (indexByWell, indexByCompound, grupos, graficosConfig, workbookPath) {
     try {
         const excel = openExcel();
         const workbook = openWorkbook(excel, workbookPath);
@@ -110,27 +26,26 @@ function run () {
 
                 const sheetName = getSheetName(pozoId, sheetNamesById);
                 const sheet = workbook.Sheets(sheetName);
-                const wellIndex = lookupWellIndex(sheetName);
-                const compoundMap = buildCompoundMap(pozoId);
+                const wellIndex = lookupWellIndex(sheetName, indexByWell);
+                const compoundMap = buildCompoundMap(pozoId, indexByCompound);
 
                 grupo.graficos.forEach((grafId, idx) => {
-                    const config = lookupGraficoConfig(grafId);
+                    const config = lookupGraficoConfig(grafId, graficosConfig);
 
                     // mapeamos cada cpId a su columna, validando existencia
                     const eje1Cols = config.eje1.map(cpId => {
                         const col = compoundMap[cpId];
-                        if (!col) throw new Error(`No column para cpId=${cpId} en pozo=${pozoId}`);
+                        if (!col) throw stdErrorMsg(400, `[generateExcel] Sin columna para el compuestoId=${cpId} en pozo=${pozoId}, eje 1.`);
                         return col;
                     });
-                    const eje2Cols = config.eje2
-                        .map(cpId => {
-                            const col = compoundMap[cpId];
-                            if (!col) throw new Error(`No column para cpId=${cpId} en pozo=${pozoId}`);
-                            return col;
-                        });
+                    const eje2Cols = config.eje2.map(cpId => {
+                        const col = compoundMap[cpId];
+                        if (!col) throw stdErrorMsg(400, `[generateExcel] Sin columna para el compuestoId=${cpId} en pozo=${pozoId}, eje 2.`);
+                        return col;
+                    });
 
                     const grafico = graficosConfig.find(x => grafId === x.id);
-                    const chartName = `${sheetName} (${grafico.nombre})`;
+                    const chartName = `${sheetName} ${grafico.nombre}`;
                     const pos = calculateChartPosition(idx, wellIndex.filaFin);
                     addScatterChart({
                         excel,
@@ -152,15 +67,13 @@ function run () {
         });
 
         saveAndClose(workbook, excel);
-        console.log('Proceso completado exitosamente');
+        return true;
     } catch (error) {
-        console.error('Error en la ejecución:', error);
+        throw stdErrorMsg(error.status, error.message || '[evolucionCDI] generateExcel error');
     }
 }
 
-// Single Responsibility Functions
-
-function buildCompoundMap (pozoId) { // ej: acc = {29: 'L', 30: 'P'}
+function buildCompoundMap (pozoId, indexByCompound) { // ej: acc = {29: 'L', 30: 'P'}
     return indexByCompound
         .filter(entry => entry.pozoId === pozoId)
         .reduce((acc, { compuestoId, columna }) => {
@@ -188,16 +101,16 @@ function saveAndClose (workbook, excel) {
 function getSheetName (pozoId, sheetNamesById) {
     const name = sheetNamesById[pozoId];
     if (!name) {
-        throw new Error(`No se encontró nombre de hoja para pozoId=${pozoId}`);
+        throw stdErrorMsg(400, `[evolucionCDI] No se encontró nombre de hoja para pozoId=${pozoId}`);
     }
     return name;
 }
 
-function lookupWellIndex (sheetName) {
+function lookupWellIndex (sheetName, indexByWell) {
     return indexByWell.find(w => w.pozo === sheetName);
 }
 
-function lookupGraficoConfig (id) {
+function lookupGraficoConfig (id, graficosConfig) {
     return graficosConfig.find(g => g.id === id);
 }
 
@@ -228,10 +141,8 @@ function addScatterChart ({ excel, sheet, chartName, eje1Cols, eje2Cols, fechaIn
     // Establecer el tipo de gráfico
     chart.ChartType = xlChartType.xlXYScatterLines;
 
-    // Generar las fechas periódicas para el eje X
+    // Generar las fechas periódicas para el eje X y convertirlas a formato excel (nro de serie)
     const fechas = generatePeriodicDates(fechaInicio, fechaFin);
-
-    // Convertir las fechas a formato Excel (número de serie)
     const fechasExcel = fechas.map(fecha => {
         return excelDateFromJSDate(fecha);
     });
@@ -239,24 +150,25 @@ function addScatterChart ({ excel, sheet, chartName, eje1Cols, eje2Cols, fechaIn
     // Agregar series para el eje primario
     eje1Cols.forEach((col, index) => {
         try {
-            addSeriesCorrectly(excel, chart, sheet, col, filaInicio, filaFin, fechasExcel, xlAxisGroup.xlPrimary, index);
+            addSeries(excel, chart, sheet, col, filaInicio, filaFin, fechasExcel, xlAxisGroup.xlPrimary, index);
         } catch (error) {
-            console.error(`Error agregando serie para columna ${col}:`, error);
+            console.error(`[evolucionCDI] - Error agregando serie para columna ${col}:`, error);
+            throw stdErrorMsg(400, `[evolucionCDI] Error agregando serie para columna ${col}`);
         }
     });
 
     // Agregar series para el eje secundario
     eje2Cols.forEach((col, index) => {
         try {
-            addSeriesCorrectly(excel, chart, sheet, col, filaInicio, filaFin, fechasExcel, xlAxisGroup.xlSecondary, eje1Cols.length + index);
+            addSeries(excel, chart, sheet, col, filaInicio, filaFin, fechasExcel, xlAxisGroup.xlSecondary, eje1Cols.length + index);
         } catch (error) {
-            console.error(`Error agregando serie para columna ${col}:`, error);
+            console.error(`[evolucionCDI] - Error agregando serie para columna ${col}:`, error);
+            throw stdErrorMsg(400, `[evolucionCDI] Error agregando serie para columna ${col}`);
         }
     });
 
     const um1 = eje1Cols[0] ? sheet.Range(`${eje1Cols[0]}${FILA_UM}`).Value : 'Concentración';
     const um2 = eje2Cols[0] ? sheet.Range(`${eje2Cols[0]}${FILA_UM}`).Value : 'Nivel';
-    console.log('[eje1]', eje1Cols, um1);
 
     // Configurar títulos de ejes
     try {
@@ -282,7 +194,8 @@ function addScatterChart ({ excel, sheet, chartName, eje1Cols, eje2Cols, fechaIn
             secondaryAxis.AxisTitle.Text = um2;
         }
     } catch (error) {
-        console.error('Error configurando títulos de ejes:', error);
+        console.error('[evolucionCDI] - Error configurando títulos de ejes:', error);
+        throw stdErrorMsg(500, '[evolucionCDI] Error configurando títulos de ejes');
     }
 }
 
@@ -294,7 +207,7 @@ function excelDateFromJSDate (date) {
     return dayDiff;
 }
 
-function addSeriesCorrectly (excel, chart, sheet, column, rowStart, rowEnd, xValues, axisGroup, seriesIndex) {
+function addSeries (excel, chart, sheet, column, rowStart, rowEnd, xValues, axisGroup, seriesIndex) {
     const FILA_TITULOS = 2;
     try {
         // Añadir una nueva serie
@@ -321,6 +234,3 @@ function addSeriesCorrectly (excel, chart, sheet, column, rowStart, rowEnd, xVal
         throw error;
     }
 }
-
-// Run the process
-run();

@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { Packer } from 'docx';
+import { generarNombreArchivoConFecha } from '../filenemeGenerator.js';
 import { generateReport } from './cadenaToDOCTabla_genRep.js';
 
 export default class CadenaToDocTablaService {
@@ -16,7 +17,7 @@ export default class CadenaToDocTablaService {
     static async createDocx (proyectoNombre, fechaMuestreo, data) {
         try {
             const basePath = process.env.CADENA_DOCX_PATH;
-            const fileName = `AT_${proyectoNombre}_${Date.now()}.docx`;
+            const fileName = generarNombreArchivoConFecha('AT', proyectoNombre, 'docx');
             const doc = await generateReport(proyectoNombre, fechaMuestreo, data);
             const fullPath = path.join(basePath, fileName);
 
