@@ -23,3 +23,9 @@ export const xlLegendPosition = {
     xlLegendPositionLeft: -4131,
     xlLegendPositionCorner: 2
 };
+
+export const XlDisplayBlanksAs = {
+    xlNotPlotted: 0,
+    xlInterpolated: 1,
+    xlZero: 2
+};

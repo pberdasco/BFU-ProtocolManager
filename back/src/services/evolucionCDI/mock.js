@@ -1,15 +1,16 @@
 
 export const gruposConfig = [
-    { id: 1, subproyectoId: 999, nombre: 'Grupo1', pozos: [30, 31], graficos: [1] },
+    { id: 1, subproyectoId: 999, nombre: 'Grupo1', pozos: [30, 31], graficos: [1, 3] },
     { id: 7, subproyectoId: 999, nombre: 'Grupo2', pozos: [35], graficos: [1, 4] }
 ];
 
 export const graficosConfig = [
     { id: 1, nombre: 'NP-BTEX', eje1: [26, 27, 28, 29], eje2: [-1] },
-    { id: 4, nombre: 'PAHs-HTP', eje1: [41, 42], eje2: [1] }
+    { id: 3, nombre: 'Naftaleno', eje1: [90], eje2: [] },
+    { id: 4, nombre: 'PAHs-HTP', eje1: [90, 94], eje2: [1] }
 ];
 
-export const measurements = [
+export const measurements2 = [
     {
         subproyectoId: 266,
         pozoId: 30,

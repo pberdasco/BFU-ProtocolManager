@@ -1,4 +1,4 @@
-import { xlChartType, xlAxisType, xlAxisGroup, xlMarkerStyle, xlLegendPosition } from './excelConstants.js';
+import { xlChartType, xlAxisType, xlAxisGroup, xlMarkerStyle, xlLegendPosition, XlDisplayBlanksAs } from './excelConstants.js';
 import { stdErrorMsg } from '../../utils/stdError.js';
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
@@ -138,9 +138,8 @@ function addScatterChart ({ excel, sheet, chartName, eje1Cols, eje2Cols, fechaIn
 
     // Obtener el gráfico del objeto
     const chart = chartObj.Chart;
-
-    // Establecer el tipo de gráfico
-    chart.ChartType = xlChartType.xlXYScatterLines;
+    chart.ChartType = xlChartType.xlXYScatterLines; // Scatter Lines
+    chart.DisplayBlanksAs = XlDisplayBlanksAs.xlInterpolated; // Unir celdas vacias
 
     // Generar las fechas periódicas para el eje X y convertirlas a formato excel (nro de serie)
     const fechas = generatePeriodicDates(fechaInicio, fechaFin);

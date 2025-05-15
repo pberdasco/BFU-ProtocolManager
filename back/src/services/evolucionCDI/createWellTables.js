@@ -1,6 +1,6 @@
 import ExcelJS from 'exceljs';
 import { stdErrorMsg } from '../../utils/stdError.js';
-import { generarNombreArchivoConFecha } from '../filenemeGenerator.js';
+import { generarNombreArchivoConFecha } from '../../utils/filenameGenerator.js';
 import fs from 'fs';
 import path from 'path';
 
@@ -23,7 +23,7 @@ export async function createWellTables (proyectoNombre, grupoConfig, measurement
         const createdFile = { id: 0, path: basePath, file: fileName };
         return { indexByPozo, indexByCompuesto, createdFile };
     } catch (error) {
-        throw stdErrorMsg(error.status, error.message || '[evolucionCDI] getData error');
+        throw stdErrorMsg(error.status, error.message || '[evolucionCDI] createWellTables error');
     }
 }
 
