@@ -1,8 +1,9 @@
 import { xlChartType, xlAxisType, xlAxisGroup, xlMarkerStyle, xlLegendPosition, XlDisplayBlanksAs } from './excelConstants.js';
 import { stdErrorMsg } from '../../utils/stdError.js';
+
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
-const { Object: ActiveXObject } = require('winax');
+const { release, Object: ActiveXObject } = require('winax');
 
 const GRAPH_WIDTH = 400;
 const GRAPH_HEIGHT = 250;
@@ -11,9 +12,11 @@ const TOP_PADDING = 20;
 const LEFT_PADDING = 20;
 
 export function generateGraphs (indexByWell, indexByCompound, grupos, graficosConfig, workbookPath) {
+    let excel;
+    let workbook;
     try {
-        const excel = openExcel();
-        const workbook = openWorkbook(excel, workbookPath);
+        excel = openExcel();
+        workbook = openWorkbook(excel, workbookPath);
 
         const sheetNamesById = indexByCompound.reduce((map, { pozoId, pozo }) => {
             map[pozoId] = pozo;
@@ -29,39 +32,43 @@ export function generateGraphs (indexByWell, indexByCompound, grupos, graficosCo
                 const wellIndex = lookupWellIndex(sheetName, indexByWell);
                 const compoundMap = buildCompoundMap(pozoId, indexByCompound);
 
-                grupo.graficos.forEach((grafId, idx) => {
-                    const graficoConfig = lookupGraficoConfig(grafId, graficosConfig);
+                try {
+                    grupo.graficos.forEach((grafId, idx) => {
+                        const graficoConfig = lookupGraficoConfig(grafId, graficosConfig);
 
-                    // mapeamos cada cpId a su columna, validando existencia
-                    const eje1Cols = graficoConfig.eje1.map(cpId => {
-                        const col = compoundMap[cpId];
-                        if (!col) throw stdErrorMsg(400, `[generateGraphs] Sin columna para el compuestoId=${cpId} en pozo=${pozoId}, eje 1.`);
-                        return col;
-                    });
-                    const eje2Cols = graficoConfig.eje2.map(cpId => {
-                        const col = compoundMap[cpId];
-                        if (!col) throw stdErrorMsg(400, `[generateGraphs] Sin columna para el compuestoId=${cpId} en pozo=${pozoId}, eje 2.`);
-                        return col;
-                    });
+                        // mapeamos cada cpId a su columna, validando existencia
+                        const eje1Cols = graficoConfig.eje1.map(cpId => {
+                            const col = compoundMap[cpId];
+                            if (!col) throw stdErrorMsg(400, `[generateGraphs] Sin columna para el compuestoId=${cpId} en pozo=${pozoId}, eje 1.`);
+                            return col;
+                        });
+                        const eje2Cols = graficoConfig.eje2.map(cpId => {
+                            const col = compoundMap[cpId];
+                            if (!col) throw stdErrorMsg(400, `[generateGraphs] Sin columna para el compuestoId=${cpId} en pozo=${pozoId}, eje 2.`);
+                            return col;
+                        });
 
-                    const chartName = `${sheetName} ${graficoConfig.nombre}`;
-                    const pos = calculateChartPosition(idx, wellIndex.filaFin);
-                    addScatterChart({
-                        excel,
-                        sheet,
-                        chartName,
-                        eje1Cols,
-                        eje2Cols,
-                        fechaInicio: new Date(wellIndex.fechaInicio),
-                        fechaFin: new Date(wellIndex.fechaFin),
-                        filaInicio: wellIndex.filaInicio,
-                        filaFin: wellIndex.filaFin,
-                        left: pos.left,
-                        top: pos.top,
-                        width: GRAPH_WIDTH,
-                        height: GRAPH_HEIGHT
+                        const chartName = `${sheetName} ${graficoConfig.nombre}`;
+                        const pos = calculateChartPosition(idx, wellIndex.filaFin);
+                        addScatterChart({
+                            excel,
+                            sheet,
+                            chartName,
+                            eje1Cols,
+                            eje2Cols,
+                            fechaInicio: new Date(wellIndex.fechaInicio),
+                            fechaFin: new Date(wellIndex.fechaFin),
+                            filaInicio: wellIndex.filaInicio,
+                            filaFin: wellIndex.filaFin,
+                            left: pos.left,
+                            top: pos.top,
+                            width: GRAPH_WIDTH,
+                            height: GRAPH_HEIGHT
+                        });
                     });
-                });
+                } finally {
+                    if (sheet) release(sheet);
+                }
             });
         });
 
@@ -69,6 +76,27 @@ export function generateGraphs (indexByWell, indexByCompound, grupos, graficosCo
         return true;
     } catch (error) {
         throw stdErrorMsg(error.status, error.message || '[evolucionCDI] generateGraphs error');
+    } finally {
+        try {
+            // Intentar liberar recursos incluso si hubo error
+            if (workbook && typeof workbook.Close === 'function') workbook.Close(false);
+            if (excel && typeof excel.Quit === 'function') excel.Quit();
+
+            if (workbook) release(workbook);
+            if (excel) release(excel);
+
+            // Forzar GC si está disponible
+            workbook = null;
+            excel = null;
+
+            if (typeof global.gc === 'function') {
+                global.gc();
+            } else {
+                console.warn('GC no expuesto; correr Node con --expose-gc para limpiar objetos COM');
+            }
+        } catch (cleanupError) {
+            console.error('Error durante cleanup en generateGraphs:', cleanupError);
+        }
     }
 }
 
@@ -139,7 +167,7 @@ function addScatterChart ({ excel, sheet, chartName, eje1Cols, eje2Cols, fechaIn
     // Obtener el gráfico del objeto
     const chart = chartObj.Chart;
     chart.ChartType = xlChartType.xlXYScatterLines; // Scatter Lines
-    chart.DisplayBlanksAs = XlDisplayBlanksAs.xlInterpolated; // Unir celdas vacias
+    chart.DisplayBlanksAs = XlDisplayBlanksAs.xlInterpolated;
 
     // Generar las fechas periódicas para el eje X y convertirlas a formato excel (nro de serie)
     const fechas = generatePeriodicDates(fechaInicio, fechaFin);
@@ -167,10 +195,24 @@ function addScatterChart ({ excel, sheet, chartName, eje1Cols, eje2Cols, fechaIn
         }
     });
 
-    const um1 = eje1Cols[0] ? sheet.Range(`${eje1Cols[0]}${FILA_UM}`).Value : 'Concentración';
-    const um2 = eje2Cols[0] ? sheet.Range(`${eje2Cols[0]}${FILA_UM}`).Value : 'Nivel';
+    let um1 = 'Concentración';
+    if (eje1Cols[0]) {
+        const dato = sheet.Range(`${eje1Cols[0]}${FILA_UM}`);
+        um1 = dato.value;
+        if (dato) release(dato);
+    }
+
+    let um2 = 'Nivel';
+    if (eje2Cols[0]) {
+        const dato = sheet.Range(`${eje2Cols[0]}${FILA_UM}`);
+        um2 = dato.value;
+        if (dato) release(dato);
+    }
 
     // Configurar títulos de ejes
+    let categoryAxis;
+    let secondaryAxis;
+    let primaryAxis;
     try {
         chart.HasTitle = true;
         chart.ChartTitle.Text = chartName;
@@ -179,23 +221,29 @@ function addScatterChart ({ excel, sheet, chartName, eje1Cols, eje2Cols, fechaIn
         chart.Legend.Position = xlLegendPosition.xlLegendPositionBottom;
         chart.Legend.IncludeInLayout = true; // Leyenda en varias filas
 
-        const categoryAxis = chart.Axes(xlAxisType.xlCategory);
+        categoryAxis = chart.Axes(xlAxisType.xlCategory);
         categoryAxis.HasTitle = true;
         categoryAxis.AxisTitle.Text = 'Fecha';
         categoryAxis.TickLabels.NumberFormat = 'mm/yyyy';
 
-        const primaryAxis = chart.Axes(xlAxisType.xlValue, xlAxisGroup.xlPrimary);
+        primaryAxis = chart.Axes(xlAxisType.xlValue, xlAxisGroup.xlPrimary);
         primaryAxis.HasTitle = true;
         primaryAxis.AxisTitle.Text = um1;
 
         if (eje2Cols.length > 0) {
-            const secondaryAxis = chart.Axes(xlAxisType.xlValue, xlAxisGroup.xlSecondary);
+            secondaryAxis = chart.Axes(xlAxisType.xlValue, xlAxisGroup.xlSecondary);
             secondaryAxis.HasTitle = true;
             secondaryAxis.AxisTitle.Text = um2;
         }
     } catch (error) {
         console.error('[generateGraphs] - Error configurando títulos de ejes:', error);
         throw stdErrorMsg(500, '[generateGraphs] Error configurando títulos de ejes');
+    } finally {
+        if (secondaryAxis) release(secondaryAxis);
+        if (primaryAxis) release(primaryAxis);
+        if (categoryAxis) release(categoryAxis);
+        if (chart) release(chart);
+        if (chartObj) release(chartObj);
     }
 }
 
@@ -209,12 +257,13 @@ function excelDateFromJSDate (date) {
 
 function addSeries (chart, sheet, column, rowStart, rowEnd, xValues, axisGroup, seriesIndex) {
     const FILA_TITULOS = 2;
+    let series, headerCell;
     try {
         // Añadir una nueva serie
-        const series = chart.SeriesCollection().NewSeries();
+        series = chart.SeriesCollection().NewSeries();
 
         // Obtener el nombre de la serie desde la cabecera
-        const headerCell = sheet.Range(`${column}${FILA_TITULOS}`);
+        headerCell = sheet.Range(`${column}${FILA_TITULOS}`);
         series.Name = headerCell.Value;
 
         // ? Importante: Hay que usar el método específico Formula para asignar los valores
@@ -230,10 +279,16 @@ function addSeries (chart, sheet, column, rowStart, rowEnd, xValues, axisGroup, 
         series.MarkerStyle = xlMarkerStyle.xlMarkerStyleCircle;
         series.MarkerSize = 6;
         series.Format.Line.Weight = 1.5;
-
-        return series;
     } catch (error) {
         console.error(`[generateGraphs] Error en addSeries para columna ${column}:`, error);
         throw error;
+    } finally {
+        if (headerCell) release(headerCell);
+        if (series) release(series);
     }
 }
+
+// ⚠️ Sobre Winax y la liberación de objetos COM:
+// ⚠️ Este módulo contiene varios bloques `finally` que en otro contexto parecerían redundantes.
+// ⚠️ Son necesarios para liberar correctamente objetos COM como: `excel`, `workbook`, `sheet`, `range`, `chart`, `axis`, etc.
+// ⚠️ Especial atención con `Range`, que debe liberarse justo después de acceder a `.Value`.

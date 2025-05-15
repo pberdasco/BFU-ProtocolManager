@@ -42,6 +42,7 @@ import { cadenasSubproyectoCompuestoRouter } from './routers/cadenasSubproyectoC
 import { graficosRouter } from './routers/graficos_router.js';
 import { graficosGruposRouter } from './routers/graficosGrupos_router.js';
 import { umConvertRouter } from './routers/umConvert_router.js';
+import { evolucionCDIRouter } from './routers/evolucionCDI_router.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -93,6 +94,7 @@ app.use('/cadenasSubproyectoCompuesto', cadenasSubproyectoCompuestoRouter);
 app.use('/graficos', graficosRouter);
 app.use('/graficosGrupos', graficosGruposRouter);
 app.use('/umConvert', umConvertRouter);
+app.use('/evolucionCDI', evolucionCDIRouter);
 
 // Servir archivos estáticos del frontend
 app.use(express.static(path.join(__dirname, '../../public')));

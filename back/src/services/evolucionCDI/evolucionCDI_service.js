@@ -3,24 +3,17 @@ import { getPlainData } from './getPlainData.js';
 import { createWellTables } from './createWellTables.js';
 import { generateGraphs } from './generateGraphs.js';
 
-//* ***************************************************************** */
-//*      Esto tiene que llegar por parametros
-import { graficosConfig, gruposConfig } from './mock.js';
-const proyectoName = '100000-100';
-//* ***************************************************************** */
-
 export default class evolucionCDIService {
-    static async createExcel (subproyectoId, proyectoName, graficosConfig, gruposConfig) {
+    static async createExcel ({ subproyectoId, proyectoNombre, graficosConfig, gruposConfig }) {
         const uniquePozos = [...new Set(gruposConfig.flatMap(g => g.pozos))];
         const uniqueCompuestos = [...new Set(graficosConfig.flatMap(g => [...g.eje1, ...g.eje2]))];
         const measurements = await getPlainData(subproyectoId, uniquePozos, uniqueCompuestos);
 
-        const { indexByPozo, indexByCompuesto, createdFile } = await createWellTables(proyectoName, gruposConfig, measurements);
+        const { indexByPozo, indexByCompuesto, createdFile } = await createWellTables(proyectoNombre, gruposConfig, measurements);
 
         const workbookPath = path.resolve(createdFile.path, createdFile.file);
         generateGraphs(indexByPozo, indexByCompuesto, gruposConfig, graficosConfig, workbookPath);
+
         return createdFile;
     }
 }
-
-evolucionCDIService.createExcel(266, proyectoName, graficosConfig, gruposConfig);
