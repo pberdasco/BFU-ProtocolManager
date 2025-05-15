@@ -1,5 +1,5 @@
 import ExcelJS from 'exceljs';
-import { stdErrorMsg } from '../stdError.js';
+import { stdErrorMsg } from '../../utils/stdError.js';
 import { generarNombreArchivoConFecha } from '../filenemeGenerator.js';
 import fs from 'fs';
 import path from 'path';

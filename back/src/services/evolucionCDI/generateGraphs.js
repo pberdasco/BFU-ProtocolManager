@@ -1,5 +1,5 @@
 import { xlChartType, xlAxisType, xlAxisGroup, xlMarkerStyle, xlLegendPosition } from './excelConstants.js';
-import { stdErrorMsg } from '../stdError.js';
+import { stdErrorMsg } from '../../utils/stdError.js';
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 const { Object: ActiveXObject } = require('winax');
@@ -30,22 +30,21 @@ export function generateGraphs (indexByWell, indexByCompound, grupos, graficosCo
                 const compoundMap = buildCompoundMap(pozoId, indexByCompound);
 
                 grupo.graficos.forEach((grafId, idx) => {
-                    const config = lookupGraficoConfig(grafId, graficosConfig);
+                    const graficoConfig = lookupGraficoConfig(grafId, graficosConfig);
 
                     // mapeamos cada cpId a su columna, validando existencia
-                    const eje1Cols = config.eje1.map(cpId => {
+                    const eje1Cols = graficoConfig.eje1.map(cpId => {
                         const col = compoundMap[cpId];
-                        if (!col) throw stdErrorMsg(400, `[generateExcel] Sin columna para el compuestoId=${cpId} en pozo=${pozoId}, eje 1.`);
+                        if (!col) throw stdErrorMsg(400, `[generateGraphs] Sin columna para el compuestoId=${cpId} en pozo=${pozoId}, eje 1.`);
                         return col;
                     });
-                    const eje2Cols = config.eje2.map(cpId => {
+                    const eje2Cols = graficoConfig.eje2.map(cpId => {
                         const col = compoundMap[cpId];
-                        if (!col) throw stdErrorMsg(400, `[generateExcel] Sin columna para el compuestoId=${cpId} en pozo=${pozoId}, eje 2.`);
+                        if (!col) throw stdErrorMsg(400, `[generateGraphs] Sin columna para el compuestoId=${cpId} en pozo=${pozoId}, eje 2.`);
                         return col;
                     });
 
-                    const grafico = graficosConfig.find(x => grafId === x.id);
-                    const chartName = `${sheetName} ${grafico.nombre}`;
+                    const chartName = `${sheetName} ${graficoConfig.nombre}`;
                     const pos = calculateChartPosition(idx, wellIndex.filaFin);
                     addScatterChart({
                         excel,
@@ -69,7 +68,7 @@ export function generateGraphs (indexByWell, indexByCompound, grupos, graficosCo
         saveAndClose(workbook, excel);
         return true;
     } catch (error) {
-        throw stdErrorMsg(error.status, error.message || '[evolucionCDI] generateExcel error');
+        throw stdErrorMsg(error.status, error.message || '[evolucionCDI] generateGraphs error');
     }
 }
 
@@ -100,18 +99,20 @@ function saveAndClose (workbook, excel) {
 
 function getSheetName (pozoId, sheetNamesById) {
     const name = sheetNamesById[pozoId];
-    if (!name) {
-        throw stdErrorMsg(400, `[evolucionCDI] No se encontró nombre de hoja para pozoId=${pozoId}`);
-    }
+    if (!name) throw stdErrorMsg(400, `[generateGraphs] No se encontró nombre de hoja para pozoId=${pozoId}`);
     return name;
 }
 
 function lookupWellIndex (sheetName, indexByWell) {
-    return indexByWell.find(w => w.pozo === sheetName);
+    const result = indexByWell.find(w => w.pozo === sheetName);
+    if (!result) throw stdErrorMsg(400, `[generateGraphs] No se encontró índice para el pozo con hoja '${sheetName}'`);
+    return result;
 }
 
 function lookupGraficoConfig (id, graficosConfig) {
-    return graficosConfig.find(g => g.id === id);
+    const result = graficosConfig.find(g => g.id === id);
+    if (!result) throw stdErrorMsg(400, `[generateGraphs] No se encontró configuración para el gráfico id=${id}`);
+    return result;
 }
 
 function calculateChartPosition (chartIndex, filaFin) {
@@ -150,20 +151,20 @@ function addScatterChart ({ excel, sheet, chartName, eje1Cols, eje2Cols, fechaIn
     // Agregar series para el eje primario
     eje1Cols.forEach((col, index) => {
         try {
-            addSeries(excel, chart, sheet, col, filaInicio, filaFin, fechasExcel, xlAxisGroup.xlPrimary, index);
+            addSeries(chart, sheet, col, filaInicio, filaFin, fechasExcel, xlAxisGroup.xlPrimary, index);
         } catch (error) {
-            console.error(`[evolucionCDI] - Error agregando serie para columna ${col}:`, error);
-            throw stdErrorMsg(400, `[evolucionCDI] Error agregando serie para columna ${col}`);
+            console.error(`[generateGraphs] - Error agregando serie para columna ${col}:`, error);
+            throw stdErrorMsg(400, `[generateGraphs] Error agregando serie para columna ${col}`);
         }
     });
 
     // Agregar series para el eje secundario
     eje2Cols.forEach((col, index) => {
         try {
-            addSeries(excel, chart, sheet, col, filaInicio, filaFin, fechasExcel, xlAxisGroup.xlSecondary, eje1Cols.length + index);
+            addSeries(chart, sheet, col, filaInicio, filaFin, fechasExcel, xlAxisGroup.xlSecondary, eje1Cols.length + index);
         } catch (error) {
-            console.error(`[evolucionCDI] - Error agregando serie para columna ${col}:`, error);
-            throw stdErrorMsg(400, `[evolucionCDI] Error agregando serie para columna ${col}`);
+            console.error(`[generateGraphs] - Error agregando serie para columna ${col}:`, error);
+            throw stdErrorMsg(400, `[generateGraphs] Error agregando serie para columna ${col}`);
         }
     });
 
@@ -194,8 +195,8 @@ function addScatterChart ({ excel, sheet, chartName, eje1Cols, eje2Cols, fechaIn
             secondaryAxis.AxisTitle.Text = um2;
         }
     } catch (error) {
-        console.error('[evolucionCDI] - Error configurando títulos de ejes:', error);
-        throw stdErrorMsg(500, '[evolucionCDI] Error configurando títulos de ejes');
+        console.error('[generateGraphs] - Error configurando títulos de ejes:', error);
+        throw stdErrorMsg(500, '[generateGraphs] Error configurando títulos de ejes');
     }
 }
 
@@ -207,7 +208,7 @@ function excelDateFromJSDate (date) {
     return dayDiff;
 }
 
-function addSeries (excel, chart, sheet, column, rowStart, rowEnd, xValues, axisGroup, seriesIndex) {
+function addSeries (chart, sheet, column, rowStart, rowEnd, xValues, axisGroup, seriesIndex) {
     const FILA_TITULOS = 2;
     try {
         // Añadir una nueva serie
@@ -217,7 +218,10 @@ function addSeries (excel, chart, sheet, column, rowStart, rowEnd, xValues, axis
         const headerCell = sheet.Range(`${column}${FILA_TITULOS}`);
         series.Name = headerCell.Value;
 
-        // Importante: Hay que usar el método específico Formula para asignar los valores
+        // ? Importante: Hay que usar el método específico Formula para asignar los valores
+        // ? ⚠ Importante: en gráficos tipo scatter (xlXYScatter), el eje X es de valores (no categórico).
+        // ? Por eso, los valores de fecha deben pasarse como números de serie de Excel en el segundo argumento de la fórmula.
+        // ? En este caso se insertan como una constante (de fechas serializadas en formato Excel) en línea: {xValues.join(',')}.
         series.Formula = `=SERIES(${sheet.Name}!$${column}$${FILA_TITULOS},{${xValues.join(',')}},${sheet.Name}!$${column}$${rowStart}:$${column}$${rowEnd},${seriesIndex + 1})`;
 
         // Establecer el grupo de ejes (primario o secundario)
@@ -230,7 +234,7 @@ function addSeries (excel, chart, sheet, column, rowStart, rowEnd, xValues, axis
 
         return series;
     } catch (error) {
-        console.error(`Error en addSeriesCorrectly para columna ${column}:`, error);
+        console.error(`[generateGraphs] Error en addSeries para columna ${column}:`, error);
         throw error;
     }
 }
