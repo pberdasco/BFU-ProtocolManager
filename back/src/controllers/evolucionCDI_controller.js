@@ -10,8 +10,6 @@ export default class EvolucionCDIController {
             if (errores.length !== 0) throw Object.assign(new Error('Problemas con el req.body'), { status: 400, fields: errores });
 
             const result = await EvolucionCDIService.createExcel(config);
-            console.log(typeof result, result);
-
             res.status(200).json(result);
         } catch (error) {
             showError(req, res, error);

@@ -81,7 +81,6 @@ export function generateGraphs (indexByWell, indexByCompound, grupos, graficosCo
 
                         try {
                             addScatterChart({
-                                excel,
                                 sheet,
                                 chartName,
                                 eje1Cols,
@@ -207,7 +206,7 @@ function generatePeriodicDates (start, end, points = 10) {
     return dates;
 }
 
-function addScatterChart ({ excel, sheet, chartName, eje1Cols, eje2Cols, fechaInicio, fechaFin, filaInicio, filaFin, left, top, width, height }) {
+function addScatterChart ({ sheet, chartName, eje1Cols, eje2Cols, fechaInicio, fechaFin, filaInicio, filaFin, left, top, width, height }) {
     const FILA_UM = 3;
     // Crear un objeto ChartObject
     const chartObj = sheet.ChartObjects().Add(left, top, width, height);
