@@ -1,4 +1,4 @@
-import { xlChartType, xlAxisType, xlAxisGroup, xlMarkerStyle, xlLegendPosition, XlDisplayBlanksAs } from './excelConstants.js';
+import { xlChartType, xlAxisType, xlAxisGroup, xlMarkerStyle, xlLegendPosition, XlDisplayBlanksAs, xlLineStyle } from './excelConstants.js';
 import { stdErrorMsg } from '../../../utils/stdError.js';
 
 import { createRequire } from 'module';
@@ -40,28 +40,33 @@ export function generateGraphs (indexByWell, indexByCompound, grupos, graficosCo
                         const graficoConfig = lookupGraficoConfig(grafId, graficosConfig);
                         const missingCompounds = [];
 
-                        // map de cada cpId a su columna, recolectando los que faltan
-                        const eje1Cols = graficoConfig.eje1.reduce((cols, cpId) => {
+                        const eje1Data = graficoConfig.eje1.reduce((arr, cpId) => {
                             const col = compoundMap[cpId];
                             if (!col) {
                                 missingCompounds.push(cpId);
                                 warnings.push(`Sin columna para el compuestoId=${cpId} en pozo=${pozoId}, eje 1.`);
                             } else {
-                                cols.push(col);
+                                arr.push({ cpId, col });
                             }
-                            return cols;
+                            return arr;
                         }, []);
 
-                        const eje2Cols = graficoConfig.eje2.reduce((cols, cpId) => {
+                        const eje2Data = graficoConfig.eje2.reduce((arr, cpId) => {
                             const col = compoundMap[cpId];
                             if (!col) {
                                 missingCompounds.push(cpId);
                                 warnings.push(`Sin columna para el compuestoId=${cpId} en pozo=${pozoId}, eje 2.`);
                             } else {
-                                cols.push(col);
+                                arr.push({ cpId, col });
                             }
-                            return cols;
+                            return arr;
                         }, []);
+
+                        // Extraer arrays paralelos
+                        const eje1Cols = eje1Data.map(item => item.col);
+                        const eje1CpIds = eje1Data.map(item => item.cpId);
+                        const eje2Cols = eje2Data.map(item => item.col);
+                        const eje2CpIds = eje2Data.map(item => item.cpId);
 
                         // Si no hay columnas para ningún eje, registrar el gráfico fallido y continuar
                         if (eje1Cols.length === 0 && eje2Cols.length === 0) {
@@ -84,7 +89,9 @@ export function generateGraphs (indexByWell, indexByCompound, grupos, graficosCo
                                 sheet,
                                 chartName,
                                 eje1Cols,
+                                eje1CpIds,
                                 eje2Cols,
+                                eje2CpIds,
                                 fechaInicio: new Date(wellIndex.fechaInicio),
                                 fechaFin: new Date(wellIndex.fechaFin),
                                 filaInicio: wellIndex.filaInicio,
@@ -206,7 +213,7 @@ function generatePeriodicDates (start, end, points = 10) {
     return dates;
 }
 
-function addScatterChart ({ sheet, chartName, eje1Cols, eje2Cols, fechaInicio, fechaFin, filaInicio, filaFin, left, top, width, height }) {
+function addScatterChart ({ sheet, chartName, eje1Cols, eje1CpIds, eje2Cols, eje2CpIds, fechaInicio, fechaFin, filaInicio, filaFin, left, top, width, height }) {
     const FILA_UM = 3;
     // Crear un objeto ChartObject
     const chartObj = sheet.ChartObjects().Add(left, top, width, height);
@@ -226,7 +233,7 @@ function addScatterChart ({ sheet, chartName, eje1Cols, eje2Cols, fechaInicio, f
     // Agregar series para el eje primario
     eje1Cols.forEach((col, index) => {
         try {
-            addSeries(chart, sheet, col, filaInicio, filaFin, fechasExcel, xlAxisGroup.xlPrimary, index);
+            addSeries(chart, sheet, col, filaInicio, filaFin, fechasExcel, xlAxisGroup.xlPrimary, index, eje1CpIds[index]);
         } catch (error) {
             console.error(`[generateGraphs] - Error agregando serie para columna ${col}:`, error);
             console.warn(`Omitiendo serie para columna ${col} debido a error: ${error.message}`);
@@ -236,7 +243,7 @@ function addScatterChart ({ sheet, chartName, eje1Cols, eje2Cols, fechaInicio, f
     // Agregar series para el eje secundario
     eje2Cols.forEach((col, index) => {
         try {
-            addSeries(chart, sheet, col, filaInicio, filaFin, fechasExcel, xlAxisGroup.xlSecondary, eje1Cols.length + index);
+            addSeries(chart, sheet, col, filaInicio, filaFin, fechasExcel, xlAxisGroup.xlSecondary, eje1Cols.length + index, eje2CpIds[index]);
         } catch (error) {
             console.error(`[generateGraphs] - Error agregando serie para columna ${col}:`, error);
             console.warn(`Omitiendo serie para columna ${col} debido a error: ${error.message}`);
@@ -274,14 +281,32 @@ function addScatterChart ({ sheet, chartName, eje1Cols, eje2Cols, fechaInicio, f
         categoryAxis.AxisTitle.Text = 'Fecha';
         categoryAxis.TickLabels.NumberFormat = 'mm/yyyy';
 
+        const normalize = u => (u || '').toString().toLowerCase().replace(/[\s.]/g, '');
+        const um1Norm = normalize(um1);
+        const um2Norm = normalize(um2);
+
         primaryAxis = chart.Axes(xlAxisType.xlValue, xlAxisGroup.xlPrimary);
         primaryAxis.HasTitle = true;
-        primaryAxis.AxisTitle.Text = um1;
+        if (um1Norm === 'm') {
+            primaryAxis.AxisTitle.Text = 'Espesor (m)';
+        } else if (um1Norm === 'mbbp') {
+            primaryAxis.ReversePlotOrder = true; // si son mbpp invertir eje
+            primaryAxis.AxisTitle.Text = 'Profundidad (m.b.b.p.)';
+        } else {
+            primaryAxis.AxisTitle.Text = `Concentración (${um1})`;
+        }
 
         if (eje2Cols.length > 0) {
             secondaryAxis = chart.Axes(xlAxisType.xlValue, xlAxisGroup.xlSecondary);
             secondaryAxis.HasTitle = true;
-            secondaryAxis.AxisTitle.Text = um2;
+            if (um2Norm === 'm') {
+                secondaryAxis.AxisTitle.Text = 'Espesor (m)';
+            } else if (um2Norm === 'mbbp') {
+                secondaryAxis.ReversePlotOrder = true; // si son mbbp invertir eje
+                secondaryAxis.AxisTitle.Text = 'Profundidad (m.b.b.p.)';
+            } else {
+                secondaryAxis.AxisTitle.Text = `Concentración (${um2})`;
+            }
         }
     } catch (error) {
         console.error('[generateGraphs] - Error configurando títulos de ejes:', error);
@@ -303,7 +328,7 @@ function excelDateFromJSDate (date) {
     return dayDiff;
 }
 
-function addSeries (chart, sheet, column, rowStart, rowEnd, xValues, axisGroup, seriesIndex) {
+function addSeries (chart, sheet, column, rowStart, rowEnd, xValues, axisGroup, seriesIndex, cpId) {
     const FILA_TITULOS = 2;
     let series, headerCell;
     try {
@@ -328,6 +353,19 @@ function addSeries (chart, sheet, column, rowStart, rowEnd, xValues, axisGroup, 
         series.MarkerStyle = xlMarkerStyle.xlMarkerStyleCircle;
         series.MarkerSize = 6;
         series.Format.Line.Weight = 1.5;
+        if (cpId === -1) {
+            series.Format.Line.DashStyle = xlLineStyle.xlDash;
+            series.Format.Line.ForeColor.RGB = 0x00FF0000; // azul
+            series.MarkerStyle = xlMarkerStyle.xlMarkerStyleTriangle;
+            series.MarkerForegroundColor = 0x00FF0000;
+            series.MarkerBackgroundColor = 0x00FF0000;
+        } else if (cpId === -2) {
+            series.Format.Line.DashStyle = xlLineStyle.xlContinuous;
+            series.Format.Line.ForeColor.RGB = 0x000000FF; // rojo
+            series.MarkerStyle = xlMarkerStyle.xlMarkerStyleSquare;
+            series.MarkerForegroundColor = 0x000000FF;
+            series.MarkerBackgroundColor = 0x000000FF;
+        }
     } catch (error) {
         console.error(`[generateGraphs] Error en addSeries para columna ${column}:`, error);
         throw error;

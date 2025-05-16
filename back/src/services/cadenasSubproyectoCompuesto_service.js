@@ -138,7 +138,7 @@ export default class CadenasSubproyectoCompuestoService {
                         '00000002' AS compuestoCodigo,
                         -2 AS compuestoId,
                         'FLNA' AS compuestoNombre,
-                        'mg/L' AS unidad,
+                        'm' AS unidad,
                         CAST(CASE WHEN m.flna = 0 THEN -4 ELSE m.flna END AS DECIMAL(10,4)) AS valor,
                         'fase' AS tipoDato
                     FROM EventoMuestreo em

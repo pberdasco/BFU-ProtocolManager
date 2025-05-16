@@ -11,10 +11,22 @@ export const xlAxisGroup = {
     xlSecondary: 2
 };
 export const xlLineStyle = {
-    xlContinuous: 1
+    // MsoLineDashStyle
+    xlContinuous: 1,
+    xlSquareDot: 2,
+    xlRoundDot: 3,
+    xlDash: 4,
+    xlDashDot: 5,
+    xlDashDotDot: 6,
+    xlSysDash: 7,
+    xlSysDot: 8
 };
 export const xlMarkerStyle = {
-    xlMarkerStyleCircle: 8
+    xlMarkerStyleCircle: 8,
+    xlMarkerStyleStar: 5,
+    xlMarkerStyleTriangle: 3,
+    xlMarkerStyleDiamond: 2,
+    xlMarkerStyleSquare: 1
 };
 export const xlLegendPosition = {
     xlLegendPositionBottom: -4107,
