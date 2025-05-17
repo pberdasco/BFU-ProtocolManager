@@ -1,19 +1,11 @@
 import ExcelJS from 'exceljs';
 import { stdErrorMsg } from '../../../utils/stdError.js';
 import { generarNombreArchivoConFecha } from '../../../utils/filenameGenerator.js';
-import fs from 'fs';
 import path from 'path';
 
-export async function createWellTables (proyectoNombre, grupoConfig, measurements) {
-    process.loadEnvFile();
-    const basePath = process.env.EVOLUCIONCDI_PATH;
-
+export async function createWellTables (proyectoNombre, grupoConfig, measurements, basePath) {
     try {
         const { workbook, indexByPozo, indexByCompuesto } = await buildWorkbook(measurements, grupoConfig);
-
-        if (!fs.existsSync(basePath)) {
-            fs.mkdirSync(basePath, { recursive: true });
-        }
 
         const fileName = generarNombreArchivoConFecha('EV', proyectoNombre, 'xlsx');
         const fullPath = path.join(basePath, fileName);

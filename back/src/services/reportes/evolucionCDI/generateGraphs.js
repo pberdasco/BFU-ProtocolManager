@@ -1,5 +1,6 @@
 import { xlChartType, xlAxisType, xlAxisGroup, xlMarkerStyle, xlLegendPosition, XlDisplayBlanksAs, xlLineStyle } from './excelConstants.js';
 import { stdErrorMsg } from '../../../utils/stdError.js';
+import path from 'path';
 
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
@@ -11,11 +12,10 @@ const ALTO_FILA_EN_PX = 13.8;
 const TOP_PADDING = 20;
 const LEFT_PADDING = 20;
 
-export function generateGraphs (indexByWell, indexByCompound, grupos, graficosConfig, workbookPath) {
+export function generateGraphs (indexByWell, indexByCompound, grupos, graficosConfig, workbookPath, imagesPath) {
     let excel;
     let workbook;
-    const warnings = [];
-    const failedGraphs = [];
+    const log = [];
 
     try {
         excel = openExcel();
@@ -26,25 +26,43 @@ export function generateGraphs (indexByWell, indexByCompound, grupos, graficosCo
             return map;
         }, {});
 
+        let totalGraphsAttempted = 0;
+        // let graphsSuccessfullyCreated = 0;
+        let graphsWithWarnings = 0;
+        let graphsFailed = 0;
+
         grupos.forEach((grupo, gIdx) => {
             grupo.pozos.forEach(pozoId => {
                 console.log(`Procesando grupo ${gIdx} pozo ${pozoId}`);
 
                 const sheetName = getSheetName(pozoId, sheetNamesById);
-                const sheet = workbook.Sheets(sheetName);
-                const wellIndex = lookupWellIndex(sheetName, indexByWell);
-                const compoundMap = buildCompoundMap(pozoId, indexByCompound);
-
+                let sheet = null;
+                let chartObj = null;
                 try {
+                    sheet = workbook.Sheets(sheetName);
+                    const wellIndex = lookupWellIndex(sheetName, indexByWell);
+                    const compoundMap = buildCompoundMap(pozoId, indexByCompound);
+
                     grupo.graficos.forEach((grafId, idx) => {
+                        totalGraphsAttempted++;
                         const graficoConfig = lookupGraficoConfig(grafId, graficosConfig);
-                        const missingCompounds = [];
+                        const chartName = `${sheetName}-${graficoConfig.nombre}`; // ver que sea igual que en addScatterChart
+                        const currentGraphLogEntry = {
+                            pozoId,
+                            pozo: sheetName,
+                            graficoId: graficoConfig.id,
+                            graficoNombre: graficoConfig.nombre,
+                            chartName,
+                            pngPath: '',
+                            status: '' // Se determinará a continuación
+                            // cpIdsFailed será añadido solo si status es 'Warn'
+                        };
+                        const missingCompoundsForThisGraph = [];
 
                         const eje1Data = graficoConfig.eje1.reduce((arr, cpId) => {
                             const col = compoundMap[cpId];
                             if (!col) {
-                                missingCompounds.push(cpId);
-                                warnings.push(`Sin columna para el compuestoId=${cpId} en pozo=${pozoId}, eje 1.`);
+                                missingCompoundsForThisGraph.push(cpId);
                             } else {
                                 arr.push({ cpId, col });
                             }
@@ -54,8 +72,7 @@ export function generateGraphs (indexByWell, indexByCompound, grupos, graficosCo
                         const eje2Data = graficoConfig.eje2.reduce((arr, cpId) => {
                             const col = compoundMap[cpId];
                             if (!col) {
-                                missingCompounds.push(cpId);
-                                warnings.push(`Sin columna para el compuestoId=${cpId} en pozo=${pozoId}, eje 2.`);
+                                missingCompoundsForThisGraph.push(cpId);
                             } else {
                                 arr.push({ cpId, col });
                             }
@@ -68,66 +85,84 @@ export function generateGraphs (indexByWell, indexByCompound, grupos, graficosCo
                         const eje2Cols = eje2Data.map(item => item.col);
                         const eje2CpIds = eje2Data.map(item => item.cpId);
 
-                        // Si no hay columnas para ningún eje, registrar el gráfico fallido y continuar
                         if (eje1Cols.length === 0 && eje2Cols.length === 0) {
-                            const warningMsg = `No se pudo generar el gráfico ${graficoConfig.nombre} en pozo=${pozoId} porque no había columnas para ninguno de los compuestos.`;
-                            warnings.push(warningMsg);
-                            failedGraphs.push({
-                                pozo: pozoId,
-                                grafico: graficoConfig.id,
-                                nombre: graficoConfig.nombre,
-                                mensaje: warningMsg
-                            });
-                            return; // Salta este gráfico y continúa con el siguiente
-                        }
+                            currentGraphLogEntry.status = 'Fail';
+                            // Opcional: añadir un mensaje específico si se desea
+                            // currentGraphLogEntry.mensaje = `No se encontraron datos para compuestos en pozo=${pozoId} para gráfico ${graficoConfig.nombre}.`;
+                            graphsFailed++;
+                        } else {
+                            const pos = calculateChartPosition(idx, wellIndex.filaFin);
+                            try {
+                                const { chartObj: co, internallyFailedCpIds } = addScatterChart({
+                                    sheet,
+                                    sheetName,
+                                    graphName: graficoConfig.nombre,
+                                    eje1Cols,
+                                    eje1CpIds,
+                                    eje2Cols,
+                                    eje2CpIds,
+                                    fechaInicio: new Date(wellIndex.fechaInicio),
+                                    fechaFin: new Date(wellIndex.fechaFin),
+                                    filaInicio: wellIndex.filaInicio,
+                                    filaFin: wellIndex.filaFin,
+                                    left: pos.left,
+                                    top: pos.top,
+                                    width: GRAPH_WIDTH,
+                                    height: GRAPH_HEIGHT
+                                });
+                                const allProblematicCpIds = [...new Set([
+                                    ...missingCompoundsForThisGraph,
+                                    ...(internallyFailedCpIds || [])
+                                ])];
 
-                        const chartName = `${sheetName} ${graficoConfig.nombre}`;
-                        const pos = calculateChartPosition(idx, wellIndex.filaFin);
+                                // Grabar la imagen en disco
+                                const pngName = `${chartName.replace(/[/\\:?<>|"]/g, '_')}.png`;
+                                const pngPath = path.join(imagesPath, pngName);
+                                chartObj = co; // asigna a una variable de fuera del try para que sea alcanzable en el finally
+                                chartObj.Chart.Export(pngPath, 'PNG');
+                                currentGraphLogEntry.pngPath = pngPath;
 
-                        try {
-                            addScatterChart({
-                                sheet,
-                                chartName,
-                                eje1Cols,
-                                eje1CpIds,
-                                eje2Cols,
-                                eje2CpIds,
-                                fechaInicio: new Date(wellIndex.fechaInicio),
-                                fechaFin: new Date(wellIndex.fechaFin),
-                                filaInicio: wellIndex.filaInicio,
-                                filaFin: wellIndex.filaFin,
-                                left: pos.left,
-                                top: pos.top,
-                                width: GRAPH_WIDTH,
-                                height: GRAPH_HEIGHT
-                            });
-                        } catch (chartError) {
-                            warnings.push(`Error al crear el gráfico ${graficoConfig.nombre} en pozo=${pozoId}: ${chartError.message}`);
-                            failedGraphs.push({
-                                pozo: pozoId,
-                                grafico: graficoConfig.id,
-                                nombre: graficoConfig.nombre,
-                                mensaje: chartError.message
-                            });
+                                if (allProblematicCpIds.length > 0) {
+                                    currentGraphLogEntry.status = 'Warn';
+                                    currentGraphLogEntry.cpIdsFailed = allProblematicCpIds;
+                                    graphsWithWarnings++;
+                                } else {
+                                    currentGraphLogEntry.status = 'Ok';
+                                }
+                            } catch (chartError) {
+                                console.error(`Error creando gráfico ${graficoConfig.nombre} en pozo ${pozoId}: ${chartError.message}`);
+                                currentGraphLogEntry.status = 'Fail';
+                                // Opcional: añadir mensaje de error específico
+                                // currentGraphLogEntry.mensaje = chartError.message;
+                                graphsFailed++;
+                            }
                         }
+                        log.push(currentGraphLogEntry);
                     });
                 } finally {
                     if (sheet) release(sheet);
+                    if (chartObj) release(chartObj);
                 }
             });
         });
 
-        // Si no se pudo crear ningún gráfico, lanzar un error
-        if (failedGraphs.length === grupos.reduce((total, grupo) => total + grupo.pozos.length * grupo.graficos.length, 0)) {
-            throw stdErrorMsg(400, '[generateGraphs] No se pudo crear ningún gráfico debido a errores con los compuestos');
+        let overallStatus = 'Ok';
+        if (totalGraphsAttempted > 0) {
+            if (graphsFailed === totalGraphsAttempted) {
+                overallStatus = 'Fail';
+            } else if (graphsFailed > 0 || graphsWithWarnings > 0) {
+                overallStatus = 'Warn';
+            } else { // .Todos Ok (graphsSuccessfullyCreated === totalGraphsAttempted)
+                overallStatus = 'Ok';
+            }
+        } else { // No se intentó crear ningún gráfico (ej: grupos o graficosConfig vacío)
+            overallStatus = 'Ok';
         }
 
         saveAndClose(workbook, excel);
         return {
-            success: true,
-            warnings: warnings.length > 0,
-            warningMessages: warnings,
-            failedGraphs
+            status: overallStatus,
+            log
         };
     } catch (error) {
         throw stdErrorMsg(error.status, error.message || '[evolucionCDI] generateGraphs error');
@@ -213,111 +248,115 @@ function generatePeriodicDates (start, end, points = 10) {
     return dates;
 }
 
-function addScatterChart ({ sheet, chartName, eje1Cols, eje1CpIds, eje2Cols, eje2CpIds, fechaInicio, fechaFin, filaInicio, filaFin, left, top, width, height }) {
-    const FILA_UM = 3;
-    // Crear un objeto ChartObject
-    const chartObj = sheet.ChartObjects().Add(left, top, width, height);
-    chartObj.Name = chartName;
+function addScatterChart ({ sheet, sheetName, graphName, eje1Cols, eje1CpIds, eje2Cols, eje2CpIds, fechaInicio, fechaFin, filaInicio, filaFin, left, top, width, height }) {
+    const FILA_UM = 3; // Asumiendo que esta constante está definida o es conocida
+    let chartObj, chart, categoryAxis, primaryAxis, secondaryAxis;
+    let datoUm1, datoUm2; // Para los ranges de UM, usando nombres diferentes para evitar confusión con variables globales si existieran
+    const internallyFailedCpIds = [];
 
-    // Obtener el gráfico del objeto
-    const chart = chartObj.Chart;
-    chart.ChartType = xlChartType.xlXYScatterLines; // Scatter Lines
-    chart.DisplayBlanksAs = XlDisplayBlanksAs.xlInterpolated;
-
-    // Generar las fechas periódicas para el eje X y convertirlas a formato excel (nro de serie)
-    const fechas = generatePeriodicDates(fechaInicio, fechaFin);
-    const fechasExcel = fechas.map(fecha => {
-        return excelDateFromJSDate(fecha);
-    });
-
-    // Agregar series para el eje primario
-    eje1Cols.forEach((col, index) => {
-        try {
-            addSeries(chart, sheet, col, filaInicio, filaFin, fechasExcel, xlAxisGroup.xlPrimary, index, eje1CpIds[index]);
-        } catch (error) {
-            console.error(`[generateGraphs] - Error agregando serie para columna ${col}:`, error);
-            console.warn(`Omitiendo serie para columna ${col} debido a error: ${error.message}`);
-        }
-    });
-
-    // Agregar series para el eje secundario
-    eje2Cols.forEach((col, index) => {
-        try {
-            addSeries(chart, sheet, col, filaInicio, filaFin, fechasExcel, xlAxisGroup.xlSecondary, eje1Cols.length + index, eje2CpIds[index]);
-        } catch (error) {
-            console.error(`[generateGraphs] - Error agregando serie para columna ${col}:`, error);
-            console.warn(`Omitiendo serie para columna ${col} debido a error: ${error.message}`);
-        }
-    });
-
-    let um1 = 'Concentración';
-    if (eje1Cols[0]) {
-        const dato = sheet.Range(`${eje1Cols[0]}${FILA_UM}`);
-        um1 = dato.value;
-        if (dato) release(dato);
-    }
-
-    let um2 = 'Nivel';
-    if (eje2Cols[0]) {
-        const dato = sheet.Range(`${eje2Cols[0]}${FILA_UM}`);
-        um2 = dato.value;
-        if (dato) release(dato);
-    }
-
-    // Configurar títulos de ejes
-    let categoryAxis;
-    let secondaryAxis;
-    let primaryAxis;
     try {
-        chart.HasTitle = true;
-        chart.ChartTitle.Text = chartName;
+        chartObj = sheet.ChartObjects().Add(left, top, width, height);
+        chartObj.Name = `${sheetName}-${graphName}`; // TODO: pegarle un indice o algo asi. Ver que sea igual que en la llamadora
+        chart = chartObj.Chart; // Acceso como propiedad si así estaba originalmente y funcionaba
 
-        chart.HasLegend = true;
-        chart.Legend.Position = xlLegendPosition.xlLegendPositionBottom;
-        chart.Legend.IncludeInLayout = true; // Leyenda en varias filas
+        chart.ChartType = xlChartType.xlXYScatterLines;
+        chart.DisplayBlanksAs = XlDisplayBlanksAs.xlInterpolated;
 
-        categoryAxis = chart.Axes(xlAxisType.xlCategory);
-        categoryAxis.HasTitle = true;
-        categoryAxis.AxisTitle.Text = 'Fecha';
-        categoryAxis.TickLabels.NumberFormat = 'mm/yyyy';
+        const fechas = generatePeriodicDates(fechaInicio, fechaFin);
+        const fechasExcel = fechas.map(fecha => excelDateFromJSDate(fecha));
 
-        const normalize = u => (u || '').toString().toLowerCase().replace(/[\s.]/g, '');
-        const um1Norm = normalize(um1);
-        const um2Norm = normalize(um2);
+        eje1Cols.forEach((col, index) => {
+            try {
+                // Asumimos que eje1CpIds[index] existe y es el cpId correcto
+                addSeries(chart, sheet, col, filaInicio, filaFin, fechasExcel, xlAxisGroup.xlPrimary, index, eje1CpIds[index]);
+            } catch (error) {
+                console.error(`[addScatterChart] - Error agregando serie para columna ${col} (cpId: ${eje1CpIds[index]}):`, error.message);
+                console.warn(`[addScatterChart] Omitiendo serie para columna ${col} (cpId: ${eje1CpIds[index]}) debido a error.`);
+                internallyFailedCpIds.push(eje1CpIds[index]);
+            }
+        });
 
-        primaryAxis = chart.Axes(xlAxisType.xlValue, xlAxisGroup.xlPrimary);
-        primaryAxis.HasTitle = true;
-        if (um1Norm === 'm') {
-            primaryAxis.AxisTitle.Text = 'Espesor (m)';
-        } else if (um1Norm === 'mbbp') {
-            primaryAxis.ReversePlotOrder = true; // si son mbpp invertir eje
-            primaryAxis.AxisTitle.Text = 'Profundidad (m.b.b.p.)';
-        } else {
-            primaryAxis.AxisTitle.Text = `Concentración (${um1})`;
+        eje2Cols.forEach((col, index) => {
+            try {
+                // Asumimos que eje2CpIds[index] existe y es el cpId correcto
+                addSeries(chart, sheet, col, filaInicio, filaFin, fechasExcel, xlAxisGroup.xlSecondary, eje1Cols.length + index, eje2CpIds[index]);
+            } catch (error) {
+                console.error(`[addScatterChart] - Error agregando serie para columna ${col} (cpId: ${eje2CpIds[index]}):`, error.message);
+                console.warn(`[addScatterChart] Omitiendo serie para columna ${col} (cpId: ${eje2CpIds[index]}) debido a error.`);
+                internallyFailedCpIds.push(eje2CpIds[index]);
+            }
+        });
+
+        let um1 = 'Concentración'; // Valor por defecto
+        if (eje1Cols[0]) {
+            datoUm1 = sheet.Range(`${eje1Cols[0]}${FILA_UM}`);
+            um1 = datoUm1.value || um1; // Usando .value (minúscula) como en tu original para esta parte
         }
 
-        if (eje2Cols.length > 0) {
-            secondaryAxis = chart.Axes(xlAxisType.xlValue, xlAxisGroup.xlSecondary);
-            secondaryAxis.HasTitle = true;
-            if (um2Norm === 'm') {
-                secondaryAxis.AxisTitle.Text = 'Espesor (m)';
-            } else if (um2Norm === 'mbbp') {
-                secondaryAxis.ReversePlotOrder = true; // si son mbbp invertir eje
-                secondaryAxis.AxisTitle.Text = 'Profundidad (m.b.b.p.)';
+        let um2 = 'Nivel'; // Valor por defecto
+        if (eje2Cols[0]) {
+            datoUm2 = sheet.Range(`${eje2Cols[0]}${FILA_UM}`);
+            um2 = datoUm2.value || um2; // Usando .value (minúscula)
+        }
+
+        // Configuración de títulos y ejes
+        try {
+            chart.HasTitle = true;
+            chart.ChartTitle.Text = graphName;
+
+            chart.HasLegend = true;
+            chart.Legend.Position = xlLegendPosition.xlLegendPositionBottom;
+            chart.Legend.IncludeInLayout = true;
+
+            categoryAxis = chart.Axes(xlAxisType.xlCategory);
+            categoryAxis.HasTitle = true;
+            categoryAxis.AxisTitle.Text = 'Fecha';
+            categoryAxis.TickLabels.NumberFormat = 'mm/yyyy';
+
+            const normalize = u => (u || '').toString().toLowerCase().replace(/[\s.]/g, '');
+            const um1Norm = normalize(um1);
+            const um2Norm = normalize(um2);
+
+            primaryAxis = chart.Axes(xlAxisType.xlValue, xlAxisGroup.xlPrimary);
+            primaryAxis.HasTitle = true;
+            if (um1Norm === 'm') {
+                primaryAxis.AxisTitle.Text = 'Espesor (m)';
+            } else if (um1Norm === 'mbbp') {
+                primaryAxis.ReversePlotOrder = true;
+                primaryAxis.AxisTitle.Text = 'Profundidad (m.b.b.p.)';
             } else {
-                secondaryAxis.AxisTitle.Text = `Concentración (${um2})`;
+                primaryAxis.AxisTitle.Text = `Concentración (${um1})`;
             }
+
+            if (eje2Cols.length > 0) {
+                secondaryAxis = chart.Axes(xlAxisType.xlValue, xlAxisGroup.xlSecondary);
+                secondaryAxis.HasTitle = true;
+                if (um2Norm === 'm') {
+                    secondaryAxis.AxisTitle.Text = 'Espesor (m)';
+                } else if (um2Norm === 'mbbp') {
+                    secondaryAxis.ReversePlotOrder = true;
+                    secondaryAxis.AxisTitle.Text = 'Profundidad (m.b.b.p.)';
+                } else {
+                    secondaryAxis.AxisTitle.Text = `Concentración (${um2})`;
+                }
+            }
+        } catch (axisError) {
+            console.error('[addScatterChart] - Error configurando títulos de ejes:', axisError);
+            throw axisError; // Re-lanzar para que el catch principal de addScatterChart lo maneje
         }
     } catch (error) {
-        console.error('[generateGraphs] - Error configurando títulos de ejes:', error);
-        throw error; // Propagamos el error para manejar este caso de fallo en la función superior
+        console.error(`[addScatterChart] - Error creando o configurando el gráfico '${sheetName}-${graphName}':`, error);
+        throw error;
     } finally {
+        if (datoUm1) release(datoUm1);
+        if (datoUm2) release(datoUm2);
         if (secondaryAxis) release(secondaryAxis);
         if (primaryAxis) release(primaryAxis);
         if (categoryAxis) release(categoryAxis);
         if (chart) release(chart);
-        if (chartObj) release(chartObj);
+        // if (chartObj) release(chartObj);
     }
+    return { chartObj, internallyFailedCpIds };
 }
 
 // Función que convierte fechas de JavaScript a formato Excel (número de serie)
@@ -332,10 +371,7 @@ function addSeries (chart, sheet, column, rowStart, rowEnd, xValues, axisGroup, 
     const FILA_TITULOS = 2;
     let series, headerCell;
     try {
-        // Añadir una nueva serie
         series = chart.SeriesCollection().NewSeries();
-
-        // Obtener el nombre de la serie desde la cabecera
         headerCell = sheet.Range(`${column}${FILA_TITULOS}`);
         series.Name = headerCell.Value;
 
@@ -345,23 +381,20 @@ function addSeries (chart, sheet, column, rowStart, rowEnd, xValues, axisGroup, 
         // ? Por eso, los valores de fecha deben pasarse como números de serie de Excel en el segundo argumento de la fórmula.
         // ? En este caso se insertan como una constante (de fechas serializadas en formato Excel) en línea: {xValues.join(',')}.
         series.Formula = `=SERIES(${sheet.Name}!$${column}$${FILA_TITULOS},{${xValues.join(',')}},${sheet.Name}!$${column}$${rowStart}:$${column}$${rowEnd},${seriesIndex + 1})`;
-
-        // Establecer el grupo de ejes (primario o secundario)
         series.AxisGroup = axisGroup;
-
-        // Personalizar la apariencia de la serie
         series.MarkerStyle = xlMarkerStyle.xlMarkerStyleCircle;
         series.MarkerSize = 6;
         series.Format.Line.Weight = 1.5;
+
         if (cpId === -1) {
             series.Format.Line.DashStyle = xlLineStyle.xlDash;
-            series.Format.Line.ForeColor.RGB = 0x00FF0000; // azul
+            series.Format.Line.ForeColor.RGB = 0x00FF0000; // Azul (BGR)
             series.MarkerStyle = xlMarkerStyle.xlMarkerStyleTriangle;
             series.MarkerForegroundColor = 0x00FF0000;
             series.MarkerBackgroundColor = 0x00FF0000;
         } else if (cpId === -2) {
             series.Format.Line.DashStyle = xlLineStyle.xlContinuous;
-            series.Format.Line.ForeColor.RGB = 0x000000FF; // rojo
+            series.Format.Line.ForeColor.RGB = 0x000000FF; // Rojo (BGR)
             series.MarkerStyle = xlMarkerStyle.xlMarkerStyleSquare;
             series.MarkerForegroundColor = 0x000000FF;
             series.MarkerBackgroundColor = 0x000000FF;
@@ -379,3 +412,29 @@ function addSeries (chart, sheet, column, rowStart, rowEnd, xValues, axisGroup, 
 // ⚠️ Este módulo contiene varios bloques `finally` que en otro contexto parecerían redundantes.
 // ⚠️ Son necesarios para liberar correctamente objetos COM como: `excel`, `workbook`, `sheet`, `range`, `chart`, `axis`, etc.
 // ⚠️ Especial atención con `Range`, que debe liberarse justo después de acceder a `.Value`.
+
+// Excel.Application
+// └── Workbooks                ← colección de libros abiertos
+//     └── Workbook             ← instancia concreta (tu archivo)
+//        ├── Parent → Excel.Application
+//        ├── Sheets            ← colección de hojas de cálculo
+//        │   └── Worksheet     ← instancia de hoja (por nombre o índice)
+//        │       ├── Parent → Workbook
+//        │       ├── ChartObjects()   ← colección de ChartObject en la hoja
+//        │       │   └── ChartObject  ← instancia de un gráfico en la hoja - como es un shape tiene (left, top,.., traer al frente,..., cortar, copiar)
+//        │       │       ├── Parent → Worksheet
+//        │       │       ├── Name   ← nombre que asignas (chartName)
+//        │       │       ├── Chart  ← objeto Chart dentro del ChartObject
+//        │       │       │   ├── Parent → ChartObject
+//        │       │       │   ├── ChartType, HasTitle, DisplayBlanksAs, …
+//        │       │       │   ├── SeriesCollection()  ← todas las series
+//        │       │       │   │   └── Series           ← cada serie de datos
+//        │       │       │   ├── ChartTitle           ← título del gráfico
+//        │       │       │   ├── Legend               ← leyenda
+//        │       │       │   └── Axes(axisType,axisGroup)
+//        │       │       │       └── Axis             ← ejes (Category, Value)
+//        │       │       └── … (otros métodos de ChartObject)
+//        │       └── Shapes()       ← colección de shapes (incluye ChartObject)
+//        ├── DefinedNames          ← nombres definidos en el libro
+//        ├── Names                 ← alias de DefinedNames
+//        └── … (otras colecciones: Worksheets, Worksheets.CodeName, etc.)
