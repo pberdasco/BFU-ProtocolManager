@@ -122,13 +122,9 @@ async function createReport (charts, outputFilePath, params = {}) {
                 new Paragraph({
                     children: [
                         new ImageRun({
+                            type: 'png',
                             data: fs.readFileSync(grafico.pngPath),
-                            transformation: { width: 600, height: 400 },
-                            extension: 'png',
-                            docPr: {
-                                id: seccionIndex + idx, // cualquier valor único por imagen
-                                name: `S${seccionIndex}-G${idx}`
-                            }
+                            transformation: { width: 535, height: 335 }
                         })
                     ],
                     spacing: { after: 100 }
@@ -284,7 +280,7 @@ const params = {
         // Generamos el documento con los parámetros adicionales
         await createReport(
             charts,
-            'C:\\Netrona\\Clientes\\BfU\\ProcesoProtocolos\\Temp\\EvolucionCDI\\Evolucion_MonitoreoX2.docx',
+            'C:\\Netrona\\Clientes\\BfU\\ProcesoProtocolos\\Temp\\EvolucionCDI\\Evolucion_MonitoreoX3.docx',
             params
         );
         console.log('Documento creado correctamente');
