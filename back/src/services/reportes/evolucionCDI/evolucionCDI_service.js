@@ -8,13 +8,17 @@ export default class evolucionCDIService {
     static async createExcel ({ subproyectoId, proyectoNombre, graficosConfig, gruposConfig }) {
         const uniquePozos = [...new Set(gruposConfig.flatMap(g => g.pozos))];
         const uniqueCompuestos = [...new Set(graficosConfig.flatMap(g => [...g.eje1, ...g.eje2]))];
-        const measurements = await getPlainData(subproyectoId, uniquePozos, uniqueCompuestos);
+        const { rangoFechas, measurements } = await getPlainData(subproyectoId, uniquePozos, uniqueCompuestos);
 
         const { basePath, imagesPath } = evolucionCDIService.asegurarDirectorios();
         const { indexByPozo, indexByCompuesto, createdFile } = await createWellTables(proyectoNombre, gruposConfig, measurements, basePath);
 
         const workbookPath = path.resolve(createdFile.path, createdFile.file);
-        const result = generateGraphs(indexByPozo, indexByCompuesto, gruposConfig, graficosConfig, workbookPath, imagesPath);
+        const result = generateGraphs(indexByPozo, indexByCompuesto, gruposConfig, graficosConfig, workbookPath, imagesPath, subproyectoId);
+
+        // llamar a generateDoc con result y rangoFechas
+        console.log('rangoFechas: ', rangoFechas);
+
         result.createdFile = createdFile;
         return result;
     }

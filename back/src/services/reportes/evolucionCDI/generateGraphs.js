@@ -12,7 +12,7 @@ const ALTO_FILA_EN_PX = 13.8;
 const TOP_PADDING = 20;
 const LEFT_PADDING = 20;
 
-export function generateGraphs (indexByWell, indexByCompound, grupos, graficosConfig, workbookPath, imagesPath) {
+export function generateGraphs (indexByWell, indexByCompound, grupos, graficosConfig, workbookPath, imagesPath, subproyectoId) {
     let excel;
     let workbook;
     const log = [];
@@ -46,7 +46,7 @@ export function generateGraphs (indexByWell, indexByCompound, grupos, graficosCo
                     grupo.graficos.forEach((grafId, idx) => {
                         totalGraphsAttempted++;
                         const graficoConfig = lookupGraficoConfig(grafId, graficosConfig);
-                        const chartName = `${sheetName}-${graficoConfig.nombre}`; // ver que sea igual que en addScatterChart
+                        const chartName = `${sheetName}-${graficoConfig.nombre}-${subproyectoId}`; // ver que sea igual que en addScatterChart
                         const currentGraphLogEntry = {
                             pozoId,
                             pozo: sheetName,
@@ -97,6 +97,7 @@ export function generateGraphs (indexByWell, indexByCompound, grupos, graficosCo
                                     sheet,
                                     sheetName,
                                     graphName: graficoConfig.nombre,
+                                    chartName,
                                     eje1Cols,
                                     eje1CpIds,
                                     eje2Cols,
@@ -248,7 +249,7 @@ function generatePeriodicDates (start, end, points = 10) {
     return dates;
 }
 
-function addScatterChart ({ sheet, sheetName, graphName, eje1Cols, eje1CpIds, eje2Cols, eje2CpIds, fechaInicio, fechaFin, filaInicio, filaFin, left, top, width, height }) {
+function addScatterChart ({ sheet, sheetName, graphName, chartName, eje1Cols, eje1CpIds, eje2Cols, eje2CpIds, fechaInicio, fechaFin, filaInicio, filaFin, left, top, width, height }) {
     const FILA_UM = 3; // Asumiendo que esta constante está definida o es conocida
     let chartObj, chart, categoryAxis, primaryAxis, secondaryAxis;
     let datoUm1, datoUm2; // Para los ranges de UM, usando nombres diferentes para evitar confusión con variables globales si existieran
@@ -256,7 +257,7 @@ function addScatterChart ({ sheet, sheetName, graphName, eje1Cols, eje1CpIds, ej
 
     try {
         chartObj = sheet.ChartObjects().Add(left, top, width, height);
-        chartObj.Name = `${sheetName}-${graphName}`; // TODO: pegarle un indice o algo asi. Ver que sea igual que en la llamadora
+        chartObj.Name = chartName;
         chart = chartObj.Chart; // Acceso como propiedad si así estaba originalmente y funcionaba
 
         chart.ChartType = xlChartType.xlXYScatterLines;
@@ -345,7 +346,7 @@ function addScatterChart ({ sheet, sheetName, graphName, eje1Cols, eje1CpIds, ej
             throw axisError; // Re-lanzar para que el catch principal de addScatterChart lo maneje
         }
     } catch (error) {
-        console.error(`[addScatterChart] - Error creando o configurando el gráfico '${sheetName}-${graphName}':`, error);
+        console.error(`[addScatterChart] - Error creando o configurando el gráfico '${chartName}':`, error);
         throw error;
     } finally {
         if (datoUm1) release(datoUm1);
@@ -412,29 +413,3 @@ function addSeries (chart, sheet, column, rowStart, rowEnd, xValues, axisGroup, 
 // ⚠️ Este módulo contiene varios bloques `finally` que en otro contexto parecerían redundantes.
 // ⚠️ Son necesarios para liberar correctamente objetos COM como: `excel`, `workbook`, `sheet`, `range`, `chart`, `axis`, etc.
 // ⚠️ Especial atención con `Range`, que debe liberarse justo después de acceder a `.Value`.
-
-// Excel.Application
-// └── Workbooks                ← colección de libros abiertos
-//     └── Workbook             ← instancia concreta (tu archivo)
-//        ├── Parent → Excel.Application
-//        ├── Sheets            ← colección de hojas de cálculo
-//        │   └── Worksheet     ← instancia de hoja (por nombre o índice)
-//        │       ├── Parent → Workbook
-//        │       ├── ChartObjects()   ← colección de ChartObject en la hoja
-//        │       │   └── ChartObject  ← instancia de un gráfico en la hoja - como es un shape tiene (left, top,.., traer al frente,..., cortar, copiar)
-//        │       │       ├── Parent → Worksheet
-//        │       │       ├── Name   ← nombre que asignas (chartName)
-//        │       │       ├── Chart  ← objeto Chart dentro del ChartObject
-//        │       │       │   ├── Parent → ChartObject
-//        │       │       │   ├── ChartType, HasTitle, DisplayBlanksAs, …
-//        │       │       │   ├── SeriesCollection()  ← todas las series
-//        │       │       │   │   └── Series           ← cada serie de datos
-//        │       │       │   ├── ChartTitle           ← título del gráfico
-//        │       │       │   ├── Legend               ← leyenda
-//        │       │       │   └── Axes(axisType,axisGroup)
-//        │       │       │       └── Axis             ← ejes (Category, Value)
-//        │       │       └── … (otros métodos de ChartObject)
-//        │       └── Shapes()       ← colección de shapes (incluye ChartObject)
-//        ├── DefinedNames          ← nombres definidos en el libro
-//        ├── Names                 ← alias de DefinedNames
-//        └── … (otras colecciones: Worksheets, Worksheets.CodeName, etc.)

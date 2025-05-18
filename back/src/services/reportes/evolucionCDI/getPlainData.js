@@ -89,8 +89,23 @@ export async function getPlainData (subproyectoId, uniquePozos, uniqueCompuestos
     try {
         // Obtener todas las cadenas del subproyecto y matriz
         const [valores] = await pool.query(sql, [subproyectoId, uniquePozos, uniqueCompuestos, subproyectoId, uniquePozos, subproyectoId, uniquePozos, uniqueCompuestos]);
-        return valores;
+        const rangoFechas = minAndMaxFecha(valores);
+        return { rangoFechas, valores };
     } catch (error) {
         throw dbErrorMsg(error.status, error.sqlMessage || error.message);
     }
+}
+
+function minAndMaxFecha (valores) {
+    if (!valores.length) return { minFecha: null, maxFecha: null };
+
+    let minFecha = valores[0] ? new Date(valores[0].fecha) : null;
+    let maxFecha = minFecha;
+
+    for (const row of valores) {
+        const fecha = new Date(row.fecha);
+        if (fecha < minFecha) minFecha = fecha;
+        if (fecha > maxFecha) maxFecha = fecha;
+    }
+    return { minFecha, maxFecha };
 }
