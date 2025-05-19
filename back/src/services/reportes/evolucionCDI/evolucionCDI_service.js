@@ -1,23 +1,71 @@
 import fs from 'node:fs';
 import path from 'path';
+import { stdErrorMsg } from '../../../utils/stdError.js';
 import { getPlainData } from './getPlainData.js';
 import { createWellTables } from './createWellTables.js';
 import { generateGraphs } from './generateGraphs.js';
+import { createReport } from './generateDOC.js';
 
 export default class evolucionCDIService {
-    static async createExcel ({ subproyectoId, proyectoNombre, graficosConfig, gruposConfig }) {
+    /**
+     * Genera el Anexo de Evolución CDI para un subproyecto determinado.
+     *
+     * Este método realiza las siguientes tareas:
+     * 1. Obtiene los datos planos (nivel freático, FLNA y compuestos) a partir de los pozos y compuestos configurados.
+     * 2. Genera una tabla consolidada en Excel con los valores obtenidos.
+     * 3. Inserta gráficos en el Excel para cada grupo y configuración especificada.
+     * 4. Genera un documento Word con el Anexo del informe, incluyendo gráficos y datos clave.
+     *
+     * @param {Object} options - Parámetros de entrada.
+     * @param {number} options.subproyectoId - ID del subproyecto a procesar.
+     * @param {string} options.proyectoNombre - Nombre del proyecto (usado para nombrar archivos).
+     * @param {Array<Object>} options.graficosConfig - Configuración de los gráficos (ejes y agrupaciones de compuestos).
+     * @param {Array<Object>} options.gruposConfig - Configuración de los grupos de pozos (nombre del grupo, pozos incluidos).
+     *
+     * @returns {Promise<{
+     *   status: 'Ok' | 'Warn' | 'Fail',
+     *   log: Array<{
+     *     pozoId: number,
+     *     pozo: string,
+     *     graficoId: number,
+     *     graficoNombre: string,
+     *     section: number,
+     *     CP: string,
+     *     chartName: string,
+     *     pngPath: string,
+     *     status: 'Ok' | 'Warn' | 'Fail',
+     *     cpIdsFailed?: number[] // IDs de compuestos que fallaron al generar el gráfico
+     *   }>,
+     *   createdFile: {
+     *     path: string,
+     *     excelFile: string,
+     *     docFile?: string
+     *   }
+     * }>} - Resultado de la generación, incluyendo logs y rutas de archivos generados.
+     *
+     * @throws {Error} - Lanza un error si no se encuentran datos o si ocurre alguna falla durante el proceso.
+    */
+    static async createAnexoEvolucionCDI ({ subproyectoId, proyectoNombre, graficosConfig, gruposConfig }) {
         const uniquePozos = [...new Set(gruposConfig.flatMap(g => g.pozos))];
         const uniqueCompuestos = [...new Set(graficosConfig.flatMap(g => [...g.eje1, ...g.eje2]))];
-        const { rangoFechas, measurements } = await getPlainData(subproyectoId, uniquePozos, uniqueCompuestos);
 
+        // * Obtener datos
+        const { rangoFechas, measurements } = await getPlainData(subproyectoId, uniquePozos, uniqueCompuestos);
+        if (measurements.length === 0) throw stdErrorMsg(400, '[createAnexo - getPlainData] No se encontraron datos para los pozos/compuestos seleccionados');
+
+        // * Crear tabla en excel
         const { basePath, imagesPath } = evolucionCDIService.asegurarDirectorios();
         const { indexByPozo, indexByCompuesto, createdFile } = await createWellTables(proyectoNombre, gruposConfig, measurements, basePath);
 
-        const workbookPath = path.resolve(createdFile.path, createdFile.file);
+        // * Generar graficos en excel
+        const workbookPath = path.resolve(createdFile.path, createdFile.excelFile);
         const result = generateGraphs(indexByPozo, indexByCompuesto, gruposConfig, graficosConfig, workbookPath, imagesPath, subproyectoId);
 
-        // llamar a generateDoc con result y rangoFechas
-        console.log('rangoFechas: ', rangoFechas);
+        // * Generar word con el Anexo
+        if (result.status !== 'Fail') {
+            const docFile = await createReport(result.log, createdFile.path, proyectoNombre, rangoFechas);
+            createdFile.docFile = docFile;
+        }
 
         result.createdFile = createdFile;
         return result;

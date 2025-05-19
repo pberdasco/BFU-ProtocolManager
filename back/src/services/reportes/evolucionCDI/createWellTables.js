@@ -12,7 +12,7 @@ export async function createWellTables (proyectoNombre, grupoConfig, measurement
 
         await workbook.xlsx.writeFile(fullPath);
 
-        const createdFile = { id: 0, path: basePath, file: fileName };
+        const createdFile = { id: 0, path: basePath, excelFile: fileName, docFile: null };
         return { indexByPozo, indexByCompuesto, createdFile };
     } catch (error) {
         throw stdErrorMsg(error.status, error.message || '[evolucionCDI] createWellTables error');

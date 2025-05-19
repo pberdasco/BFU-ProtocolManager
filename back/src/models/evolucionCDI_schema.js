@@ -12,7 +12,9 @@ const graficoSchema = z.object({
     id: z.number().int().positive(),
     nombre: z.string().min(1),
     eje1: z.array(z.number().int()),
-    eje2: z.array(z.number().int())
+    eje2: z.array(z.number().int()),
+    seccion: z.number().int().positive(),
+    anexoNombre: z.string().min(1)
 });
 
 export const configSchema = z.object({

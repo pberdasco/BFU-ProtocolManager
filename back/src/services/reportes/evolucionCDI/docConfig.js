@@ -1,3 +1,9 @@
+export const styles = {
+    header: { font: 'Times New Roman', size: 20 },
+    stdParagraph: { font: 'Times New Roman', size: 24, bold: false, italics: false, spacingAfter: 0 },
+    caption: { font: 'Times New Roman', size: 20, italics: false, spacingAfter: 300 }
+};
+
 export const headerText = 'Proyecto {SubP} / BfU de Argentina S.A.                     Anexo 4a';
 
 export const sections = [
@@ -14,7 +20,7 @@ export const sections = [
         paragraph: 'En los siguientes gráficos se presentan las concentraciones de los CDI y los niveles freatimétricos registrados en las campañas de muestreos ' +
                     'realizadas entre los meses de enero de {RF}. En dichos gráficos se muestra la variación de los niveles freatimétricos y las concentraciones ' +
                     'de {CPS} en función del tiempo. Se realizaron gráficos para cada pozo de monitoreo donde fueron registrados dichos CDI.',
-        graphCaption: 'Gráfico {sn}{gl}: {CP} en el pozo {POZO}.'
+        graphCaption: 'Gráfico {sn}{gl}: Variación del nivel freatímetrico y de las concentraciones de {CP} en el pozo {POZO}.'
     }
 
 ];

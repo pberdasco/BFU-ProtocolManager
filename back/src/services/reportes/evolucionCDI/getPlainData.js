@@ -1,10 +1,28 @@
 import { pool, dbErrorMsg } from '../../../database/db.js';
 /**
-     * Devuelve una tabla plana para todos los valores de un subproyecto.
-     *
-     * @param {number} subproyectoId - ID del subproyecto.
-     * @returns {Object[]} - Array de objetos {pozoId, pozoNombre, fecha, compuestoId, compuestoNombre, unidad, valor, tipodato:(compuesto, nivel, fase)}.
-     */
+ * Devuelve una tabla plana para todos los valores de un subproyecto.
+ *
+ * @param {number} subproyectoId - ID del subproyecto.
+ * @param {number[]} uniquePozos - IDs de pozos a incluir.
+ * @param {number[]} uniqueCompuestos - IDs de compuestos a incluir.
+ * @returns {Promise<{
+ *   rangoFechas: { desde: string, hasta: string },
+ *   measurements: Array<{
+ *     subproyectoId: number,
+ *     pozoId: number,
+ *     pozoNombre: string,
+ *     fecha: string,
+ *     soloMuestras: boolean,
+ *     compuestoCodigo: string,
+ *     compuestoId: number,
+ *     compuestoNombre: string,
+ *     unidad: string,
+ *     valor: number,
+ *     tipoDato: string,
+ *     valorChart: number
+ *   }>
+ * }>>} Promise que resuelve en un objeto con `rangoFechas` y el array `measurements`.
+ */
 export async function getPlainData (subproyectoId, uniquePozos, uniqueCompuestos) {
     const sql = `-- Datos de compuestos desde CadenaCompletaValores
                     WITH DatosRaw AS (
@@ -88,18 +106,18 @@ export async function getPlainData (subproyectoId, uniquePozos, uniqueCompuestos
 
     try {
         // Obtener todas las cadenas del subproyecto y matriz
-        const [valores] = await pool.query(sql, [subproyectoId, uniquePozos, uniqueCompuestos, subproyectoId, uniquePozos, subproyectoId, uniquePozos, uniqueCompuestos]);
-        const rangoFechas = minAndMaxFecha(valores);
-        return { rangoFechas, valores };
+        const [measurements] = await pool.query(sql, [subproyectoId, uniquePozos, uniqueCompuestos, subproyectoId, uniquePozos, subproyectoId, uniquePozos, uniqueCompuestos]);
+        const rangoFechas = minAndMaxFecha(measurements);
+        return { rangoFechas, measurements };
     } catch (error) {
         throw dbErrorMsg(error.status, error.sqlMessage || error.message);
     }
 }
 
 function minAndMaxFecha (valores) {
-    if (!valores.length) return { minFecha: null, maxFecha: null };
+    if (!valores.length) return { desde: null, hasta: null };
 
-    let minFecha = valores[0] ? new Date(valores[0].fecha) : null;
+    let minFecha = new Date(valores[0].fecha);
     let maxFecha = minFecha;
 
     for (const row of valores) {
@@ -107,5 +125,10 @@ function minAndMaxFecha (valores) {
         if (fecha < minFecha) minFecha = fecha;
         if (fecha > maxFecha) maxFecha = fecha;
     }
-    return { minFecha, maxFecha };
+
+    const formatter = new Intl.DateTimeFormat('es-AR', { year: 'numeric', month: 'long' });
+    return {
+        desde: formatter.format(minFecha),
+        hasta: formatter.format(maxFecha)
+    };
 }

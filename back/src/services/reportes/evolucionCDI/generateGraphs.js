@@ -1,17 +1,45 @@
 import { xlChartType, xlAxisType, xlAxisGroup, xlMarkerStyle, xlLegendPosition, XlDisplayBlanksAs, xlLineStyle } from './excelConstants.js';
 import { stdErrorMsg } from '../../../utils/stdError.js';
+import logger from '../../../utils/logger.js';
 import path from 'path';
 
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 const { release, Object: ActiveXObject } = require('winax');
 
-const GRAPH_WIDTH = 400;
+const GRAPH_WIDTH = 500; // Se necesita Ratio 2:1, para que vaya bien en el anexo.
 const GRAPH_HEIGHT = 250;
 const ALTO_FILA_EN_PX = 13.8;
 const TOP_PADDING = 20;
 const LEFT_PADDING = 20;
 
+/**
+ * Genera gráficos de dispersión en un libro de Excel para los pozos agrupados,
+ * exporta cada uno como PNG y devuelve un resumen de estado.
+ *
+ * @param {Array<{ pozo: string, filaInicio: number, filaFin: number, fechaInicio: Date, fechaFin: Date }>} indexByWell
+ * @param {Array<{ pozoId: number, compuestoId: number, columna: string }>} indexByCompound
+ * @param {Array<{ pozos: number[], graficos: number[] }>} grupos
+ * @param {Array<{ id: number, nombre: string, eje1: number[], eje2: number[], seccion: number, anexoNombre: string }>} graficosConfig
+ * @param {string} workbookPath  Ruta al archivo .xlsx de trabajo
+ * @param {string} imagesPath    Carpeta donde se guardarán los PNG
+ * @param {number} subproyectoId ID del subproyecto (solo para nombrar el chart)
+ * @returns {{
+ *   status: 'Ok'|'Warn'|'Fail',
+ *   log: Array<{
+ *     pozoId: number,
+ *     pozo: string,
+ *     graficoId: number,
+ *     graficoNombre: string,
+ *     section: number,
+ *     CP: string,
+ *     chartName: string,
+ *     pngPath: string,
+ *     status: 'Ok'|'Warn'|'Fail',
+ *     cpIdsFailed?: number[] -compuestos que no se pudieron generar en el grafico/pozo
+ *   }>
+ * }} Objeto con el estado global de la operación y un array de entradas detalladas para cada gráfico.
+ */
 export function generateGraphs (indexByWell, indexByCompound, grupos, graficosConfig, workbookPath, imagesPath, subproyectoId) {
     let excel;
     let workbook;
@@ -34,7 +62,6 @@ export function generateGraphs (indexByWell, indexByCompound, grupos, graficosCo
         grupos.forEach((grupo, gIdx) => {
             grupo.pozos.forEach(pozoId => {
                 console.log(`Procesando grupo ${gIdx} pozo ${pozoId}`);
-
                 const sheetName = getSheetName(pozoId, sheetNamesById);
                 let sheet = null;
                 let chartObj = null;
@@ -52,6 +79,8 @@ export function generateGraphs (indexByWell, indexByCompound, grupos, graficosCo
                             pozo: sheetName,
                             graficoId: graficoConfig.id,
                             graficoNombre: graficoConfig.nombre,
+                            section: graficoConfig.seccion,
+                            CP: graficoConfig.anexoNombre,
                             chartName,
                             pngPath: '',
                             status: '' // Se determinará a continuación
@@ -131,10 +160,9 @@ export function generateGraphs (indexByWell, indexByCompound, grupos, graficosCo
                                     currentGraphLogEntry.status = 'Ok';
                                 }
                             } catch (chartError) {
-                                console.error(`Error creando gráfico ${graficoConfig.nombre} en pozo ${pozoId}: ${chartError.message}`);
+                                logger.warn(`[generateGraphs] - Error creando gráfico ${graficoConfig.nombre} en pozo ${pozoId}: ${chartError.message}:`);
+                                console.error(chartError.message);
                                 currentGraphLogEntry.status = 'Fail';
-                                // Opcional: añadir mensaje de error específico
-                                // currentGraphLogEntry.mensaje = chartError.message;
                                 graphsFailed++;
                             }
                         }
@@ -183,10 +211,11 @@ export function generateGraphs (indexByWell, indexByCompound, grupos, graficosCo
             if (typeof global.gc === 'function') {
                 global.gc();
             } else {
-                console.warn('GC no expuesto; correr Node con --expose-gc para limpiar objetos COM');
+                logger.error('[generateGraphs] GC no expuesto; correr Node con --expose-gc para limpiar objetos COM');
             }
         } catch (cleanupError) {
-            console.error('Error durante cleanup en generateGraphs:', cleanupError);
+            logger.error('[generateGraphs] Error durante cleanup en generateGraphs');
+            console.error(cleanupError);
         }
     }
 }
@@ -212,6 +241,7 @@ function openWorkbook (excel, filePath) {
 
 function saveAndClose (workbook, excel) {
     workbook.Save();
+    logger.info(`Generado el excel ${workbook.Name} con sus graficos`);
     workbook.Close(false);
     excel.Quit();
 }
@@ -271,8 +301,8 @@ function addScatterChart ({ sheet, sheetName, graphName, chartName, eje1Cols, ej
                 // Asumimos que eje1CpIds[index] existe y es el cpId correcto
                 addSeries(chart, sheet, col, filaInicio, filaFin, fechasExcel, xlAxisGroup.xlPrimary, index, eje1CpIds[index]);
             } catch (error) {
-                console.error(`[addScatterChart] - Error agregando serie para columna ${col} (cpId: ${eje1CpIds[index]}):`, error.message);
-                console.warn(`[addScatterChart] Omitiendo serie para columna ${col} (cpId: ${eje1CpIds[index]}) debido a error.`);
+                logger.warn(`[addScatterChart] - Error agregando serie para columna ${col} (cpId: ${eje1CpIds[index]}):`);
+                console.error(error.message);
                 internallyFailedCpIds.push(eje1CpIds[index]);
             }
         });
@@ -282,8 +312,8 @@ function addScatterChart ({ sheet, sheetName, graphName, chartName, eje1Cols, ej
                 // Asumimos que eje2CpIds[index] existe y es el cpId correcto
                 addSeries(chart, sheet, col, filaInicio, filaFin, fechasExcel, xlAxisGroup.xlSecondary, eje1Cols.length + index, eje2CpIds[index]);
             } catch (error) {
-                console.error(`[addScatterChart] - Error agregando serie para columna ${col} (cpId: ${eje2CpIds[index]}):`, error.message);
-                console.warn(`[addScatterChart] Omitiendo serie para columna ${col} (cpId: ${eje2CpIds[index]}) debido a error.`);
+                logger.warn(`[addScatterChart] - Error agregando serie para columna ${col} (cpId: ${eje2CpIds[index]}):`);
+                console.error(error.message);
                 internallyFailedCpIds.push(eje2CpIds[index]);
             }
         });
@@ -303,7 +333,7 @@ function addScatterChart ({ sheet, sheetName, graphName, chartName, eje1Cols, ej
         // Configuración de títulos y ejes
         try {
             chart.HasTitle = true;
-            chart.ChartTitle.Text = graphName;
+            chart.ChartTitle.Text = sheetName;
 
             chart.HasLegend = true;
             chart.Legend.Position = xlLegendPosition.xlLegendPositionBottom;
@@ -342,11 +372,13 @@ function addScatterChart ({ sheet, sheetName, graphName, chartName, eje1Cols, ej
                 }
             }
         } catch (axisError) {
-            console.error('[addScatterChart] - Error configurando títulos de ejes:', axisError);
+            logger.error(`[addScatterChart] - Error configurando títulos de ejes ${axisError.message}`);
+            console.error(axisError);
             throw axisError; // Re-lanzar para que el catch principal de addScatterChart lo maneje
         }
     } catch (error) {
-        console.error(`[addScatterChart] - Error creando o configurando el gráfico '${chartName}':`, error);
+        logger.error(`[addScatterChart] - Error creando o configurando el gráfico '${chartName}`);
+        console.error(error);
         throw error;
     } finally {
         if (datoUm1) release(datoUm1);
@@ -401,7 +433,8 @@ function addSeries (chart, sheet, column, rowStart, rowEnd, xValues, axisGroup, 
             series.MarkerBackgroundColor = 0x000000FF;
         }
     } catch (error) {
-        console.error(`[generateGraphs] Error en addSeries para columna ${column}:`, error);
+        logger.error(`[generateGraphs] Error en addSeries para columna ${column}:`);
+        console.error(error);
         throw error;
     } finally {
         if (headerCell) release(headerCell);

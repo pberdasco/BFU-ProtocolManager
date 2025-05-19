@@ -1,5 +1,5 @@
 ### POST
-### ? Actualizar un evento de muestreo que no existe
+### ? Generar Excel Evolucion CDI
 POST http://localhost:5001/evolucionCDI/
 Content-Type: application/json
 
@@ -24,17 +24,23 @@ Content-Type: application/json
         { "id": 1, 
           "nombre": "NP-BTEX", 
           "eje1": [26, 27, 28, 129], 
-          "eje2": [-1] 
+          "eje2": [-1],
+          "seccion": 2,
+          "anexoNombre": "BTEX" 
         },
         { "id": 3, 
           "nombre": "Naftaleno", 
           "eje1": [90], 
-          "eje2": [] 
+          "eje2": [],
+          "seccion": 2,
+          "anexoNombre": "Naftaleno" 
         },
         { "id": 4, 
           "nombre": "PAHs-HTP", 
           "eje1": [90, 94], 
-          "eje2": [1] 
+          "eje2": [1],
+          "seccion": 1,
+          "anexoNombre": "PAHs" 
         }
     ]
 }
