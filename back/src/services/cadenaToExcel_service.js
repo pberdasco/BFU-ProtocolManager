@@ -73,6 +73,8 @@ export default class CadenaToExcelService {
     }
 
     static async createMultiple (cadenasArray) {
+        const MAX_MUESTRAS = 17; // Máximo de muestras por hoja
+
         try {
             // TODO: un directorio por subproyecto dentro de un directorio FORMS_EVENTOS ?
             // TODO: con que nombre de archivo?  nombreEvento+Date.Now?  Tengo los datos de evento y subproyecto ?
@@ -105,11 +107,33 @@ export default class CadenaToExcelService {
                 };
             }
 
-            // Para cada cadena del array, copiamos la plantilla fila por fila en una hoja nueva
+            // recorre las cadenas y verifica si hay alguna que tenga mas muestras las separa en
+            // la cantidad que sea necesaria para que entre todo
+            const hojasExpandida = [];
+
             for (const item of cadenasArray) {
+                const { muestras, nombre, ...resto } = item;
+                const totalHojas = Math.ceil(muestras.length / MAX_MUESTRAS);
+
+                for (let i = 0; i < totalHojas; i++) {
+                    const chunkMuestras = muestras.slice(i * MAX_MUESTRAS, (i + 1) * MAX_MUESTRAS);
+                    const nombreHoja = totalHojas > 1
+                        ? `${cleanString(nombre)} (${i + 1} de ${totalHojas})`
+                        : cleanString(nombre);
+
+                    hojasExpandida.push({
+                        ...resto,
+                        muestras: chunkMuestras,
+                        nombre: nombreHoja
+                    });
+                }
+            }
+
+            // Para cada cadena del array, copiamos la plantilla fila por fila en una hoja nueva
+            for (const item of hojasExpandida) {
                 const { nombre, matriz, cliente, proyecto, laboratorio, muestras, analisis } = item;
                 // Definimos un nombre de hoja basado en el nombre de la cadena
-                const sheetName = cleanString(nombre);
+                const sheetName = nombre;
                 // Creamos la hoja nueva en el workbook final
                 // const newSheet = finalWorkbook.addWorksheet(sheetName);
                 const newSheet = finalWorkbook.addWorksheet(sheetName, {

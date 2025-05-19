@@ -25,7 +25,6 @@ export default class ZipDownloadController {
     static async downloadZip (req, res, next) {
         try {
             const archivos = req.body.archivos;
-            console.log('archivos: ', archivos);
 
             if (!archivos || archivos.length === 0) {
                 const err = new Error('No se recibieron archivos para comprimir');
