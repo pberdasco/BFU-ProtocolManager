@@ -5,10 +5,12 @@ const allowedFields = {
     id: 'g.id',
     nombre: 'g.nombre',
     eje1: 'g.eje1',
-    eje2: 'g.eje2'
+    eje2: 'g.eje2',
+    seccion: 'g.seccion',
+    anexoNombre: 'g.anexoNombre'
 };
 const table = 'graficos';
-const selectBase = 'SELECT g.id, g.nombre, g.eje1, g.eje2';
+const selectBase = 'SELECT g.id, g.nombre, g.eje1, g.eje2, g.seccion, g.anexoNombre';
 const selectTables = 'FROM graficos g';
 const mainTable = 'g';
 const noExiste = 'El gráfico no existe';
@@ -77,10 +79,10 @@ export default class GraficosService {
             const eje1 = await GraficosService.sanitizeCompuestoIds(grafico.eje1);
             const eje2 = await GraficosService.sanitizeCompuestoIds(grafico.eje2);
             const [res] = await pool.query(
-                `INSERT INTO ${table} (nombre, eje1, eje2) VALUES (?, CAST(? AS JSON), CAST(? AS JSON))`,
-                [grafico.nombre, JSON.stringify(eje1), JSON.stringify(eje2)]
+                `INSERT INTO ${table} (nombre, eje1, eje2, seccion, anexoNombre) VALUES (?, CAST(? AS JSON), CAST(? AS JSON), ?, ?)`,
+                [grafico.nombre, JSON.stringify(eje1), JSON.stringify(eje2), grafico.seccion, grafico.anexoNombre]
             );
-            return new Grafico({ id: res.insertId, nombre: grafico.nombre, eje1, eje2 });
+            return new Grafico({ id: res.insertId, nombre: grafico.nombre, eje1, eje2, seccion: grafico.seccion, anexoNombre: grafico.anexoNombre });
         } catch (error) {
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);
         }
@@ -105,6 +107,14 @@ export default class GraficosService {
                 const eje2 = await GraficosService.sanitizeCompuestoIds(grafico.eje2);
                 sets.push('eje2 = CAST(? AS JSON)');
                 values.push(JSON.stringify(eje2));
+            }
+            if (grafico.seccion !== undefined) {
+                sets.push('seccion = ?');
+                values.push(grafico.seccion);
+            }
+            if (grafico.anexoNombre !== undefined) {
+                sets.push('anexoNombre = ?');
+                values.push(grafico.anexoNombre);
             }
 
             if (sets.length === 0) return GraficosService.getById(id); // Nada que actualizar

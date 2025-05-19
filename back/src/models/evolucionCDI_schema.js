@@ -10,11 +10,11 @@ const grupoSchema = z.object({
 
 const graficoSchema = z.object({
     id: z.number().int().positive(),
-    nombre: z.string().min(1),
+    nombre: z.string().min(1).max(20),
     eje1: z.array(z.number().int()),
     eje2: z.array(z.number().int()),
     seccion: z.number().int().positive(),
-    anexoNombre: z.string().min(1)
+    anexoNombre: z.string().min(1).max(20)
 });
 
 export const configSchema = z.object({

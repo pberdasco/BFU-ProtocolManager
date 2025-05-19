@@ -34,6 +34,8 @@ export default class GraficosController {
         try {
             const [errors, grafico] = GraficosController.bodyValidations(req.body, 'create');
             if (errors.length) throw Object.assign(new Error('Problemas con el req.body'), { status: 400, fields: errors });
+            console.log('creando: ', grafico);
+
             const inserted = await GraficosService.create(grafico);
             res.status(200).json(inserted.toJson());
         } catch (error) {
@@ -46,6 +48,7 @@ export default class GraficosController {
             const id = req.params.id;
             if (isNaN(id)) throw Object.assign(new Error('El id debe ser numerico.'), { status: 400 });
             const [errors, grafico] = GraficosController.bodyValidations(req.body, 'update');
+            console.log('editando: ', grafico);
             if (errors.length) throw Object.assign(new Error('Problemas con el req.body'), { status: 400, fields: errors });
             const updated = await GraficosService.update(id, grafico);
             res.status(200).json(updated.toJson());
