@@ -36,11 +36,13 @@ export default class evolucionCDIService {
      *     status: 'Ok' | 'Warn' | 'Fail',
      *     cpIdsFailed?: number[] // IDs de compuestos que fallaron al generar el gráfico
      *   }>,
-     *   createdFile: {
+     *   createdFiles: Array<{
+     *     id: number,
      *     path: string,
-     *     excelFile: string,
-     *     docFile?: string
-     *   }
+     *     file: string,
+     *     zipName: string,
+     *     type: string
+     *   }>
      * }>} - Resultado de la generación, incluyendo logs y rutas de archivos generados.
      *
      * @throws {Error} - Lanza un error si no se encuentran datos o si ocurre alguna falla durante el proceso.
@@ -55,19 +57,19 @@ export default class evolucionCDIService {
 
         // * Crear tabla en excel
         const { basePath, imagesPath } = evolucionCDIService.asegurarDirectorios();
-        const { indexByPozo, indexByCompuesto, createdFile } = await createWellTables(proyectoNombre, gruposConfig, measurements, basePath);
+        const { indexByPozo, indexByCompuesto, excelFile } = await createWellTables(proyectoNombre, gruposConfig, measurements, basePath);
+        const createdFiles = [excelFile];
 
         // * Generar graficos en excel
-        const workbookPath = path.resolve(createdFile.path, createdFile.excelFile);
+        const workbookPath = path.resolve(excelFile.path, excelFile.file);
         const result = generateGraphs(indexByPozo, indexByCompuesto, gruposConfig, graficosConfig, workbookPath, imagesPath, subproyectoId);
 
         // * Generar word con el Anexo
         if (result.status !== 'Fail') {
-            const docFile = await createReport(result.log, createdFile.path, proyectoNombre, rangoFechas);
-            createdFile.docFile = docFile;
+            createdFiles.push(await createReport(result.log, createdFiles[0].path, proyectoNombre, rangoFechas));
         }
 
-        result.createdFile = createdFile;
+        result.createdFiles = createdFiles;
         return result;
     }
 

@@ -95,7 +95,7 @@ export async function createReport (charts, basePath, proyectoNombre = 'XXXXXX',
         const buffer = await Packer.toBuffer(doc);
         fs.writeFileSync(fullPath, buffer);
         logger.info(`Generado el docx ${fileName} del anexo EvolucionCDI`);
-        return fileName;
+        return { id: 2, path: basePath, file: fileName, zipName: `EV_${proyectoNombre}`, type: 'docx' };
     } catch (error) {
         logger.error('[evolucionCDI-] generateDOC');
         throw stdErrorMsg(error.status, error.message || '[evolucionCDI-] generateDOC error');
