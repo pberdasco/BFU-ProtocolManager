@@ -9,6 +9,7 @@ const allowedFields = {
     nombre: 'm.nombre',
     tipo: 'm.tipo',
     nivelFreatico: 'm.nivelFreatico',
+    nivelFLNA: 'm.nivelFLNA',
     profundidad: 'm.profundidad',
     flna: 'm.flna',
     cadenaOPDS: 'm.cadenaOPDS',
@@ -17,7 +18,7 @@ const allowedFields = {
 
 const table = 'Muestras';
 const selectBase = 'SELECT m.id, m.nombre, m.pozoId, p.nombre as pozo, m.cadenaCustodiaId, m.tipo, m.nivelFreatico, ' +
-                   'm.profundidad, m.flna, m.cadenaOPDS, m.protocoloOPDS ';
+                   'm.profundidad, m.nivelFLNA, m.flna, m.cadenaOPDS, m.protocoloOPDS ';
 const selectTables = 'FROM Muestras m ' +
                      'LEFT JOIN Pozos P ON m.pozoId = P.id ';
 const mainTable = 'm';
@@ -74,6 +75,8 @@ export default class MuestrasService {
     }
 
     static async update (id, muestra) {
+        console.log('muestra: ', muestra);
+
         try {
             const [rows] = await pool.query(`UPDATE ${table} SET ? WHERE id = ?`, [muestra, id]);
             if (rows.affectedRows !== 1) throw dbErrorMsg(404, noExiste);

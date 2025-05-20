@@ -4,9 +4,10 @@ export default class Muestra {
     cadenaCustodiaId; // int (FK)
     nombre; // string(45)
     tipo; // int (1,2,3)
-    nivelFreatico; // decimal(8,3)
-    profundidad; // decimal(8,3)
-    flna; // decimal(8,3)
+    nivelFreatico; // decimal(6,3)
+    nivelFLNA; // decimal(6,3)
+    flna; // decimal(6,3)
+    profundidad; // decimal(6,3)
     cadenaOPDS; // string(10)
     protocoloOPDS; // string(10)
 
@@ -17,10 +18,12 @@ export default class Muestra {
         this.nombre = row.nombre;
         this.tipo = row.tipo;
         this.nivelFreatico = parseFloat(row.nivelFreatico);
+        this.nivelFLNA = parseFloat(row.nivelFLNA);
         this.profundidad = parseFloat(row.profundidad);
         this.flna = parseFloat(row.flna);
         this.cadenaOPDS = row.cadenaOPDS;
         this.protocoloOPDS = row.protocoloOPDS;
+        console.log(this);
     }
 
     toJson () {
@@ -31,6 +34,7 @@ export default class Muestra {
             nombre: this.nombre,
             tipo: this.tipo,
             nivelFreatico: this.nivelFreatico,
+            nivelFLNA: this.nivelFLNA,
             profundidad: this.profundidad,
             flna: this.flna,
             cadenaOPDS: this.cadenaOPDS,

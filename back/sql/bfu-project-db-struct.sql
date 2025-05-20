@@ -4,7 +4,7 @@ USE `bfu-project-db`;
 --
 -- Host: 127.0.0.1    Database: bfu-project-db
 -- ------------------------------------------------------
--- Server version	8.0.40
+-- Server version	8.0.42
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -190,11 +190,47 @@ CREATE TABLE `EventoMuestreo` (
   `SubProyectoId` int NOT NULL,
   `Nombre` varchar(45) NOT NULL,
   `CadenasCustodiaPDFLink` varchar(60) DEFAULT NULL,
+  `SoloMuestras` tinyint NOT NULL DEFAULT '0',
   PRIMARY KEY (`Id`),
   UNIQUE KEY `Id_UNIQUE` (`Id`),
   KEY `Evento-SubProyecto_idx` (`SubProyectoId`),
   CONSTRAINT `Evento-SubProyecto` FOREIGN KEY (`SubProyectoId`) REFERENCES `SubProyectos` (`Id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `graficos`
+--
+
+DROP TABLE IF EXISTS `graficos`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `graficos` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `nombre` varchar(20) NOT NULL,
+  `eje1` json NOT NULL,
+  `eje2` json NOT NULL,
+  `seccion` int NOT NULL DEFAULT '2',
+  `anexoNombre` varchar(20) NOT NULL DEFAULT ' ',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `GraficosGrupos`
+--
+
+DROP TABLE IF EXISTS `GraficosGrupos`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `GraficosGrupos` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `subproyectoId` int NOT NULL,
+  `nombre` varchar(20) NOT NULL,
+  `pozos` json NOT NULL,
+  `graficos` json NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -286,7 +322,7 @@ CREATE TABLE `LQs` (
   KEY `LQs-Metodo_idx` (`MetodoId`),
   KEY `LQs-UM_idx` (`UMId`),
   CONSTRAINT `LQs-Cmpuesto` FOREIGN KEY (`CompuestoId`) REFERENCES `Compuestos` (`Id`)
-) ENGINE=InnoDB AUTO_INCREMENT=491 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=741 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -316,7 +352,7 @@ CREATE TABLE `Metodos` (
   `Id` int NOT NULL AUTO_INCREMENT,
   `Nombre` varchar(45) NOT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB AUTO_INCREMENT=58 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1000 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -380,6 +416,7 @@ CREATE TABLE `Muestras` (
   `ProtocoloOPDS` varchar(10) DEFAULT NULL,
   PRIMARY KEY (`Id`),
   UNIQUE KEY `Id_UNIQUE` (`Id`),
+  UNIQUE KEY `Cadena-Nombre` (`CadenaCustodiaId`,`Nombre`),
   KEY `Muestras-Pozo_idx` (`PozoId`),
   KEY `Muestra-Cadena_idx` (`CadenaCustodiaId`),
   CONSTRAINT `Muestra-Cadena` FOREIGN KEY (`CadenaCustodiaId`) REFERENCES `CadenaCustodia` (`Id`),
@@ -429,7 +466,7 @@ CREATE TABLE `Pozos` (
   CONSTRAINT `Pozos-Estado` FOREIGN KEY (`EstadoId`) REFERENCES `PozosEstado` (`Id`),
   CONSTRAINT `Pozos-SubProyecto` FOREIGN KEY (`SubProyectoId`) REFERENCES `SubProyectos` (`Id`),
   CONSTRAINT `Pozos-Tipo` FOREIGN KEY (`TipoId`) REFERENCES `PozosTipo` (`Id`)
-) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=986 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -562,7 +599,7 @@ CREATE TABLE `Regulados` (
   CONSTRAINT `Regulacion-AutAplicacion` FOREIGN KEY (`AutAplicacionId`) REFERENCES `AutAplicacion` (`Id`),
   CONSTRAINT `Regulacion-Compuesto` FOREIGN KEY (`CompuestoId`) REFERENCES `Compuestos` (`Id`),
   CONSTRAINT `Regulacion-UM` FOREIGN KEY (`UMId`) REFERENCES `UM` (`Id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3747 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8039 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -715,6 +752,26 @@ CREATE TABLE `UM` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `UMConvert`
+--
+
+DROP TABLE IF EXISTS `UMConvert`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `UMConvert` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `DesdeUmId` int NOT NULL,
+  `HastaUMId` int NOT NULL,
+  `Factor` decimal(10,5) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `UMConvert-DesdeUM_idx` (`DesdeUmId`),
+  KEY `UMConvert-HastaUM_idx` (`HastaUMId`),
+  CONSTRAINT `UMConvert-DesdeUM` FOREIGN KEY (`DesdeUmId`) REFERENCES `UM` (`Id`),
+  CONSTRAINT `UMConvert-HastaUM` FOREIGN KEY (`HastaUMId`) REFERENCES `UM` (`Id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `Usuarios`
 --
 
@@ -740,4 +797,4 @@ CREATE TABLE `Usuarios` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-04-25 16:50:19
+-- Dump completed on 2025-05-19 11:40:15
