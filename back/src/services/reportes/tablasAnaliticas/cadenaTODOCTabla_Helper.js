@@ -231,6 +231,10 @@ export function setSustanciaMuestra (muestrasBloque) {
     return setLineaSustancias(nombresMuestras);
 }
 
+function toArgNumber (number) {
+    return Number(number).toLocaleString('es-AR', { minimumFractionDigits: 3, maximumFractionDigits: 3 });
+}
+
 // * Lineas de detalle (compuestos)
 export function createCompoundRow (fila, data, LQs, UMs, muestrasBloque, matrixId, umFila, umConvert, conversionesFallidas) {
     const comp = data.compuestos.find(c => c.id === fila.compuestoId);
@@ -246,7 +250,8 @@ export function createCompoundRow (fila, data, LQs, UMs, muestrasBloque, matrixI
     }
 
     // Formatear LC
-    const lcFormateado = isNaN(Number(lc)) ? lc : Number(lc).toFixed(3);
+    const lcFormateado = isNaN(Number(lc)) ? lc : toArgNumber(lc);
+    // const lcFormateado = isNaN(Number(lc)) ? lc : Number(lc).toFixed(3);
 
     // Usar la UM de la fila determinada según las reglas
     const umFormateado = umFila.umNombre;
@@ -261,7 +266,7 @@ export function createCompoundRow (fila, data, LQs, UMs, muestrasBloque, matrixI
 
     // Formatear el valor de referencia
     if (valorReferencia !== 'NL' && !isNaN(Number(valorReferencia))) {
-        valorReferencia = Number(valorReferencia).toFixed(3);
+        valorReferencia = toArgNumber(valorReferencia);
     }
 
     return new TableRow({
@@ -283,7 +288,7 @@ export function createCompoundRow (fila, data, LQs, UMs, muestrasBloque, matrixI
                 else if (val === -2) val = 'ND';
                 else if (val === -3) val = 'NA';
                 else if (val == null) val = 'NA';
-                else if (!isNaN(Number(val))) val = Number(val).toFixed(3);
+                else if (!isNaN(Number(val))) val = toArgNumber(val);
 
                 return new TableCell({
                     children: [new Paragraph({ text: String(val), alignment: AlignmentType.CENTER })]
