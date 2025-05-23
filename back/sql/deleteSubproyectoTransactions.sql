@@ -26,39 +26,47 @@ JOIN cadenaCustodia CC ON AR.cadenaCustodiaId = CC.id
 JOIN eventoMuestreo EM ON CC.eventoMuestreoId = EM.id
 WHERE EM.subproyectoId = @subproyectoId;
 
--- 4. Borrar muestras protocolo
+-- 4. Borrar resultados protocolo
+DELETE RP 
+FROM ResultadosProtocolo RP
+JOIN muestrasProtocolo MP ON MP.Id = RP.muestraProtocoloId 
+JOIN protocolos P ON MP.protocoloId = P.id
+JOIN eventoMuestreo EM ON P.eventoMuestreoId = EM.id
+WHERE EM.subproyectoId = @subproyectoId;
+
+-- 5. Borrar muestras protocolo
 DELETE MP
 FROM muestrasProtocolo MP
 JOIN protocolos P ON MP.protocoloId = P.id
 JOIN eventoMuestreo EM ON P.eventoMuestreoId = EM.id
 WHERE EM.subproyectoId = @subproyectoId;
 
--- 5. Borrar ítems del protocolo
+-- 6. Borrar ítems del protocolo
 DELETE IP
 FROM itemsProtocolo IP
 JOIN protocolos P ON IP.protocoloId = P.id
 JOIN eventoMuestreo EM ON P.eventoMuestreoId = EM.id
 WHERE EM.subproyectoId = @subproyectoId;
 
--- 6. Borrar protocolos
+-- 7. Borrar protocolos
 DELETE P
 FROM protocolos P
 JOIN eventoMuestreo EM ON P.eventoMuestreoId = EM.id
 WHERE EM.subproyectoId = @subproyectoId;
 
--- 7. Borrar muestras
+-- 8. Borrar muestras
 DELETE M
 FROM muestras M
 JOIN cadenaCustodia CC ON M.cadenaCustodiaId = CC.id
 JOIN eventoMuestreo EM ON CC.eventoMuestreoId = EM.id
 WHERE EM.subproyectoId = @subproyectoId;
 
--- 8. Borrar cadenas de custodia
+-- 9. Borrar cadenas de custodia
 DELETE CC
 FROM cadenaCustodia CC
 JOIN eventoMuestreo EM ON CC.eventoMuestreoId = EM.id
 WHERE EM.subproyectoId = @subproyectoId;
 
--- 9. Borrar eventos de muestreo
+-- 10. Borrar eventos de muestreo
 DELETE FROM eventoMuestreo
 WHERE subproyectoId = @subproyectoId;

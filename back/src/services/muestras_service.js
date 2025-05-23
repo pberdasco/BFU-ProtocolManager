@@ -75,8 +75,6 @@ export default class MuestrasService {
     }
 
     static async update (id, muestra) {
-        console.log('muestra: ', muestra);
-
         try {
             const [rows] = await pool.query(`UPDATE ${table} SET ? WHERE id = ?`, [muestra, id]);
             if (rows.affectedRows !== 1) throw dbErrorMsg(404, noExiste);
