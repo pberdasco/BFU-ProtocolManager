@@ -241,17 +241,19 @@ export function createCompoundRow (fila, data, LQs, UMs, muestrasBloque, matrixI
     const compoundName = comp ? comp.nombre : `Compuesto ${fila.compuestoId}`;
 
     // Obtener el LQ para este compuesto/método
-    const LQ = LQs.find(x => x.compuestoId === fila.compuestoId && x.metodoId === fila.metodoId);
-    let lc = LQ?.valorLQ ?? '-';
-
-    // Convertir LC a la unidad de la fila si es necesario
-    if (LQ && LQ.UMId && umFila.umId !== LQ.UMId) {
-        lc = convertirValor(lc, LQ.UMId, umFila.umId, umConvert, conversionesFallidas);
+    let lc = '-';
+    if (fila.metodoId !== 999) {
+        // ! OJO: los compuestos que nativamente no tienen metodo no deben ser 999 sino 998 por ejemplo "sin metodo" en lugar de desconocido
+        const LQ = LQs.find(x => x.compuestoId === fila.compuestoId && x.metodoId === fila.metodoId);
+        lc = LQ?.valorLQ ?? '-';
+        // Convertir LC a la unidad de la fila si es necesario
+        if (LQ && LQ.UMId && umFila.umId !== LQ.UMId) {
+            lc = convertirValor(lc, LQ.UMId, umFila.umId, umConvert, conversionesFallidas);
+        }
     }
 
     // Formatear LC
     const lcFormateado = isNaN(Number(lc)) ? lc : toArgNumber(lc);
-    // const lcFormateado = isNaN(Number(lc)) ? lc : Number(lc).toFixed(3);
 
     // Usar la UM de la fila determinada según las reglas
     const umFormateado = umFila.umNombre;
