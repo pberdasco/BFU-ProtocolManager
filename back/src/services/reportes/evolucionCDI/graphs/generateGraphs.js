@@ -1,6 +1,6 @@
 import { xlChartType, xlAxisType, xlAxisGroup, xlMarkerStyle, xlLegendPosition, XlDisplayBlanksAs, xlLineStyle } from './excelConstants.js';
-import { stdErrorMsg } from '../../../utils/stdError.js';
-import logger from '../../../utils/logger.js';
+import { stdErrorMsg } from '../../../../utils/stdError.js';
+import logger from '../../../../utils/logger.js';
 import path from 'path';
 
 import { createRequire } from 'module';
@@ -42,11 +42,12 @@ const LEFT_PADDING = 20;
  */
 export function generateGraphs (indexByWell, indexByCompound, grupos, graficosConfig, workbookPath, imagesPath, subproyectoId) {
     let excel;
+    let release;
     let workbook;
     const log = [];
 
     try {
-        excel = openExcel();
+        { excel, release } = openExcel();
         workbook = openWorkbook(excel, workbookPath);
 
         const sheetNamesById = indexByCompound.reduce((map, { pozoId, pozo }) => {
