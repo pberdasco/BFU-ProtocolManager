@@ -16,8 +16,13 @@ export function addScatterChart ({ sheet, sheetName, release, chartName, eje1Col
         chart.ChartType = xlChartType.xlXYScatterLines;
         chart.DisplayBlanksAs = XlDisplayBlanksAs.xlInterpolated;
 
-        const fechas = generatePeriodicDates(fechaInicio, fechaFin);
-        const fechasExcel = fechas.map(fecha => excelDateFromJSDate(fecha));
+        const rangoFechas = sheet.Range(`A${filaInicio}:A${filaFin}`);
+        const valoresFechas = rangoFechas.Value2;
+        const fechasExcel = valoresFechas
+            .map(fila => fila[0])
+            .map(f => typeof f === 'object'
+                ? excelDateFromJSDate(new Date(f))
+                : f);
 
         eje1Cols.forEach((col, index) => {
             try {
@@ -66,6 +71,11 @@ export function addScatterChart ({ sheet, sheetName, release, chartName, eje1Col
             categoryAxis.HasTitle = true;
             categoryAxis.AxisTitle.Text = 'Fecha';
             categoryAxis.TickLabels.NumberFormat = 'mm/yyyy';
+            const fechaIniSerial = excelDateFromJSDate(fechaInicio);
+            const fechaFinSerial = excelDateFromJSDate(fechaFin);
+            categoryAxis.MinimumScale = fechaIniSerial;
+            categoryAxis.MaximumScale = fechaFinSerial;
+            categoryAxis.MajorUnit = (fechaFinSerial - fechaIniSerial) / 10;
 
             const normalize = u => (u || '').toString().toLowerCase().replace(/[\s.]/g, '');
             const um1Norm = normalize(um1);
@@ -113,15 +123,6 @@ export function addScatterChart ({ sheet, sheetName, release, chartName, eje1Col
         // if (chartObj) release(chartObj);
     }
     return { chartObj, internallyFailedCpIds };
-}
-
-function generatePeriodicDates (start, end, points = 10) {
-    const dates = [];
-    const diff = end - start;
-    for (let i = 0; i <= points; i++) {
-        dates.push(new Date(start.getTime() + (diff * i) / points));
-    }
-    return dates;
 }
 
 // Función que convierte fechas de JavaScript a formato Excel (número de serie)
