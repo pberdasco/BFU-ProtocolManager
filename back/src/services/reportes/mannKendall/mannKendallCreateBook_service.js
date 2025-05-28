@@ -10,21 +10,35 @@ const { Object: ActiveXObject } = require('winax');
 const filaNombrePozos = 8;
 const filaInicio = 15;
 const totalFilas = 40; // se rellenan filas hasta esta cantidad
+const totalFilasdelMedio = 30; // si hay mas de total filas debe reducir las del medio a este valor
 
-const { MANNKENDALL_MODEL_PATH, MANNKENDALL_MODEL_NAME, MANNKENDALL_FILES_PATH } = process.env;
+const projectRoot = process.cwd();
+const MANNKENDALL_MODEL_PATH = path.resolve(projectRoot, 'assets');
+
+const MANNKENDALL_MODEL_NAME = 'MannKendall.xlsm';
+const { MANNKENDALL_FILES_PATH } = process.env;
+
 const baseTemplate = path.join(MANNKENDALL_MODEL_PATH, MANNKENDALL_MODEL_NAME);
 
-export function processCompound (compuesto) {
+export async function processCompound (compuesto) {
     const fileCreated = copyExcelTemplate(compuesto);
     const newFilePath = path.join(fileCreated.path, fileCreated.file);
+
     const sheetGroups = groupSamples(compuesto);
+    const logLines = []; // acumulador de logs para tener todas las hojas juntas
 
     // Procesar cada grupo asignándolo a una hoja secuencial
     sheetGroups.forEach((grupo, index) => {
         const sheetIndex = index + 1; // hojas numeradas a partir del 1
-        processSheetGroup(newFilePath, sheetIndex, compuesto, grupo);
+        processSheetGroup(newFilePath, sheetIndex, compuesto, grupo, logLines);
     });
-    return fileCreated;
+
+    const logCreated = guardarLogTxtFinal(compuesto, logLines);
+
+    return {
+        excel: fileCreated,
+        log: logCreated
+    };
 }
 
 // Función para copiar el archivo base y crear uno nuevo para el compuesto
@@ -65,7 +79,7 @@ function groupSamples (compuesto) {
 }
 
 // Función que abre el Excel, actualiza una hoja específica (según el grupo) y cierra el libro
-function processSheetGroup (filePath, sheetIndex, compuesto, grupo) {
+function processSheetGroup (filePath, sheetIndex, compuesto, grupo, logLines) {
     // La hoja se nombra "Hoja1", "Hoja2", etc.
     const sheetName = `Hoja${sheetIndex}`;
     let excel, workbook, worksheet;
@@ -94,7 +108,21 @@ function processSheetGroup (filePath, sheetIndex, compuesto, grupo) {
         // Preparar la matriz de datos a escribir:
         // Cada fila: [fecha, valor_muestra1, valor_muestra2, ...]
         // Se utiliza el array de índices del grupo para extraer los valores correctos
-        const values = compuesto.mediciones.map(med => {
+
+        /*  const values = compuesto.mediciones.map(med => {
+            const row = [med.fecha];
+            grupo.sampleIndices.forEach(idx => {
+                row.push(med.muestras[idx] != null ? med.muestras[idx] : '');
+            });
+            return row;
+            });
+        */
+        // Se reemplazó este bloque por el siguiente para seleccionar las filas si se pasa del maximo de filas
+        // que soporta el excel de MannKendall
+
+        const medicionesFiltradas = seleccionar40Fechas(grupo, compuesto.mediciones, compuesto, sheetName, logLines);
+
+        const values = medicionesFiltradas.map(med => {
             const row = [med.fecha];
             grupo.sampleIndices.forEach(idx => {
                 row.push(med.muestras[idx] != null ? med.muestras[idx] : '');
@@ -159,4 +187,97 @@ function columnToLetter (column) {
         column = Math.floor((column - modulo) / 26);
     }
     return letter;
+}
+
+function seleccionar40Fechas (grupo, mediciones, compuesto, hoja, logLines) {
+    const total = mediciones.length;
+
+    if (total <= totalFilas) { // si son menos del totalFilas no hace falta descartar mediciones
+        return mediciones;
+    }
+
+    const primeras5 = mediciones.slice(0, 5);
+    const ultimas5 = mediciones.slice(-5);
+    const delMedio = mediciones.slice(5, -5);
+
+    // verificar si hace falta descartar las que toda la fila son nulas
+    const delMedioValidas = delMedio.filter(med =>
+        med.muestras.some(v => v != null)
+    );
+
+    // Se descartan  mediciones cuando las del medio superan las totalFilas menos las 10 que seleccioné fijas ( 5 primeras y 5 ultimas)
+    const totalValidas = delMedioValidas.length;
+    if (totalValidas > totalFilasdelMedio) {
+        const nuevas = [];
+        const usados = new Set();
+        const step = totalValidas / totalFilasdelMedio;
+
+        for (let i = 0; i < totalFilasdelMedio; i++) {
+            const idx = Math.floor((i + 0.5) * step);
+            if (!usados.has(idx)) {
+                nuevas.push(delMedioValidas[idx]);
+                usados.add(idx);
+            }
+        }
+
+        const descartadasDetalle = delMedioValidas.filter((_, i) => !usados.has(i));
+        delMedioValidas.length = 0;
+        delMedioValidas.push(...nuevas);
+
+        guardarLogFechas(compuesto, hoja, descartadasDetalle, logLines, grupo.sampleIndices);
+
+        return [...primeras5, ...delMedioValidas, ...ultimas5];
+    } else {
+        guardarLogFechas(compuesto, hoja, [], logLines);
+
+        return [...primeras5, ...delMedioValidas, ...ultimas5];
+    }
+}
+
+// Genera un txt con los archivos excel en caso de descartar fechas
+
+function guardarLogFechas (compuesto, hoja, descartadasCompletas = [], logLines = [], sampleIndices = []) {
+    if (!descartadasCompletas.length) return;
+
+    logLines.push('==========================================');
+    logLines.push(`Hoja: ${hoja}`);
+    logLines.push(`Compuesto: ${compuesto.compuestoName}`);
+    logLines.push(`Fecha de evaluación: ${compuesto.fechaEvaluacion}`);
+    logLines.push('Detalles de muestras descartadas (tipo tabla):');
+
+    const cabecera = ['Fecha     ', ...sampleIndices.map(idx => compuesto.muestras[idx].pozo)];
+
+    logLines.push(cabecera.join('\t'));
+    descartadasCompletas.forEach(med => {
+        const fila = [med.fecha];
+        sampleIndices.forEach(idx => {
+            const val = med.muestras[idx];
+            fila.push(val == null ? '' : val.toString());
+        });
+        logLines.push(fila.join('\t'));
+    });
+
+    logLines.push(''); // Línea vacía entre hojas
+}
+
+function guardarLogTxtFinal (compuesto, logLines) {
+    // Si no hay líneas de log, no crees el archivo y retorna null.
+    if (!logLines.length) {
+        return null;
+    }
+
+    const logFileName = `MK_${compuesto.proyecto}_${compuesto.compuestoName}_${compuesto.fechaEvaluacion}_log.txt`;
+    const logFilePath = path.join(process.env.MANNKENDALL_FILES_PATH, logFileName);
+    const zipName = `MK_${compuesto.proyecto}_${compuesto.fechaEvaluacion}`;
+    const logCreated = { id: 0, path: MANNKENDALL_FILES_PATH, file: logFileName, zipName };
+
+    try {
+        fs.writeFileSync(logFilePath, logLines.join('\n'), 'utf-8');
+        logger.info(`Log  de fechas descartadas guardado en ${logFilePath}`);
+        return logCreated;
+    } catch (error) {
+        logger.error(`Error al guardar el log .txt ${logFilePath}: ${error.message}`);
+        console.error(error);
+        return null;
+    }
 }

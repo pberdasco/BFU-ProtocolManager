@@ -5,11 +5,13 @@ export default class MannKendallService {
     static async fullProcess (subproyectoId, fechaEvaluacion) {
         const data = await MannKendallService.getDataForSubproyecto(subproyectoId, fechaEvaluacion);
         const filesCreated = [];
-        data.compuestos.forEach(compuesto => {
+        data.compuestos.forEach(async compuesto => {
             compuesto.proyecto = data.proyecto;
             compuesto.fechaEvaluacion = data.fechaEvaluacion;
             compuesto.facility = data.facility;
-            filesCreated.push(processCompound(compuesto));
+            const { excel, log } = await processCompound(compuesto);
+            filesCreated.push(excel);
+            if (log) { filesCreated.push(log); }
         });
         return filesCreated;
     }
@@ -104,10 +106,6 @@ export default class MannKendallService {
                         .map(v => v.fecha.toISOString().split('T')[0])
                 )).sort();
 
-                console.log(muestrasConValores);
-                console.log(fechas);
-                console.log(lqMap);
-
                 const mediciones = fechas.map(fecha => {
                     const registros = muestrasConValores.filter(v => v.compuestoId === comp.compuestoId && v.fecha.toISOString().split('T')[0] === fecha);
 
@@ -116,7 +114,6 @@ export default class MannKendallService {
                         // return registro ? Number(registro.valor) : null;
                         if (!registro) return null;
                         const lq = lqMap.get(`${registro.compuestoId}-${registro.metodoId}-${registro.laboratorioId}`);
-                        console.log('registro: ', registro, lq);
 
                         if (registro.valor <= -2) return null; // ND y NA => van como null
                         if (registro.valor <= 0) return lq ? lq.valorLQ / 2 : 0.00001; // NC (0 o -1) debe ir como 1/2*LQ, si no encuentra el LQ => 0.00001
