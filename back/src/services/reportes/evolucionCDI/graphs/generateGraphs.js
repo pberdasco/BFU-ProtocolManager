@@ -1,17 +1,12 @@
-import { xlChartType, xlAxisType, xlAxisGroup, xlMarkerStyle, xlLegendPosition, XlDisplayBlanksAs, xlLineStyle } from './excelConstants.js';
+import { addScatterChart } from './scatterFactory.js';
 import { stdErrorMsg } from '../../../../utils/stdError.js';
 import logger from '../../../../utils/logger.js';
+import { GRAPH_HEIGHT, GRAPH_WIDTH, ALTO_FILA_EN_PX, TOP_PADDING, LEFT_PADDING } from './layoutConstants.js';
 import path from 'path';
 
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 const { release, Object: ActiveXObject } = require('winax');
-
-const GRAPH_WIDTH = 500; // Se necesita Ratio 2:1, para que vaya bien en el anexo.
-const GRAPH_HEIGHT = 250;
-const ALTO_FILA_EN_PX = 13.8;
-const TOP_PADDING = 20;
-const LEFT_PADDING = 20;
 
 /**
  * Genera gráficos de dispersión en un libro de Excel para los pozos agrupados,
@@ -42,12 +37,11 @@ const LEFT_PADDING = 20;
  */
 export function generateGraphs (indexByWell, indexByCompound, grupos, graficosConfig, workbookPath, imagesPath, subproyectoId) {
     let excel;
-    let release;
     let workbook;
     const log = [];
 
     try {
-        { excel, release } = openExcel();
+        excel = openExcel();
         workbook = openWorkbook(excel, workbookPath);
 
         const sheetNamesById = indexByCompound.reduce((map, { pozoId, pozo }) => {
@@ -126,7 +120,7 @@ export function generateGraphs (indexByWell, indexByCompound, grupos, graficosCo
                                 const { chartObj: co, internallyFailedCpIds } = addScatterChart({
                                     sheet,
                                     sheetName,
-                                    graphName: graficoConfig.nombre,
+                                    release,
                                     chartName,
                                     eje1Cols,
                                     eje1CpIds,
@@ -269,178 +263,6 @@ function calculateChartPosition (chartIndex, filaFin) {
     const top = TOP_PADDING + filaFin * ALTO_FILA_EN_PX;
     const left = LEFT_PADDING + chartIndex * (GRAPH_WIDTH + LEFT_PADDING);
     return { top, left };
-}
-
-function generatePeriodicDates (start, end, points = 10) {
-    const dates = [];
-    const diff = end - start;
-    for (let i = 0; i <= points; i++) {
-        dates.push(new Date(start.getTime() + (diff * i) / points));
-    }
-    return dates;
-}
-
-function addScatterChart ({ sheet, sheetName, graphName, chartName, eje1Cols, eje1CpIds, eje2Cols, eje2CpIds, fechaInicio, fechaFin, filaInicio, filaFin, left, top, width, height }) {
-    const FILA_UM = 3; // Asumiendo que esta constante está definida o es conocida
-    let chartObj, chart, categoryAxis, primaryAxis, secondaryAxis;
-    let datoUm1, datoUm2; // Para los ranges de UM, usando nombres diferentes para evitar confusión con variables globales si existieran
-    const internallyFailedCpIds = [];
-
-    try {
-        chartObj = sheet.ChartObjects().Add(left, top, width, height);
-        chartObj.Name = chartName;
-        chart = chartObj.Chart; // Acceso como propiedad si así estaba originalmente y funcionaba
-
-        chart.ChartType = xlChartType.xlXYScatterLines;
-        chart.DisplayBlanksAs = XlDisplayBlanksAs.xlInterpolated;
-
-        const fechas = generatePeriodicDates(fechaInicio, fechaFin);
-        const fechasExcel = fechas.map(fecha => excelDateFromJSDate(fecha));
-
-        eje1Cols.forEach((col, index) => {
-            try {
-                // Asumimos que eje1CpIds[index] existe y es el cpId correcto
-                addSeries(chart, sheet, col, filaInicio, filaFin, fechasExcel, xlAxisGroup.xlPrimary, index, eje1CpIds[index]);
-            } catch (error) {
-                logger.warn(`[addScatterChart] - Error agregando serie para columna ${col} (cpId: ${eje1CpIds[index]}):`);
-                console.error(error.message);
-                internallyFailedCpIds.push(eje1CpIds[index]);
-            }
-        });
-
-        eje2Cols.forEach((col, index) => {
-            try {
-                // Asumimos que eje2CpIds[index] existe y es el cpId correcto
-                addSeries(chart, sheet, col, filaInicio, filaFin, fechasExcel, xlAxisGroup.xlSecondary, eje1Cols.length + index, eje2CpIds[index]);
-            } catch (error) {
-                logger.warn(`[addScatterChart] - Error agregando serie para columna ${col} (cpId: ${eje2CpIds[index]}):`);
-                console.error(error.message);
-                internallyFailedCpIds.push(eje2CpIds[index]);
-            }
-        });
-
-        let um1 = 'Concentración'; // Valor por defecto
-        if (eje1Cols[0]) {
-            datoUm1 = sheet.Range(`${eje1Cols[0]}${FILA_UM}`);
-            um1 = datoUm1.value || um1; // Usando .value (minúscula) como en tu original para esta parte
-        }
-
-        let um2 = 'Nivel'; // Valor por defecto
-        if (eje2Cols[0]) {
-            datoUm2 = sheet.Range(`${eje2Cols[0]}${FILA_UM}`);
-            um2 = datoUm2.value || um2; // Usando .value (minúscula)
-        }
-
-        // Configuración de títulos y ejes
-        try {
-            chart.HasTitle = true;
-            chart.ChartTitle.Text = sheetName;
-
-            chart.HasLegend = true;
-            chart.Legend.Position = xlLegendPosition.xlLegendPositionBottom;
-            chart.Legend.IncludeInLayout = true;
-
-            categoryAxis = chart.Axes(xlAxisType.xlCategory);
-            categoryAxis.HasTitle = true;
-            categoryAxis.AxisTitle.Text = 'Fecha';
-            categoryAxis.TickLabels.NumberFormat = 'mm/yyyy';
-
-            const normalize = u => (u || '').toString().toLowerCase().replace(/[\s.]/g, '');
-            const um1Norm = normalize(um1);
-            const um2Norm = normalize(um2);
-
-            primaryAxis = chart.Axes(xlAxisType.xlValue, xlAxisGroup.xlPrimary);
-            primaryAxis.HasTitle = true;
-            if (um1Norm === 'm') {
-                primaryAxis.AxisTitle.Text = 'Espesor (m)';
-            } else if (um1Norm === 'mbbp') {
-                primaryAxis.ReversePlotOrder = true;
-                primaryAxis.AxisTitle.Text = 'Profundidad (m.b.b.p.)';
-            } else {
-                primaryAxis.AxisTitle.Text = `Concentración (${um1})`;
-            }
-
-            if (eje2Cols.length > 0) {
-                secondaryAxis = chart.Axes(xlAxisType.xlValue, xlAxisGroup.xlSecondary);
-                secondaryAxis.HasTitle = true;
-                if (um2Norm === 'm') {
-                    secondaryAxis.AxisTitle.Text = 'Espesor (m)';
-                } else if (um2Norm === 'mbbp') {
-                    secondaryAxis.ReversePlotOrder = true;
-                    secondaryAxis.AxisTitle.Text = 'Profundidad (m.b.b.p.)';
-                } else {
-                    secondaryAxis.AxisTitle.Text = `Concentración (${um2})`;
-                }
-            }
-        } catch (axisError) {
-            logger.error(`[addScatterChart] - Error configurando títulos de ejes ${axisError.message}`);
-            console.error(axisError);
-            throw axisError; // Re-lanzar para que el catch principal de addScatterChart lo maneje
-        }
-    } catch (error) {
-        logger.error(`[addScatterChart] - Error creando o configurando el gráfico '${chartName}`);
-        console.error(error);
-        throw error;
-    } finally {
-        if (datoUm1) release(datoUm1);
-        if (datoUm2) release(datoUm2);
-        if (secondaryAxis) release(secondaryAxis);
-        if (primaryAxis) release(primaryAxis);
-        if (categoryAxis) release(categoryAxis);
-        if (chart) release(chart);
-        // if (chartObj) release(chartObj);
-    }
-    return { chartObj, internallyFailedCpIds };
-}
-
-// Función que convierte fechas de JavaScript a formato Excel (número de serie)
-function excelDateFromJSDate (date) {
-    const epoch = new Date(1899, 11, 30);
-    const msPerDay = 24 * 60 * 60 * 1000;
-    const dayDiff = (date - epoch) / msPerDay;
-    return dayDiff;
-}
-
-function addSeries (chart, sheet, column, rowStart, rowEnd, xValues, axisGroup, seriesIndex, cpId) {
-    const FILA_TITULOS = 2;
-    let series, headerCell;
-    try {
-        series = chart.SeriesCollection().NewSeries();
-        headerCell = sheet.Range(`${column}${FILA_TITULOS}`);
-        series.Name = headerCell.Value;
-
-        // ? Importante: Hay que usar el método específico Formula para asignar los valores
-        // ? =SERIES(nombre_serie, valores_x, valores_y, trazado) -trazado es el orden de la serie en el grafico-
-        // ? ⚠ Importante: en gráficos tipo scatter (xlXYScatter), el eje X es de valores (no categórico).
-        // ? Por eso, los valores de fecha deben pasarse como números de serie de Excel en el segundo argumento de la fórmula.
-        // ? En este caso se insertan como una constante (de fechas serializadas en formato Excel) en línea: {xValues.join(',')}.
-        series.Formula = `=SERIES(${sheet.Name}!$${column}$${FILA_TITULOS},{${xValues.join(',')}},${sheet.Name}!$${column}$${rowStart}:$${column}$${rowEnd},${seriesIndex + 1})`;
-        series.AxisGroup = axisGroup;
-        series.MarkerStyle = xlMarkerStyle.xlMarkerStyleCircle;
-        series.MarkerSize = 6;
-        series.Format.Line.Weight = 1.5;
-
-        if (cpId === -1) {
-            series.Format.Line.DashStyle = xlLineStyle.xlDash;
-            series.Format.Line.ForeColor.RGB = 0x00FF0000; // Azul (BGR)
-            series.MarkerStyle = xlMarkerStyle.xlMarkerStyleTriangle;
-            series.MarkerForegroundColor = 0x00FF0000;
-            series.MarkerBackgroundColor = 0x00FF0000;
-        } else if (cpId === -2) {
-            series.Format.Line.DashStyle = xlLineStyle.xlContinuous;
-            series.Format.Line.ForeColor.RGB = 0x000000FF; // Rojo (BGR)
-            series.MarkerStyle = xlMarkerStyle.xlMarkerStyleSquare;
-            series.MarkerForegroundColor = 0x000000FF;
-            series.MarkerBackgroundColor = 0x000000FF;
-        }
-    } catch (error) {
-        logger.error(`[generateGraphs] Error en addSeries para columna ${column}:`);
-        console.error(error);
-        throw error;
-    } finally {
-        if (headerCell) release(headerCell);
-        if (series) release(series);
-    }
 }
 
 // ⚠️ Sobre Winax y la liberación de objetos COM:

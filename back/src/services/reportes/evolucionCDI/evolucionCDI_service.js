@@ -3,7 +3,7 @@ import path from 'path';
 import { stdErrorMsg } from '../../../utils/stdError.js';
 import { getPlainData } from './getPlainData.js';
 import { createWellTables } from './createWellTables.js';
-import { generateGraphs } from './generateGraphs.js';
+import { generateGraphs } from './graphs/generateGraphs.js';
 import { createReport } from './generateDOC.js';
 
 export default class evolucionCDIService {
