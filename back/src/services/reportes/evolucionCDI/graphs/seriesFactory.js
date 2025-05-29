@@ -34,7 +34,7 @@ export function addSeries (chart, sheet, column, rowStart, rowEnd, xValues, axis
         series.Formula = `=SERIES(${sheet.Name}!$${column}$${FILA_TITULOS},{${xValues.join(',')}},${sheet.Name}!$${column}$${rowStart}:$${column}$${rowEnd},${seriesIndex + 1})`;
         series.AxisGroup = axisGroup;
         series.MarkerStyle = xlMarkerStyle.xlMarkerStyleCircle;
-        series.MarkerSize = 6;
+        series.MarkerSize = 4;
         series.Format.Line.Weight = 1.5;
 
         if (cpId === -1) {

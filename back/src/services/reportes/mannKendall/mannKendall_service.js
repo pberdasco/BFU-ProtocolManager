@@ -116,7 +116,7 @@ export default class MannKendallService {
                         const lq = lqMap.get(`${registro.compuestoId}-${registro.metodoId}-${registro.laboratorioId}`);
 
                         if (registro.valor <= -2) return null; // ND y NA => van como null
-                        if (registro.valor <= 0) return lq ? lq.valorLQ / 2 : 0.00001; // NC (0 o -1) debe ir como 1/2*LQ, si no encuentra el LQ => 0.00001
+                        if (registro.valor <= 0) return lq ? lq.valorLQ / 2 : 0.0001; // NC (0 o -1) debe ir como 1/2*LQ, si no encuentra el LQ => 0.0001
                         return Number(registro.valor);
                     });
 
