@@ -1,17 +1,45 @@
 import { xlChartType, xlAxisType, xlAxisGroup, xlLegendPosition, XlDisplayBlanksAs } from './excelConstants.js';
+import path from 'path';
 import logger from '../../../../utils/logger.js';
 import { addSeries } from './seriesFactory.js';
 
-export function addScatterChart ({ sheet, sheetName, release, chartName, eje1Cols, eje1CpIds, eje2Cols, eje2CpIds, fechaInicio, fechaFin, filaInicio, filaFin, left, top, width, height }) {
+/**
+ * Inserta en la hoja un gráfico de dispersión (XY Scatter with Smooth Lines),
+ * agrega series de datos en ejes primario y/o secundario, configura títulos y ejes,
+ * y devuelve el objeto COM del chart junto a IDs de series que fallaron internamente.
+ *
+ * @param {object} options
+ * @param {object} options.sheet- Objeto COM de la hoja de Excel donde se agregará el gráfico.
+ * @param {string} options.sheetName - Nombre de la hoja, usado para títulos y rangos.
+ * @param {Function} options.release - Función para liberar objetos COM tras su uso.
+ * @param {string} options.chartName - Nombre único para identificar el ChartObject en Excel.
+ * @param {string[]} options.eje1Cols - Columnas de Excel para series del eje primario.
+ * @param {number[]} options.eje1CpIds - IDs de compuesto correspondientes a las columnas de eje1Cols.
+ * @param {string[]} options.eje2Cols - Columnas para series en el eje secundario (opcional).
+ * @param {number[]} options.eje2CpIds - IDs de compuesto para eje2Cols.
+ * @param {Date} options.fechaInicio - Fecha mínima del eje X (serial Excel).
+ * @param {Date} options.fechaFin - Fecha máxima del eje X (serial Excel).
+ * @param {number} options.filaInicio - Fila inicial del rango de datos.
+ * @param {number} options.filaFin - Fila final del rango de datos.
+ * @param {number} options.left - Coordenada X de inserción del gráfico (px).
+ * @param {number} options.top - Coordenada Y de inserción del gráfico (px).
+ * @param {number} options.width - Ancho del gráfico (px).
+ * @param {number} options.height - Alto del gráfico (px).
+ * @returns {{ chartObj: object, internallyFailedCpIds: number[] }}
+ *   - chartObj: objeto COM del ChartObject creado.
+ *   - internallyFailedCpIds: lista de cpIds que fallaron al agregar su serie.
+ */
+export function addScatterChart ({ sheet, sheetName, release, chartName, eje1Cols, eje1CpIds, eje2Cols, eje2CpIds, fechaInicio, fechaFin, filaInicio, filaFin, left, top, width, height, imagesPath }) {
     const FILA_UM = 3; // Asumiendo que esta constante está definida o es conocida
     let chartObj, chart, categoryAxis, primaryAxis, secondaryAxis;
     let datoUm1, datoUm2; // Para los ranges de UM, usando nombres diferentes para evitar confusión con variables globales si existieran
+    let pngPath;
     const internallyFailedCpIds = [];
 
     try {
         chartObj = sheet.ChartObjects().Add(left, top, width, height);
         chartObj.Name = chartName;
-        chart = chartObj.Chart; // Acceso como propiedad si así estaba originalmente y funcionaba
+        chart = chartObj.Chart;
 
         chart.ChartType = xlChartType.xlXYScatterLines;
         chart.DisplayBlanksAs = XlDisplayBlanksAs.xlInterpolated;
@@ -104,6 +132,12 @@ export function addScatterChart ({ sheet, sheetName, release, chartName, eje1Col
                     secondaryAxis.AxisTitle.Text = `Concentración (${um2})`;
                 }
             }
+
+            // Grabar la imagen en disco
+            const pngName = `${chartName.replace(/[/\\:?<>|"]/g, '_')}.png`;
+            pngPath = path.join(imagesPath, pngName);
+            chart.DisplayBlanksAs = XlDisplayBlanksAs.xlInterpolated;
+            chart.Export(pngPath, 'PNG');
         } catch (axisError) {
             logger.error(`[addScatterChart] - Error configurando títulos de ejes ${axisError.message}`);
             console.error(axisError);
@@ -120,9 +154,10 @@ export function addScatterChart ({ sheet, sheetName, release, chartName, eje1Col
         if (primaryAxis) release(primaryAxis);
         if (categoryAxis) release(categoryAxis);
         if (chart) release(chart);
-        // if (chartObj) release(chartObj);
+        if (chartObj) release(chartObj);
     }
-    return { chartObj, internallyFailedCpIds };
+
+    return { pngPath, internallyFailedCpIds };
 }
 
 // Función que convierte fechas de JavaScript a formato Excel (número de serie)

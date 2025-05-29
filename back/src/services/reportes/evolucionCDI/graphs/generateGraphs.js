@@ -2,7 +2,6 @@ import { addScatterChart } from './scatterFactory.js';
 import { stdErrorMsg } from '../../../../utils/stdError.js';
 import logger from '../../../../utils/logger.js';
 import { GRAPH_HEIGHT, GRAPH_WIDTH, ALTO_FILA_EN_PX, TOP_PADDING, LEFT_PADDING } from './layoutConstants.js';
-import path from 'path';
 
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
@@ -13,9 +12,13 @@ const { release, Object: ActiveXObject } = require('winax');
  * exporta cada uno como PNG y devuelve un resumen de estado.
  *
  * @param {Array<{ pozo: string, filaInicio: number, filaFin: number, fechaInicio: Date, fechaFin: Date }>} indexByWell
- * @param {Array<{ pozoId: number, compuestoId: number, columna: string }>} indexByCompound
+ *      * Indice de pozos con sus filas y rangos de fecha en la hoja.
+ * @param {Array<{ pozoId: number, pozo: string, compuestoId: number, compuesto: string, columna: string }>} indexByCompound
+ *      * Mapa de compuestos por pozo, indicando qué columna de Excel corresponde.
  * @param {Array<{ pozos: number[], graficos: number[] }>} grupos
+ *      * Agrupaciones de pozos y los IDs de gráficos que deben generarse para cada grupo.
  * @param {Array<{ id: number, nombre: string, eje1: number[], eje2: number[], seccion: number, anexoNombre: string }>} graficosConfig
+ *      * Configuración detallada de cada tipo de gráfico (series de ejes, sección, nombre de anexo)
  * @param {string} workbookPath  Ruta al archivo .xlsx de trabajo
  * @param {string} imagesPath    Carpeta donde se guardarán los PNG
  * @param {number} subproyectoId ID del subproyecto (solo para nombrar el chart)
@@ -59,7 +62,6 @@ export function generateGraphs (indexByWell, indexByCompound, grupos, graficosCo
                 console.log(`Procesando grupo ${gIdx} pozo ${pozoId}`);
                 const sheetName = getSheetName(pozoId, sheetNamesById);
                 let sheet = null;
-                let chartObj = null;
                 try {
                     sheet = workbook.Sheets(sheetName);
                     const wellIndex = lookupWellIndex(sheetName, indexByWell);
@@ -103,6 +105,13 @@ export function generateGraphs (indexByWell, indexByCompound, grupos, graficosCo
                             return arr;
                         }, []);
 
+                        // Manejo especial FLNA sólo (compuestoId -2)
+                        const flna1 = isFlnaOnlyEmpty(sheet, compoundMap, wellIndex.filaInicio, wellIndex.filaFin, eje1Data.map(item => item.cpId), release);
+                        const flna2 = isFlnaOnlyEmpty(sheet, compoundMap, wellIndex.filaInicio, wellIndex.filaFin, eje2Data.map(item => item.cpId), release);
+                        if (flna1 || flna2) {
+                            // ? Ver si sumarlo a log con Warn (creo que no es conveniente)
+                            return;
+                        }
                         // Extraer arrays paralelos
                         const eje1Cols = eje1Data.map(item => item.col);
                         const eje1CpIds = eje1Data.map(item => item.cpId);
@@ -117,7 +126,7 @@ export function generateGraphs (indexByWell, indexByCompound, grupos, graficosCo
                         } else {
                             const pos = calculateChartPosition(idx, wellIndex.filaFin);
                             try {
-                                const { chartObj: co, internallyFailedCpIds } = addScatterChart({
+                                const { pngPath, internallyFailedCpIds } = addScatterChart({
                                     sheet,
                                     sheetName,
                                     release,
@@ -133,20 +142,16 @@ export function generateGraphs (indexByWell, indexByCompound, grupos, graficosCo
                                     left: pos.left,
                                     top: pos.top,
                                     width: GRAPH_WIDTH,
-                                    height: GRAPH_HEIGHT
+                                    height: GRAPH_HEIGHT,
+                                    imagesPath
                                 });
+
+                                currentGraphLogEntry.pngPath = pngPath;
+
                                 const allProblematicCpIds = [...new Set([
                                     ...missingCompoundsForThisGraph,
                                     ...(internallyFailedCpIds || [])
                                 ])];
-
-                                // Grabar la imagen en disco
-                                const pngName = `${chartName.replace(/[/\\:?<>|"]/g, '_')}.png`;
-                                const pngPath = path.join(imagesPath, pngName);
-                                chartObj = co; // asigna a una variable de fuera del try para que sea alcanzable en el finally
-                                chartObj.Chart.Export(pngPath, 'PNG');
-                                currentGraphLogEntry.pngPath = pngPath;
-
                                 if (allProblematicCpIds.length > 0) {
                                     currentGraphLogEntry.status = 'Warn';
                                     currentGraphLogEntry.cpIdsFailed = allProblematicCpIds;
@@ -165,7 +170,6 @@ export function generateGraphs (indexByWell, indexByCompound, grupos, graficosCo
                     });
                 } finally {
                     if (sheet) release(sheet);
-                    if (chartObj) release(chartObj);
                 }
             });
         });
@@ -215,6 +219,15 @@ export function generateGraphs (indexByWell, indexByCompound, grupos, graficosCo
     }
 }
 
+/**
+ * Construye un mapa de compuestos para un pozo, asignando cada compuesto a su columna de Excel.
+ *
+ * @param {number} pozoId - ID del pozo para el cual se construye el mapa.
+ * @param {Array<{pozoId: number, compuestoId: number, columna: string }>} indexByCompound
+ *      *  Arreglo que relaciona cada ID de pozo con un ID de compuesto y la letra de columna correspondiente.
+ * @returns {Object.<number, string>} - Mapa donde las claves son IDs de compuesto y los valores son las letras de columna en la hoja.
+ *      * Ejemplo: `{ 29: 'L', 30: 'P' }`.
+ */
 function buildCompoundMap (pozoId, indexByCompound) { // ej: acc = {29: 'L', 30: 'P'}
     return indexByCompound
         .filter(entry => entry.pozoId === pozoId)
@@ -247,6 +260,16 @@ function getSheetName (pozoId, sheetNamesById) {
     return name;
 }
 
+/**
+ * Busca la entrada de índice para un pozo dado en el arreglo `indexByWell`.
+ *
+ * @param {string} sheetName - Nombre de la hoja de Excel que representa al pozo.
+ * @param {Array<{pozo: string, filaInicio: number, filaFin: number, fechaInicio: Date, fechaFin: Date}>} indexByWell
+ *      * Arreglo de objetos que mapea nombres de pozos a sus posiciones de fila y rangos de fecha.
+ * @returns {{ pozo: string, filaInicio: number, filaFin: number, fechaInicio: Date, fechaFin: Date }}
+ *      * Objeto con la información de índice para el pozo especificado.
+ * @throws {Error} - Lanza un error con `stdErrorMsg(400, ...)` si no existe una entrada para el pozo.
+ */
 function lookupWellIndex (sheetName, indexByWell) {
     const result = indexByWell.find(w => w.pozo === sheetName);
     if (!result) throw stdErrorMsg(400, `[generateGraphs] No se encontró índice para el pozo con hoja '${sheetName}'`);
@@ -263,6 +286,32 @@ function calculateChartPosition (chartIndex, filaFin) {
     const top = TOP_PADDING + filaFin * ALTO_FILA_EN_PX;
     const left = LEFT_PADDING + chartIndex * (GRAPH_WIDTH + LEFT_PADDING);
     return { top, left };
+}
+
+/**
+ * Indica si un gráfico de FLNA puro debe omitirse (todos ceros).
+ *
+ * @param {object} sheet            Objeto COM de la hoja de Excel.
+ * @param {Object<number,string>} compoundMap Mapa de compuestoId → columna.
+ * @param {number} rowStart         Fila inicial de datos.
+ * @param {number} rowEnd           Fila final de datos.
+ * @param {number[]} cpIds          IDs de compuestos para el eje.
+ * @param {Function} release        Función para liberar objetos COM.
+ * @returns {boolean}               True si es FLNA único y todos sus valores son 0.
+*/
+function isFlnaOnlyEmpty (sheet, compoundMap, rowStart, rowEnd, cpIds, release) {
+    const FLNA = -2;
+    if (cpIds.length === 1 && cpIds[0] === FLNA) {
+        const col = compoundMap[FLNA];
+        for (let r = rowStart; r <= rowEnd; r++) {
+            const range = sheet.Range(`${col}${r}`);
+            const v = range.Value;
+            release(range);
+            if (v !== 0) return false; // si hay algun valor distinto de 0 => no omitimos el grafico
+        }
+        return true;
+    }
+    return false;
 }
 
 // ⚠️ Sobre Winax y la liberación de objetos COM:

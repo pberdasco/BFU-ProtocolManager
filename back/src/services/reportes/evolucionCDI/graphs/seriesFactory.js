@@ -1,6 +1,23 @@
 import { xlMarkerStyle, xlLineStyle } from './excelConstants.js';
 import logger from '../../../../utils/logger.js';
 
+/**
+ * Agrega una nueva serie de datos al gráfico especificado, construyendo la
+ * fórmula de Excel `=SERIES(...)` con valores de X (fechas serializadas) e Y
+ * (datos de la hoja), y aplica estilo de línea y marcadores según cpId.
+ *
+ * @param {object} chart - Objeto COM del Chart de Excel.
+ * @param {object} sheet - Objeto COM de la hoja con los datos.
+ * @param {string} column - Letra de la columna que contiene la serie de valores Y.
+ * @param {number} rowStart - Fila inicial de los datos Y.
+ * @param {number} rowEnd - Fila final de los datos Y.
+ * @param {number[]} xValues - Array de números de serie de fechas para el eje X.
+ * @param {number} axisGroup - Constante xlAxisGroup para eje primario o secundario.
+ * @param {number} seriesIndex - Índice de trazado de la serie (orden en el gráfico).
+ * @param {number} cpId - ID de compuesto; valores especiales (-1 NF, -2 FLNA) cambian estilo de línea.
+ * @param {Function} release - Función para liberar objetos COM tras su uso.
+ * @throws {Error} Lanza si ocurre un problema al crear la serie o aplicar la fórmula.
+ */
 export function addSeries (chart, sheet, column, rowStart, rowEnd, xValues, axisGroup, seriesIndex, cpId, release) {
     const FILA_TITULOS = 2;
     let series, headerCell;

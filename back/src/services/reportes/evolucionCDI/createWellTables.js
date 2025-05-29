@@ -164,6 +164,51 @@ async function buildWorkbook (measurements, grupoConfig) {
         writeDates(sheet, dates);
         writeValues(sheet, records, compounds, dates);
 
+        // --- Llenar con 0 las celdas vacías de FLNA (compuestoId = -2) ---
+        const flnaIndex = compounds.findIndex(c => c.compuestoId === -2);
+        if (flnaIndex !== -1) {
+            // La primer columna de datos es la B (col 2), y sube +idx
+            const flnaCol = columnNumberToName(2 + flnaIndex);
+            for (let i = 0; i < dates.length; i++) {
+                const row = 4 + i;
+                const cell = sheet.getCell(`${flnaCol}${row}`);
+                if (cell.value == null) {
+                    cell.value = 0;
+                }
+            }
+        }
+
+        // Estilos de la tabla
+        sheet.columns.forEach(column => {
+            column.width = 12;
+        });
+        sheet.getRow(2).font = { bold: true };
+        sheet.getRow(2).alignment = { horizontal: 'center' };
+        sheet.getRow(3).alignment = { horizontal: 'center' };
+
+        sheet.getColumn(1).font = { bold: true };
+        const a1 = sheet.getCell('A1');
+        a1.font = { bold: true };
+        a1.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFADD8E6' } // Celeste claro
+        };
+
+        const lastRow = 4 + dates.length - 1;
+        const lastCol = compounds.length + 1; // A=1 + compuestos
+        for (let r = 2; r <= lastRow; r++) {
+            for (let c = 1; c <= lastCol; c++) {
+                const cell = sheet.getCell(r, c);
+                cell.border = {
+                    top: { style: 'thin' },
+                    left: { style: 'thin' },
+                    bottom: { style: 'thin' },
+                    right: { style: 'thin' }
+                };
+            }
+        }
+
         // Record index for fechas
         indexByPozo.push({
             pozo: pozoName,
