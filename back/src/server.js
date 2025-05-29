@@ -44,6 +44,7 @@ import { graficosGruposRouter } from './routers/graficosGrupos_router.js';
 import { umConvertRouter } from './routers/umConvert_router.js';
 import { evolucionCDIRouter } from './routers/evolucionCDI_router.js';
 import { zipDownloadRouter } from './routers/zipDownload_router.js';
+import { valoresPlanosRouter } from './routers/valoresPlanos_router.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -97,6 +98,7 @@ app.use('/graficosGrupos', graficosGruposRouter);
 app.use('/umConvert', umConvertRouter);
 app.use('/evolucionCDI', evolucionCDIRouter);
 app.use('/getZip', zipDownloadRouter);
+app.use('/valoresPlanos', valoresPlanosRouter);
 
 // Servir archivos estáticos del frontend
 app.use(express.static(path.join(__dirname, '../../public')));
