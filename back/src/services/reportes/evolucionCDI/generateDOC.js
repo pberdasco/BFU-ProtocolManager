@@ -28,15 +28,18 @@ export async function createReport (charts, basePath, proyectoNombre = 'XXXXXX',
     const rangoFormateado = `${rangoFechas.desde} y ${rangoFechas.hasta}`;
     const headerTextFinal = headerText.replace('{SubP}', proyectoNombre);
 
-    // Agrupar gráficos por sección (imperativo forEach)
+    // Agrupar gráficos por sección: objeto con {seccion: [array de graficos]}
     const graficosPorSeccion = {};
     charts.forEach(grafico => {
+        if (grafico.status === 'Fail') {
+            logger.warn(`[graficosPorSeccion] Gráfico omitido por fallo previo: ${grafico.graficoNombre}-${grafico.pozo}`);
+            return; // No procesar graficos fallidos en ninguna seccion
+        }
         if (!graficosPorSeccion[grafico.section]) {
             graficosPorSeccion[grafico.section] = [];
         }
         graficosPorSeccion[grafico.section].push(grafico);
     });
-
     // Filtrar y ordenar secciones según configuración
     const seccionesOrdenadas = sections
         .filter(({ order }) => graficosPorSeccion[order]?.length > 0)
