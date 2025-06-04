@@ -34,7 +34,18 @@ export async function processCompound (compuesto) {
     });
 
     const logCreated = guardarLogTxtFinal(compuesto, logLines);
-
+    // >>> Activar la primera hoja antes de cerrar el archivo
+    try {
+        const excel = new ActiveXObject('Excel.Application');
+        excel.EnableEvents = false;
+        const workbook = excel.Workbooks.Open(newFilePath);
+        workbook.Worksheets(1).Activate();
+        workbook.Save();
+        workbook.Close(false);
+        excel.Quit();
+    } catch (e) {
+        logger.warn('No se pudo activar la hoja 1 al final:', e.message);
+    }
     return {
         excel: fileCreated,
         log: logCreated
@@ -70,18 +81,35 @@ function groupSamples (compuesto) {
         if (!grupos[hojaKey]) grupos[hojaKey] = [];
         grupos[hojaKey].push(index);
     });
+    // Ordenar por nombre natural (Hoja 1, Hoja 2, etc.)
+    const gruposOrdenados = Object.entries(grupos)
+        .sort(([a], [b]) => {
+            const numA = parseInt(a.match(/\d+/));
+            const numB = parseInt(b.match(/\d+/));
+            return numA - numB;
+        });
 
+    return gruposOrdenados.map(([hoja, indices]) => ({
+        hojaOriginal: hoja,
+        hojaExcel: hoja.replace(/\s/g, ''), // e.g., "Hoja 1" → "Hoja1"
+        sampleIndices: indices
+    }));
+
+    /* Dejo comentado la forma original de devolver los grupos por hoja por si no funciona
     // Armar la lista de grupos válidos
     return Object.entries(grupos).map(([hoja, indices]) => ({
         hojaOriginal: hoja,
         sampleIndices: indices
     }));
+
+   *///
 }
 
 // Función que abre el Excel, actualiza una hoja específica (según el grupo) y cierra el libro
 function processSheetGroup (filePath, sheetIndex, compuesto, grupo, logLines) {
     // La hoja se nombra "Hoja1", "Hoja2", etc.
-    const sheetName = `Hoja${sheetIndex}`;
+    //   const sheetName = `Hoja${sheetIndex}`;
+    const sheetName = grupo.hojaExcel;
     let excel, workbook, worksheet;
     try {
         excel = new ActiveXObject('Excel.Application');
@@ -150,6 +178,8 @@ function processSheetGroup (filePath, sheetIndex, compuesto, grupo, logLines) {
         const rangoDestino = worksheet.Range(rangeAddress);
         rangoDestino.Value = values;
 
+        worksheet.Activate(); // Activar la hoja actual
+        excel.Run('UpdateAll'); // Ejecutar la macro que actualiza gráfico y filas
         worksheet.Protect('Forest Fast Run Run');
         workbook.Save();
         logger.info(`Grabado: ${filePath} - ${sheetName}`);

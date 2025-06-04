@@ -3,7 +3,7 @@ export default class MkPozos {
     id; // int
     subproyectoId; // int (FK)
     pozoId; // int (FK)
-    hojaId; // int entre  1y3 ??
+    hojaId; // int entre  1y5 ??
 
     constructor (row) {
         this.id = row.id;
