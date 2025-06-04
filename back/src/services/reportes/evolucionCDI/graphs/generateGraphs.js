@@ -1,7 +1,7 @@
 import { addScatterChart } from './scatterFactory.js';
 import { stdErrorMsg } from '../../../../utils/stdError.js';
 import logger from '../../../../utils/logger.js';
-import { GRAPH_HEIGHT, GRAPH_WIDTH, ALTO_FILA_EN_PX, TOP_PADDING, LEFT_PADDING } from './layoutConstants.js';
+import { GRAPH_HEIGHT, GRAPH_WIDTH, ALTO_FILA_EN_PX, TOP_PADDING, LEFT_PADDING, BLOCK_SPACING } from './layoutConstants.js';
 
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
@@ -124,7 +124,7 @@ export function generateGraphs (indexByWell, indexByCompound, grupos, graficosCo
                             // currentGraphLogEntry.mensaje = `No se encontraron datos para compuestos en pozo=${pozoId} para gráfico ${graficoConfig.nombre}.`;
                             graphsFailed++;
                         } else {
-                            const pos = calculateChartPosition(idx, wellIndex.filaFin);
+                            const pos = calculateChartPosition(idx, wellIndex.filaFin, gIdx);
                             try {
                                 const { pngPath, internallyFailedCpIds } = addScatterChart({
                                     sheet,
@@ -282,8 +282,10 @@ function lookupGraficoConfig (id, graficosConfig) {
     return result;
 }
 
-function calculateChartPosition (chartIndex, filaFin) {
-    const top = TOP_PADDING + filaFin * ALTO_FILA_EN_PX;
+function calculateChartPosition (chartIndex, filaFin, groupIndex) {
+    const topBase = TOP_PADDING + filaFin * ALTO_FILA_EN_PX;
+    const extraPerGroup = groupIndex * (GRAPH_HEIGHT + BLOCK_SPACING);
+    const top = topBase + extraPerGroup;
     const left = LEFT_PADDING + chartIndex * (GRAPH_WIDTH + LEFT_PADDING);
     return { top, left };
 }
