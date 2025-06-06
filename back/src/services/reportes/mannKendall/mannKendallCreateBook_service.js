@@ -125,6 +125,7 @@ function processSheetGroup (filePath, sheetIndex, compuesto, grupo, logLines) {
         worksheet.Range('C5').Value = compuesto.facility;
         worksheet.Range('H4').Value = compuesto.proyecto;
         worksheet.Range('H5').Value = compuesto.compuestoName;
+        worksheet.Range('H6').Value = compuesto.umNombre;
 
         const wellHeaderStartCol = 4; // Columna D
         const wellNames = grupo.sampleIndices.map(idx => compuesto.muestras[idx].pozo);

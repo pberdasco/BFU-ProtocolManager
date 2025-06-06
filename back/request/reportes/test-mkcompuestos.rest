@@ -6,9 +6,9 @@
 GET http://localhost:5001/mkcompuestos/
 
 ### ? mkcompuestos por el subproyectoId
-# Este request filtra compuestos con subproyectoId = '29'
-# Formato interno: ["subproyectoId","=","29"]
-GET http://localhost:5001/mkcompuestos?$filter=[%22subproyectoId%22%2C%22%3D%22%2C%2229%22]
+# Este request filtra compuestos con subproyectoId = '6'
+# Formato interno: ["subproyectoId","=","6"]
+GET http://localhost:5001/mkcompuestos?$filter=[%22subproyectoId%22%2C%22%3D%22%2C%226%22]
 
 
 ### ? Get por ID
@@ -20,8 +20,9 @@ PUT http://localhost:5001/mkcompuestos/45
 Content-Type: application/json
 
 {
-  "subproyectoId": 25,
-  "compuestoId":1 
+  "subproyectoId": 6,
+  "compuestoId":27,
+  "umId":1
 }
 
 ### ? Actualizar un mkcompuesto
@@ -29,8 +30,10 @@ PUT http://localhost:5001/mkcompuestos/1
 Content-Type: application/json
 
 {
-  "subproyectoId": 25,
-  "compuestoId": 2
+  "subproyectoId": 6,
+  "compuestoId": 1,
+  "umId":1
+
 }
 
 
@@ -40,8 +43,9 @@ POST http://localhost:5001/mkcompuestos/
 Content-Type: application/json
 
 {
-  "subproyectoId": 25,
-  "compuestoId": 20
+  "subproyectoId": 6,
+  "compuestoId": 27,
+  "umId":1
 }
 
 
@@ -51,27 +55,31 @@ DELETE http://localhost:5001/mkcompuestos/10
 
 ### Delete
 ### ? Borrar un mkcompuesto que sí existe
-DELETE http://localhost:5001/mkcompuestos/1
+DELETE http://localhost:5001/mkcompuestos/7
 
-### Reemplazar todos los pozos de un subproyecto
+### Reemplazar todos los compuestos de un subproyecto
 POST http://localhost:5001/mkcompuestos/replace
 Content-Type: application/json
 
 [
   {
     "subproyectoId": 29,
-    "compuestoId": 1
+    "compuestoId": 1,
+    "umId": 1
   },
   {
     "subproyectoId": 29,
-    "compuestoId": 26
+    "compuestoId": 26,
+     "umId": 1
   },
   {
     "subproyectoId": 29,
-    "compuestoId": 27
+    "compuestoId": 27,
+     "umId": 1
   },
   {
     "subproyectoId": 29,
-    "compuestoId": 28
+    "compuestoId": 28,
+     "umId": 1
   }
 ]

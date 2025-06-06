@@ -1,5 +1,8 @@
 import { pool, dbErrorMsg } from '../../../database/db.js';
 import { processCompound } from './mannKendallCreateBook_service.js';
+import { convertirValor, verificarConversionesFallidas } from '../tablasAnaliticas/cadenaTODOCTabla_UMs.js';
+import UMConvertService from '../../umConvert_service.js';
+import UMService from '../../um_service.js';
 
 export default class MannKendallService {
     static async fullProcess (subproyectoId, fechaEvaluacion) {
@@ -41,9 +44,10 @@ export default class MannKendallService {
 
             // Compuestos parametrizados
             const [mkCompuestos] = await pool.query(`
-                SELECT mc.compuestoId, c.nombre AS compuestoName
+                SELECT mc.compuestoId, c.nombre AS compuestoName , mc.umId , um.nombre AS umNombre
                 FROM mkCompuestos mc
                 JOIN Compuestos c ON mc.compuestoId = c.id
+                JOIN um ON mc.umId = um.id 
                 WHERE mc.subproyectoId = ?`, [subproyectoId]);
 
             if (!mkCompuestos.length) {
@@ -70,6 +74,12 @@ export default class MannKendallService {
             if (!muestrasConValores.length) {
                 throw dbErrorMsg(404, 'No se encontraron valores para las combinaciones configuradas');
             }
+
+            // cargar datos de conversion de UM
+            // Crear un array para rastrear conversiones fallidas
+            const conversionesFallidas = [];
+            const UMs = await UMService.getAll({ where: null, values: [], order: [], limit: 100, offset: 0 }); // nunca hay mas de 100 UMs (son menos de 20 en realidad)
+            const umConvert = await UMConvertService.getAll();
 
             // Cargar MAP de LQs
             const triplesSet = new Set();
@@ -108,16 +118,24 @@ export default class MannKendallService {
 
                 const mediciones = fechas.map(fecha => {
                     const registros = muestrasConValores.filter(v => v.compuestoId === comp.compuestoId && v.fecha.toISOString().split('T')[0] === fecha);
-
                     const valores = mkPozos.map(p => {
                         const registro = registros.find(r => r.pozoId === p.pozoId);
                         // return registro ? Number(registro.valor) : null;
                         if (!registro) return null;
-                        const lq = lqMap.get(`${registro.compuestoId}-${registro.metodoId}-${registro.laboratorioId}`);
 
                         if (registro.valor <= -2) return null; // ND y NA => van como null
-                        if (registro.valor <= 0) return lq ? lq.valorLQ / 2 : 0.0001; // NC (0 o -1) debe ir como 1/2*LQ, si no encuentra el LQ => 0.0001
-                        return Number(registro.valor);
+
+                        if (registro.valor <= 0) {
+                            // buscar el lq para ese compuesto y lo convierte a la unidad de medida de  mkcompuestos
+                            const lqOrig = lqMap.get(`${registro.compuestoId}-${registro.metodoId}-${registro.laboratorioId}`);
+                            const lq = convertirValor(lqOrig.valorLQ, lqOrig.UMId, comp.umId, umConvert, conversionesFallidas);
+                            return lq ? lq / 2 : 0.0001; // NC (0 o -1) debe ir como 1/2*LQ, si no encuentra el LQ => 0.0001
+                        }
+
+                        // convierte el valor a la um que manda mkCompuestos
+                        const valorConvertido = convertirValor(registro.valor, registro.UMId, comp.umId, umConvert, conversionesFallidas);
+                        return valorConvertido;
+                        // return Number(registro.valor);
                     });
 
                     return { fecha, muestras: valores };
@@ -126,10 +144,21 @@ export default class MannKendallService {
                 return {
                     compuestoId: comp.compuestoId,
                     compuestoName: comp.compuestoName,
+                    umId: comp.umId,
+                    umNombre: comp.umNombre,
                     muestras: pozosCompuesto,
                     mediciones
                 };
             });
+
+            // Verificar si hay conversiones fallidas
+            const errorConversiones = verificarConversionesFallidas(conversionesFallidas, UMs);
+            if (errorConversiones) {
+                const error = new Error(errorConversiones);
+                error.status = 400;
+                error.code = 'CONVERSION_ERROR';
+                throw error;
+            }
 
             return {
                 proyecto: subproyecto.proyecto,

@@ -6,14 +6,18 @@ const allowedFields = {
     subproyectoId: 'm.subproyectoId',
     subproyecto: 's.nombrelocacion',
     compuestoId: 'm.compuestoid',
-    compuesto: 'c.nombre'
+    compuesto: 'c.nombre',
+    umId: 'm.umId',
+    um: 'um.nombre'
 };
 
 const table = 'mkcompuestos';
-const selectBase = 'SELECT m.id, m.subproyectoId, s.nombrelocacion as subproyecto, m.compuestoId, c.nombre as compuesto ';
+const selectBase = 'SELECT m.id, m.subproyectoId, s.nombrelocacion as subproyecto, m.compuestoId, c.nombre as compuesto , m.umId , um.nombre as umnombre';
 const selectTables = 'FROM mkcompuestos m ' +
                      'LEFT JOIN subproyectos s ON m.subproyectoId= s.id ' +
-                     'LEFT JOIN compuestos c ON m.compuestoId = c.id ';
+                     'LEFT JOIN compuestos c ON m.compuestoId = c.id ' +
+                     'LEFT JOIN um ON m.umId = um.id';
+
 const mainTable = 'm';
 const noExiste = 'El compuesto para incluir en Mann-Kendall no fue seleccionado para el subproyecto';
 const yaExiste = 'El compuesto para incluir en Mann-Kendall ya fue seleccionado para el subproyecto';
@@ -122,8 +126,8 @@ export default class MkCompuestosService {
             await conn.query(`DELETE FROM ${table} WHERE subproyectoId = ?`, [subproyectoId]);
 
             // Insertar los nuevos
-            const insertSql = `INSERT INTO ${table} (subproyectoId, compuestoId) VALUES ?`;
-            const values = mkCompuestosToAdd.map(({ subproyectoId, compuestoId }) => [subproyectoId, compuestoId]);
+            const insertSql = `INSERT INTO ${table} (subproyectoId, compuestoId,umId) VALUES ?`;
+            const values = mkCompuestosToAdd.map(({ subproyectoId, compuestoId, umId }) => [subproyectoId, compuestoId, umId]);
 
             await conn.query(insertSql, [values]);
 
