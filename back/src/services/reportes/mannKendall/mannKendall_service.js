@@ -128,7 +128,7 @@ export default class MannKendallService {
                         if (registro.valor <= 0) {
                             // buscar el lq para ese compuesto y lo convierte a la unidad de medida de  mkcompuestos
                             const lqOrig = lqMap.get(`${registro.compuestoId}-${registro.metodoId}-${registro.laboratorioId}`);
-                            const lq = convertirValor(lqOrig.valorLQ, lqOrig.UMId, comp.umId, umConvert, conversionesFallidas);
+                            const lq = convertirValor(lqOrig?.valorLQ, lqOrig?.UMId, comp.umId, umConvert, conversionesFallidas);
                             return lq ? lq / 2 : 0.0001; // NC (0 o -1) debe ir como 1/2*LQ, si no encuentra el LQ => 0.0001
                         }
 
