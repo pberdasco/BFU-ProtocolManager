@@ -1,4 +1,5 @@
 import { pool, dbErrorMsg } from '../database/db.js';
+import { normalizarTexto } from '../utils/textNormalizer.js';
 import SinonimoMetodo from '../models/sinonimosMetodo_model.js';
 
 const allowedFields = {
@@ -58,13 +59,7 @@ export default class SinonimosMetodosService {
         const { metodosOriginales, matrizId } = listToConvert;
         const convertedList = [];
         try {
-            const metodosProcesados = metodosOriginales.map(compuesto =>
-                compuesto
-                    .normalize('NFD') // forma descompuesta de acentos unicode
-                    .replace(/[\u0300-\u036f]/g, '') // elimina acentos
-                    .replace(/[.,;:_()*/+\-\s]/g, '') // Remueve espacios, comas, guión, asterisco, etc.
-                    .toLowerCase()
-            );
+            const metodosProcesados = metodosOriginales.map(compuesto => normalizarTexto(compuesto));
 
             const sql = `
                 SELECT 

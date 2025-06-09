@@ -1,4 +1,5 @@
 import { pool, dbErrorMsg } from '../database/db.js';
+import { normalizarTexto } from '../utils/textNormalizer.js';
 import SinonimoUM from '../models/sinonimosUm_model.js';
 
 const allowedFields = {
@@ -58,13 +59,7 @@ export default class SinonimosUMsService {
         const { umsOriginales } = listToConvert;
         const convertedList = [];
         try {
-            const umsProcesados = umsOriginales.map(um =>
-                um
-                    .normalize('NFD') // forma descompuesta de acentos unicode
-                    .replace(/[\u0300-\u036f]/g, '') // elimina acentos
-                    .replace(/[.,;:_()*/+\-\s]/g, '') // Remueve espacios, comas, guión, asterisco, etc.
-                    .toLowerCase()
-            );
+            const umsProcesados = umsOriginales.map(um => normalizarTexto(um));
 
             const sql = `
                 SELECT 
