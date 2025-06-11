@@ -8,17 +8,17 @@
  * @returns {Object} Objeto con la UM a usar y su ID
  */
 export function determinarUMFila (fila, nivelGuia, UMs) {
-    // Si hay nivel guía válido (no es nulo ni negativo), usar su UM
-    if (nivelGuia && nivelGuia.valorReferencia &&
-        !['NL', '-1', '-2', '-3'].includes(String(nivelGuia.valorReferencia))) {
-        const umNG = UMs.data.find(um => um.id === nivelGuia.umId);
-        if (umNG) {
-            return {
-                umId: nivelGuia.umId,
-                umNombre: umNG.nombre
-            };
-        }
-    }
+    // Si hay nivel guía válido (no es nulo ni negativo), usar su UM  //10/6/2025 cambio esta definicion
+    // if (nivelGuia && nivelGuia.valorReferencia &&
+    //     !['NL', '-1', '-2', '-3'].includes(String(nivelGuia.valorReferencia))) {
+    //     const umNG = UMs.data.find(um => um.id === nivelGuia.umId);
+    //     if (umNG) {
+    //         return {
+    //             umId: nivelGuia.umId,
+    //             umNombre: umNG.nombre
+    //         };
+    //     }
+    // }
 
     // Si no hay nivel guía válido o no se encontró su UM, usar la UM de la fila (mediciones)
     const umFila = UMs.data.find(um => um.id === fila.umId);

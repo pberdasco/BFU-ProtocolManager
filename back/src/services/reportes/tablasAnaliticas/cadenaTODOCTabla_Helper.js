@@ -232,7 +232,7 @@ export function setSustanciaMuestra (muestrasBloque) {
 }
 
 function toArgNumber (number) {
-    return Number(number).toLocaleString('es-AR', { minimumFractionDigits: 3, maximumFractionDigits: 3 });
+    return Number(number).toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 5 });
 }
 
 // * Lineas de detalle (compuestos)
@@ -263,8 +263,11 @@ export function createCompoundRow (fila, data, LQs, UMs, muestrasBloque, matrixI
         n.compuestoId === fila.compuestoId && n.matrizId === Number(matrixId)
     );
 
-    // Para el valor de referencia del nivel guía no es necesaria conversion porque es la UM que manda
+    // Convertir al um de la fila
     let valorReferencia = getValorReferencia(nivelGuia?.valorReferencia);
+    if (nivelGuia && nivelGuia.umId && umFila.umId !== nivelGuia.umId) {
+        valorReferencia = convertirValor(nivelGuia.valorReferencia, nivelGuia.umId, umFila.umId, umConvert, conversionesFallidas);
+    }
 
     // Formatear el valor de referencia
     if (valorReferencia !== 'NL' && !isNaN(Number(valorReferencia))) {
@@ -281,9 +284,10 @@ export function createCompoundRow (fila, data, LQs, UMs, muestrasBloque, matrixI
                 let val = fila[s.muestra];
 
                 // Convertir el valor de la medición si es necesario
-                if (val !== -1 && val !== -2 && val !== -3 && val != null) {
-                    val = convertirValor(val, fila.umId, umFila.umId, umConvert, conversionesFallidas);
-                }
+                // ahora el compuesto es el que manda => no se convierte
+                // if (val !== -1 && val !== -2 && val !== -3 && val != null) {
+                //     val = convertirValor(val, fila.umId, umFila.umId, umConvert, conversionesFallidas);
+                // }
 
                 // Formatear el valor
                 if (val === -1) val = 'NC';

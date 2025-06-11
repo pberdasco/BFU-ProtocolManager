@@ -54,8 +54,8 @@ export async function generateReport (proyectoNombre, fechaMuestreo, data) {
             headerRows.push(createFechaMuestreoRow(fechaMuestreo, muestrasBloque)); // TODO: sacarle las horas a fechaMuestreo
             headerRows.push(createLaboratorioRow(muestrasBloque, data));
 
-            const allTienenCadena = muestrasBloque.every(m => m.cadenaOPDS);
-            if (allTienenCadena) {
+            const anyTienenCadena = muestrasBloque.some(m => m.cadenaOPDS);
+            if (anyTienenCadena) {
                 const [rowCadena, rowProtocolo] = createOPDSRows(muestrasBloque);
                 headerRows.push(rowCadena);
                 headerRows.push(rowProtocolo);
