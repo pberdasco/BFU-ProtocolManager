@@ -23,7 +23,11 @@ const { release, Object: ActiveXObject } = require('winax');
  * @param {string} imagesPath    Carpeta donde se guardarán los PNG
  * @param {number} subproyectoId ID del subproyecto (solo para nombrar el chart)
  * @returns {{
- *   status: 'Ok'|'Warn'|'Fail',
+ *   status: 'Ok'|'Warn'|'Fail' | 'NoData', : Estado general tras procesar todos los gráficos
+ *               - 'Ok': todos los gráficos se generaron correctamente (o fueron NoData, sin advertencias).
+ *               - 'Warn': se generaron gráficos pero con advertencias (series faltantes o compuestos no graficados).
+ *               - 'Fail': todos los gráficos fallaron por errores técnicos o de configuración.
+ *               - 'NoData': no se generó ningún gráfico por ausencia total de datos válidos.
  *   log: Array<{
  *     pozoId: number,
  *     pozo: string,
@@ -33,10 +37,19 @@ const { release, Object: ActiveXObject } = require('winax');
  *     CP: string,
  *     chartName: string,
  *     pngPath: string,
- *     status: 'Ok'|'Warn'|'Fail',
+ *     status: 'Ok'|'Warn'|'Fail'|'NoData', - Estado individual de este gráfico/pozo:
+ *       - 'Ok': el gráfico se generó correctamente sin problemas.
+ *       - 'Warn': se generó, pero hubo advertencias:
+ *           * compuestos sin columna asignada,
+ *           * series que fallaron al agregarse.
+ *       - 'Fail': error crítico que impidió generar el gráfico (excepción en Excel o configuración inválida).
+ *       - 'NoData': el gráfico no se generó por falta de datos válidos:
+ *           * series completamente vacías o debajo del umbral,
+ *           * único compuesto FLNA sin datos.
  *     cpIdsFailed?: number[] -compuestos que no se pudieron generar en el grafico/pozo
  *   }>
  * }} Objeto con el estado global de la operación y un array de entradas detalladas para cada gráfico.
+ *
  */
 export function generateGraphs (indexByWell, indexByCompound, grupos, graficosConfig, workbookPath, imagesPath, subproyectoId) {
     let excel;
@@ -52,11 +65,6 @@ export function generateGraphs (indexByWell, indexByCompound, grupos, graficosCo
             return map;
         }, {});
 
-        let totalGraphsAttempted = 0;
-        // let graphsSuccessfullyCreated = 0;
-        let graphsWithWarnings = 0;
-        let graphsFailed = 0;
-
         grupos.forEach((grupo, gIdx) => {
             grupo.pozos.forEach(pozoId => {
                 console.log(`Procesando grupo ${gIdx} pozo ${pozoId}`);
@@ -68,7 +76,6 @@ export function generateGraphs (indexByWell, indexByCompound, grupos, graficosCo
                     const compoundMap = buildCompoundMap(pozoId, indexByCompound);
 
                     grupo.graficos.forEach((grafId, idx) => {
-                        totalGraphsAttempted++;
                         const graficoConfig = lookupGraficoConfig(grafId, graficosConfig);
                         const chartName = `${sheetName}-${graficoConfig.nombre}-${subproyectoId}`; // ver que sea igual que en addScatterChart
                         const currentGraphLogEntry = {
@@ -105,24 +112,34 @@ export function generateGraphs (indexByWell, indexByCompound, grupos, graficosCo
                             return arr;
                         }, []);
 
-                        // Manejo especial FLNA sólo (compuestoId -2)
+                        // Manejo especial FLNA sólo (compuestoId -2): Si es el unico y esta vacio no genera grafico
                         const flna1 = isFlnaOnlyEmpty(sheet, compoundMap, wellIndex.filaInicio, wellIndex.filaFin, eje1Data.map(item => item.cpId), release);
                         const flna2 = isFlnaOnlyEmpty(sheet, compoundMap, wellIndex.filaInicio, wellIndex.filaFin, eje2Data.map(item => item.cpId), release);
                         if (flna1 || flna2) {
-                            // ? Ver si sumarlo a log con Warn (creo que no es conveniente)
+                            currentGraphLogEntry.status = 'NoData';
+                            log.push(currentGraphLogEntry);
                             return;
                         }
+
+                        const eje1DataFiltered = eje1Data.filter(item =>
+                            !isSeriesEmpty(sheet, item.col, wellIndex.filaInicio, wellIndex.filaFin, release)
+                        );
+
+                        // Si no hay series con algun valor no nulo ni nc => no lo graficamos
+                        if (eje1DataFiltered.length === 0) {
+                            currentGraphLogEntry.status = 'NoData';
+                            log.push(currentGraphLogEntry);
+                            return;
+                        }
+
                         // Extraer arrays paralelos
-                        const eje1Cols = eje1Data.map(item => item.col);
-                        const eje1CpIds = eje1Data.map(item => item.cpId);
+                        const eje1Cols = eje1DataFiltered.map(item => item.col);
+                        const eje1CpIds = eje1DataFiltered.map(item => item.cpId);
                         const eje2Cols = eje2Data.map(item => item.col);
                         const eje2CpIds = eje2Data.map(item => item.cpId);
 
                         if (eje1Cols.length === 0 && eje2Cols.length === 0) {
                             currentGraphLogEntry.status = 'Fail';
-                            // Opcional: añadir un mensaje específico si se desea
-                            // currentGraphLogEntry.mensaje = `No se encontraron datos para compuestos en pozo=${pozoId} para gráfico ${graficoConfig.nombre}.`;
-                            graphsFailed++;
                         } else {
                             const pos = calculateChartPosition(idx, wellIndex.filaFin, gIdx);
                             try {
@@ -155,7 +172,6 @@ export function generateGraphs (indexByWell, indexByCompound, grupos, graficosCo
                                 if (allProblematicCpIds.length > 0) {
                                     currentGraphLogEntry.status = 'Warn';
                                     currentGraphLogEntry.cpIdsFailed = allProblematicCpIds;
-                                    graphsWithWarnings++;
                                 } else {
                                     currentGraphLogEntry.status = 'Ok';
                                 }
@@ -163,7 +179,6 @@ export function generateGraphs (indexByWell, indexByCompound, grupos, graficosCo
                                 logger.warn(`[generateGraphs] - Error creando gráfico ${graficoConfig.nombre} en pozo ${pozoId}: ${chartError.message}:`);
                                 console.error(chartError.message);
                                 currentGraphLogEntry.status = 'Fail';
-                                graphsFailed++;
                             }
                         }
                         log.push(currentGraphLogEntry);
@@ -174,17 +189,22 @@ export function generateGraphs (indexByWell, indexByCompound, grupos, graficosCo
             });
         });
 
-        let overallStatus = 'Ok';
-        if (totalGraphsAttempted > 0) {
-            if (graphsFailed === totalGraphsAttempted) {
-                overallStatus = 'Fail';
-            } else if (graphsFailed > 0 || graphsWithWarnings > 0) {
-                overallStatus = 'Warn';
-            } else { // .Todos Ok (graphsSuccessfullyCreated === totalGraphsAttempted)
-                overallStatus = 'Ok';
-            }
-        } else { // No se intentó crear ningún gráfico (ej: grupos o graficosConfig vacío)
+        const total = log.length;
+        const countOk = log.filter(g => g.status === 'Ok').length;
+        const countFail = log.filter(g => g.status === 'Fail').length;
+        const countNoData = log.filter(g => g.status === 'NoData').length;
+
+        let overallStatus;
+        if (total === 0) {
+            overallStatus = 'NoData'; // No se intentó generar ningún gráfico
+        } else if (countNoData === total) {
+            overallStatus = 'NoData';
+        } else if (countFail === total) {
+            overallStatus = 'Fail';
+        } else if ((countOk + countNoData) === total) {
             overallStatus = 'Ok';
+        } else {
+            overallStatus = 'Warn'; // hay mezcla (Fail o Warn con Ok o NoData)
         }
 
         saveAndClose(workbook, excel);
@@ -314,6 +334,22 @@ function isFlnaOnlyEmpty (sheet, compoundMap, rowStart, rowEnd, cpIds, release) 
         return true;
     }
     return false;
+}
+
+/**
+ * Devuelve true si TODOS los valores de la columna están nulos o <= NCValue (definido como 0.00001).
+ */
+function isSeriesEmpty (sheet, col, rowStart, rowEnd, release) {
+    const NCValue = 0.00001;
+    for (let r = rowStart; r <= rowEnd; r++) {
+        const range = sheet.Range(`${col}${r}`);
+        const v = range.Value;
+        release(range);
+        if (v != null && v > NCValue) {
+            return false;
+        }
+    }
+    return true;
 }
 
 // ⚠️ Sobre Winax y la liberación de objetos COM:

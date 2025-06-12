@@ -35,6 +35,10 @@ export async function createReport (charts, basePath, proyectoNombre = 'XXXXXX',
             logger.warn(`[graficosPorSeccion] Gráfico omitido por fallo previo: ${grafico.graficoNombre}-${grafico.pozo}`);
             return; // No procesar graficos fallidos en ninguna seccion
         }
+        if (grafico.status === 'NoData') {
+            logger.warn(`[graficosPorSeccion] Gráfico omitido por falta de datos: ${grafico.graficoNombre}-${grafico.pozo}`);
+            return; // No procesar graficos fallidos en ninguna seccion
+        }
         if (!graficosPorSeccion[grafico.section]) {
             graficosPorSeccion[grafico.section] = [];
         }
