@@ -183,7 +183,7 @@ export default class CadenaCompletaService {
 
             const [muestras] = await pool.query(
                 `SELECT m.Id AS muestraId, m.Nombre AS muestra, m.Tipo AS tipo, m.PozoId AS pozo, 
-                              m.nivelFreatico, m.profundidad, m.flna, m.cadenaOPDS, m.protocoloOPDS, c.matrizCodigo as matriz 
+                              m.nivelFreatico, m.profundidad, m.flna, m.nivelFLNA, m.cadenaOPDS, m.protocoloOPDS, c.matrizCodigo as matriz 
                  FROM Muestras m
                  LEFT JOIN CadenaCustodia c ON m.CadenaCustodiaId = c.id
                  WHERE m.CadenaCustodiaId = ?`,
