@@ -36,7 +36,17 @@ export async function generateReport (proyectoNombre, fechaMuestreo, data) {
     let mainTitleAdded = false;
 
     Object.entries(matrices).forEach(([matrixId, matrixName]) => {
-        const muestrasOriginal = data.muestras.filter(m => m.matriz === Number(matrixId));
+        const muestrasRaw = data.muestras.filter(m => m.matriz === Number(matrixId));
+
+        const muestrasOriginal = muestrasRaw;
+        // const muestrasOriginal = muestrasRaw.filter(m => {
+        //     return data.filas.some(fila => {
+        //     const val = fila[m.muestra];
+        //     return val !== null && val !== undefined && val !== -3;
+        //     });
+        // });
+        console.log(JSON.stringify(muestrasOriginal, null, 2));
+
         if (muestrasOriginal.length === 0) return;
 
         const bloquesMuestras = splitSamples(muestrasOriginal, MAX_MUESTRAS_COLS);
