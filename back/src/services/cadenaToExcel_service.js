@@ -112,8 +112,14 @@ export default class CadenaToExcelService {
             const hojasExpandida = [];
 
             for (const item of cadenasArray) {
-                const { muestras, nombre, ...resto } = item;
-                const totalHojas = Math.ceil(muestras.length / MAX_MUESTRAS);
+                const { muestras = [], analisis = [], nombre, ...resto } = item;
+                // Si no hay ni muestras ni analisis, se omite la cadena
+                if (muestras.length === 0 && analisis.length === 0) {
+                    continue;
+                }
+
+                const totalHojas = Math.ceil(Math.max(muestras.length, 1) / MAX_MUESTRAS);
+                // console.log(`Generando ${totalHojas} hoja(s) para cadena "${nombre}" con ${muestras.length} muestras y ${analisis.length} análisis`);
 
                 for (let i = 0; i < totalHojas; i++) {
                     const chunkMuestras = muestras.slice(i * MAX_MUESTRAS, (i + 1) * MAX_MUESTRAS);
@@ -124,6 +130,7 @@ export default class CadenaToExcelService {
                     hojasExpandida.push({
                         ...resto,
                         muestras: chunkMuestras,
+                        analisis,
                         nombre: nombreHoja
                     });
                 }
@@ -131,7 +138,7 @@ export default class CadenaToExcelService {
 
             // Para cada cadena del array, copiamos la plantilla fila por fila en una hoja nueva
             for (const item of hojasExpandida) {
-                const { nombre, matriz, cliente, proyecto, laboratorio, muestras, analisis } = item;
+                const { nombre, matriz, cliente, proyecto, laboratorio, muestras = [], analisis = [] } = item;
                 // Definimos un nombre de hoja basado en el nombre de la cadena
                 const sheetName = nombre;
                 // Creamos la hoja nueva en el workbook final

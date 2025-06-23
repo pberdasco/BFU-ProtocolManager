@@ -23,7 +23,6 @@ export default class Muestra {
         this.flna = parseFloat(row.flna);
         this.cadenaOPDS = row.cadenaOPDS;
         this.protocoloOPDS = row.protocoloOPDS;
-        console.log(this);
     }
 
     toJson () {

@@ -40,8 +40,8 @@ const cadenaSchema = z.object({
     cliente: z.string().min(1).max(255),
     proyecto: z.string().min(1).max(255),
     laboratorio: z.string().min(1).max(255),
-    muestras: z.array(muestraSchema).nonempty('Debe haber al menos una muestra'),
-    analisis: z.array(analisisSchema).nonempty('Debe haber al menos un análisis')
+    muestras: z.array(muestraSchema).default([]),
+    analisis: z.array(analisisSchema).default([])
 });
 
 // Esquema para el cuerpo completo
