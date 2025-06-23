@@ -6,8 +6,8 @@ export const muestrasCreateSchema = z.object({
     cadenaCustodiaId: z.number().int().positive(),
     nombre: z.string().max(45, 'El nombre no puede superar los 45 caracteres'),
     tipo: z.number().int()
-        .min(1, 'El tipo puede ser 1: Pozo, 2: Sondeo, 3:Equipo, 4: Blanco')
-        .max(4, 'El tipo puede ser 1: Pozo, 2: Sondeo, 3:Equipo, 4: Blanco'),
+        .min(1, 'El tipo puede ser 1: Pozo, 2: Sondeo, 3:Equipo, 4: Blanco, 5: Otros')
+        .max(5, 'El tipo puede ser 1: Pozo, 2: Sondeo, 3:Equipo, 4: Blanco, 5: Otros'),
     nivelFreatico: numberSchema({ desde: 0, hasta: 99.999 }).optional(),
     nivelFLNA: numberSchema({ desde: 0, hasta: 99.999 }).nullable().optional(),
     flna: numberSchema({ desde: 0, hasta: 99.999 }).nullable().optional(),

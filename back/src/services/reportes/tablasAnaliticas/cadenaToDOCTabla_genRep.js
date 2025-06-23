@@ -10,7 +10,7 @@ import UMService from '../../um_service.js';
 import UMConvertService from '../../umConvert_service.js';
 
 const MAX_MUESTRAS_COLS = 8;
-const MAX_FILAS_LINES = 30;
+const MAX_FILAS_LINES = 25;
 
 const matrices = {
     1: 'Agua',
@@ -38,13 +38,13 @@ export async function generateReport (proyectoNombre, fechaMuestreo, data) {
     Object.entries(matrices).forEach(([matrixId, matrixName]) => {
         const muestrasRaw = data.muestras.filter(m => m.matriz === Number(matrixId));
 
-        const muestrasOriginal = muestrasRaw;
-        // const muestrasOriginal = muestrasRaw.filter(m => {
-        //     return data.filas.some(fila => {
-        //     const val = fila[m.muestra];
-        //     return val !== null && val !== undefined && val !== -3;
-        //     });
-        // });
+        // const muestrasOriginal = muestrasRaw;
+        const muestrasOriginal = muestrasRaw.filter(m => {
+            return data.filas.some(fila => {
+                const val = fila[m.muestra];
+                return val !== null && val !== undefined && val !== -3;
+            });
+        });
         console.log(JSON.stringify(muestrasOriginal, null, 2));
 
         if (muestrasOriginal.length === 0) return;

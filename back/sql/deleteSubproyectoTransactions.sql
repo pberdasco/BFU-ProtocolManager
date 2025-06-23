@@ -1,72 +1,57 @@
--- Reemplazar con el ID del subproyecto que querés limpiar
--- DECLARE @subproyectoId INT = 55;
-use `bfu-project-testdb`;
 SET SQL_SAFE_UPDATES = 0;
-SET @subproyectoId = 55;
+SET @subpCodigo = '201894-085';
 
--- 1. Borrar valores de la cadena completa
-DELETE CCV
-FROM cadenaCompletaValores CCV
-JOIN cadenaCompletaFilas CCF ON CCV.cadenaCompletaFilaId = CCF.id
-JOIN cadenaCustodia CC ON CCF.cadenaCustodiaId = CC.id
-JOIN eventoMuestreo EM ON CC.eventoMuestreoId = EM.id
-WHERE EM.subproyectoId = @subproyectoId;
+USE `bfu-project-testdb`;
 
--- 2. Borrar filas de la cadena completa
-DELETE CCF
-FROM cadenaCompletaFilas CCF
-JOIN cadenaCustodia CC ON CCF.cadenaCustodiaId = CC.id
-JOIN eventoMuestreo EM ON CC.eventoMuestreoId = EM.id
-WHERE EM.subproyectoId = @subproyectoId;
+SELECT id INTO @subproyecto FROM subproyectos WHERE codigo = @subpCodigo;
+SELECT @subproyecto;
 
--- 3. Borrar análisis requeridos
+DELETE CCV FROM CadenaCompletaValores CCV
+LEFT JOIN CadenaCompletaFilas CCF ON ccv.cadenaCompletaFilaId = CCF.id
+LEFT JOIN CadenaCustodia CC ON CCF.CadenaCustodiaId = CC.id
+WHERE CC.subproyectoID = @subproyecto;
+
+DELETE CCF FROM CadenaCompletaFilas CCF
+LEFT JOIN CadenaCustodia CC ON CCF.CadenaCustodiaId = CC.id
+WHERE CC.subproyectoID = @subproyecto;
+
 DELETE AR
 FROM analisisRequeridos AR
 JOIN cadenaCustodia CC ON AR.cadenaCustodiaId = CC.id
-JOIN eventoMuestreo EM ON CC.eventoMuestreoId = EM.id
-WHERE EM.subproyectoId = @subproyectoId;
+WHERE CC.subproyectoId = @subproyecto;
 
--- 4. Borrar resultados protocolo
-DELETE RP 
+DELETE RP
 FROM ResultadosProtocolo RP
-JOIN muestrasProtocolo MP ON MP.Id = RP.muestraProtocoloId 
+JOIN MuestrasProtocolo MP ON RP.muestraProtocoloId = MP.id
 JOIN protocolos P ON MP.protocoloId = P.id
 JOIN eventoMuestreo EM ON P.eventoMuestreoId = EM.id
-WHERE EM.subproyectoId = @subproyectoId;
+WHERE EM.subproyectoId = @subproyecto;
 
--- 5. Borrar muestras protocolo
 DELETE MP
 FROM muestrasProtocolo MP
 JOIN protocolos P ON MP.protocoloId = P.id
 JOIN eventoMuestreo EM ON P.eventoMuestreoId = EM.id
-WHERE EM.subproyectoId = @subproyectoId;
+WHERE EM.subproyectoId = @subproyecto;
 
--- 6. Borrar ítems del protocolo
 DELETE IP
 FROM itemsProtocolo IP
 JOIN protocolos P ON IP.protocoloId = P.id
 JOIN eventoMuestreo EM ON P.eventoMuestreoId = EM.id
-WHERE EM.subproyectoId = @subproyectoId;
+WHERE EM.subproyectoId = @subproyecto;
 
--- 7. Borrar protocolos
 DELETE P
 FROM protocolos P
 JOIN eventoMuestreo EM ON P.eventoMuestreoId = EM.id
-WHERE EM.subproyectoId = @subproyectoId;
+WHERE EM.subproyectoId = @subproyecto;
 
--- 8. Borrar muestras
-DELETE M
-FROM muestras M
-JOIN cadenaCustodia CC ON M.cadenaCustodiaId = CC.id
-JOIN eventoMuestreo EM ON CC.eventoMuestreoId = EM.id
-WHERE EM.subproyectoId = @subproyectoId;
+DELETE M FROM Muestras m
+LEFT JOIN CadenaCustodia CC ON M.CadenaCustodiaId = CC.id
+WHERE CC.subproyectoID = @subproyecto;
 
--- 9. Borrar cadenas de custodia
-DELETE CC
-FROM cadenaCustodia CC
-JOIN eventoMuestreo EM ON CC.eventoMuestreoId = EM.id
-WHERE EM.subproyectoId = @subproyectoId;
+DELETE FROM CadenaCustodia CC
+WHERE CC.subproyectoID = @subproyecto;
 
--- 10. Borrar eventos de muestreo
-DELETE FROM eventoMuestreo
-WHERE subproyectoId = @subproyectoId;
+DELETE FROM EventoMuestreo E
+WHERE E.subproyectoID = @subproyecto;
+
+SET SQL_SAFE_UPDATES = 1;
