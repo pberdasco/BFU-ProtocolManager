@@ -9,11 +9,13 @@ const allowedFields = {
     subproyectoId: 'P.subproyectoId',
     subproyecto: 'S.codigo',
     estado: 'E.nombre',
-    tipo: 'T.nombre'
+    tipo: 'T.nombre',
+    latitud: 'p.latitud',
+    longitud: 'p.longitud'
 };
 
 const table = 'Pozos';
-const selectBase = 'SELECT P.id, P.subproyectoId, S.codigo as subproyecto, P.nombre, P.estadoId, P.tipoId, E.nombre as estado, T.nombre as tipo ';
+const selectBase = 'SELECT P.id, P.subproyectoId, S.codigo as subproyecto, P.nombre, P.estadoId, P.tipoId, E.nombre as estado, T.nombre as tipo ,p.latitud,p.longitud ';
 const selectTables = 'FROM Pozos P ' +
                      'LEFT JOIN Subproyectos S ON P.subProyectoId = S.id ' +
                      'LEFT JOIN PozosTipo T ON P.tipoId = T.id ' +
