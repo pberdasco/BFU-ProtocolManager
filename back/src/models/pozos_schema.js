@@ -6,8 +6,8 @@ export const pozosCreateSchema = z.object({
     nombre: z.string().max(20, 'El código no puede superar los 20 caracteres'),
     estadoId: z.number().int(),
     tipoId: z.number().int(),
-    latitud: numberSchema({ desde: -90.999999, hasta: 90.999999 }),
-    longitud: numberSchema({ desde: -180.999999, hasta: 180.999999 })
+    latitud: numberSchema({ desde: -90.999999, hasta: 90.999999 }).nullable(),
+    longitud: numberSchema({ desde: -180.999999, hasta: 180.999999 }).nullable()
 });
 
 export const pozosUpdateSchema = pozosCreateSchema.partial();

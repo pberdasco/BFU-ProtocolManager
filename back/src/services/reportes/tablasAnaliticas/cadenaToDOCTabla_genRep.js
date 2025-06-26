@@ -45,7 +45,6 @@ export async function generateReport (proyectoNombre, fechaMuestreo, data) {
                 return val !== null && val !== undefined && val !== -3;
             });
         });
-        console.log(JSON.stringify(muestrasOriginal, null, 2));
 
         if (muestrasOriginal.length === 0) return;
 

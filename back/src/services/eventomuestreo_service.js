@@ -109,6 +109,8 @@ export default class EventomuestreoService {
                     MUE.id AS muestraId,
                     MUE.nombre AS muestraNombre, 
                     P.nombre AS pozoNombre, 
+                    P.latitud,
+                    p.longitud,
                     MUE.tipo AS muestraTipo, 
                     MUE.nivelFreatico, 
                     AR.id AS analisisRequeridoId,
@@ -167,7 +169,10 @@ export default class EventomuestreoService {
                         nombre: row.muestraNombre,
                         pozo: row.pozoNombre,
                         tipo: row.muestraTipo,
-                        nivelFreatico: row.nivelFreatico
+                        nivelFreatico: row.nivelFreatico,
+                        latitud: row.latitud,
+                        longitud: row.longitud
+
                     });
                 }
 

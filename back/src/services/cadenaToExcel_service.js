@@ -119,7 +119,6 @@ export default class CadenaToExcelService {
                 }
 
                 const totalHojas = Math.ceil(Math.max(muestras.length, 1) / MAX_MUESTRAS);
-                // console.log(`Generando ${totalHojas} hoja(s) para cadena "${nombre}" con ${muestras.length} muestras y ${analisis.length} análisis`);
 
                 for (let i = 0; i < totalHojas; i++) {
                     const chunkMuestras = muestras.slice(i * MAX_MUESTRAS, (i + 1) * MAX_MUESTRAS);
@@ -194,6 +193,7 @@ export default class CadenaToExcelService {
                 const endRow = 27;
                 const colIndice = 'B';
                 const colMuestra = 'C';
+                const colCoordenadas = 'H';
                 const colAnalisis = 'W';
 
                 // Insertar muestras: asignamos un número en la columna B y la muestra en la columna definida
@@ -201,6 +201,9 @@ export default class CadenaToExcelService {
                 for (let rowNumber = startRow; rowNumber <= endRow && muestraIndex < muestras.length; rowNumber++) {
                     newSheet.getCell(`${colIndice}${rowNumber}`).value = muestraIndex + 1;
                     newSheet.getCell(`${colMuestra}${rowNumber}`).value = muestras[muestraIndex].nombre;
+                    const coordenadas = decimalToDMS(muestras[muestraIndex].latitud, 'lat') + '-' + decimalToDMS(muestras[muestraIndex].longitud, 'lon');
+                    newSheet.getCell(`${colCoordenadas}${rowNumber}`).value = coordenadas;
+
                     muestraIndex++;
                 }
 
@@ -256,4 +259,27 @@ export default class CadenaToExcelService {
 
         return filePath;
     }
+}
+
+/**
+ * Convierte una coordenada decimal a formato DMS.
+ * Ejemplo: -34.745944 -> "34°44'45,40\"S"
+ *
+ * @param {number} decimal - Coordenada en formato decimal.
+ * @param {'lat' | 'lon'} type - Tipo de coordenada (latitud o longitud).
+ * @returns {string} - Coordenada en formato DMS.
+ */
+export function decimalToDMS (decimal, type = 'lat') {
+    if (!decimal) return '';
+
+    const dir = type === 'lat'
+        ? (decimal >= 0 ? 'N' : 'S')
+        : (decimal >= 0 ? 'E' : 'W');
+
+    const abs = Math.abs(decimal);
+    const deg = Math.floor(abs);
+    const min = Math.floor((abs - deg) * 60);
+    const sec = ((abs - deg - min / 60) * 3600).toFixed(2).replace('.', ',');
+
+    return `${deg}°${min}'${sec}"${dir}`;
 }

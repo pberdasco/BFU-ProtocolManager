@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { numberSchema } from './utils/numberSchema.js';
 
 // Esquema para cada muestra
 const muestraSchema = z.object({
@@ -6,7 +7,9 @@ const muestraSchema = z.object({
     nombre: z.string().min(1).max(255),
     pozo: z.string().nullable().optional(),
     tipo: z.number().int().positive().optional(),
-    nivelFreatico: z.string().min(1).max(10).optional() // Se mantiene como string ya que en tu JSON lo es
+    nivelFreatico: z.string().min(1).max(10).optional(), // Se mantiene como string ya que en tu JSON lo es
+    latitud: numberSchema({ desde: -90.999999, hasta: 90.999999 }).nullable(),
+    longitud: numberSchema({ desde: -180.999999, hasta: 180.999999 }).nullable()
 });
 
 // Esquema para cada análisis
