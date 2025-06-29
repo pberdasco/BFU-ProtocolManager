@@ -47,7 +47,7 @@ export default class evolucionCDIService {
      *
      * @throws {Error} - Lanza un error si no se encuentran datos o si ocurre alguna falla durante el proceso.
     */
-    static async createAnexoEvolucionCDI ({ subproyectoId, proyectoNombre, graficosConfig, gruposConfig }) {
+    static async createAnexoEvolucionCDI ({ subproyectoId, proyectoNombre, graficosConfig, gruposConfig, minFechaUsuario, maxFechaUsuario }) {
         const uniquePozos = [...new Set(gruposConfig.flatMap(g => g.pozos))];
         const uniqueCompuestos = [...new Set(graficosConfig.flatMap(g => [...g.eje1, ...g.eje2]))];
 
@@ -62,7 +62,7 @@ export default class evolucionCDIService {
 
         // * Generar graficos en excel
         const workbookPath = path.resolve(excelFile.path, excelFile.file);
-        const result = generateGraphs(indexByPozo, indexByCompuesto, gruposConfig, graficosConfig, workbookPath, imagesPath, subproyectoId);
+        const result = generateGraphs(indexByPozo, indexByCompuesto, gruposConfig, graficosConfig, workbookPath, imagesPath, subproyectoId, minFechaUsuario, maxFechaUsuario);
 
         // * Generar word con el Anexo
         if (result.status !== 'Fail') {

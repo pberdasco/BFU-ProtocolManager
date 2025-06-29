@@ -51,7 +51,7 @@ const { release, Object: ActiveXObject } = require('winax');
  * }} Objeto con el estado global de la operación y un array de entradas detalladas para cada gráfico.
  *
  */
-export function generateGraphs (indexByWell, indexByCompound, grupos, graficosConfig, workbookPath, imagesPath, subproyectoId) {
+export function generateGraphs (indexByWell, indexByCompound, grupos, graficosConfig, workbookPath, imagesPath, subproyectoId, minFechaUsuario = null, maxFechaUsuario = null) {
     let excel;
     let workbook;
     const log = [];
@@ -152,10 +152,10 @@ export function generateGraphs (indexByWell, indexByCompound, grupos, graficosCo
                                     eje1CpIds,
                                     eje2Cols,
                                     eje2CpIds,
-                                    fechaInicio: new Date(wellIndex.fechaInicio),
-                                    fechaFin: new Date(wellIndex.fechaFin),
                                     filaInicio: wellIndex.filaInicio,
                                     filaFin: wellIndex.filaFin,
+                                    minFechaUsuario,
+                                    maxFechaUsuario,
                                     left: pos.left,
                                     top: pos.top,
                                     width: GRAPH_WIDTH,

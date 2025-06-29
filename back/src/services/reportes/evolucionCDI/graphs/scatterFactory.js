@@ -17,10 +17,10 @@ import { addSeries } from './seriesFactory.js';
  * @param {number[]} options.eje1CpIds - IDs de compuesto correspondientes a las columnas de eje1Cols.
  * @param {string[]} options.eje2Cols - Columnas para series en el eje secundario (opcional).
  * @param {number[]} options.eje2CpIds - IDs de compuesto para eje2Cols.
- * @param {Date} options.fechaInicio - Fecha mínima del eje X (serial Excel).
- * @param {Date} options.fechaFin - Fecha máxima del eje X (serial Excel).
  * @param {number} options.filaInicio - Fila inicial del rango de datos.
  * @param {number} options.filaFin - Fila final del rango de datos.
+ * @param {Date | string} options.minFechaUsuario - Fecha mínima del eje X.
+ * @param {Date | string} options.maxFechaUsuario - Fecha máxima del eje X.
  * @param {number} options.left - Coordenada X de inserción del gráfico (px).
  * @param {number} options.top - Coordenada Y de inserción del gráfico (px).
  * @param {number} options.width - Ancho del gráfico (px).
@@ -29,7 +29,7 @@ import { addSeries } from './seriesFactory.js';
  *   - chartObj: objeto COM del ChartObject creado.
  *   - internallyFailedCpIds: lista de cpIds que fallaron al agregar su serie.
  */
-export function addScatterChart ({ sheet, sheetName, release, chartName, eje1Cols, eje1CpIds, eje2Cols, eje2CpIds, fechaInicio, fechaFin, filaInicio, filaFin, left, top, width, height, imagesPath }) {
+export function addScatterChart ({ sheet, sheetName, release, chartName, eje1Cols, eje1CpIds, eje2Cols, eje2CpIds, filaInicio, filaFin, minFechaUsuario = null, maxFechaUsuario = null, left, top, width, height, imagesPath }) {
     const FILA_UM = 3; // Las unidades de medida estan en la fila 3
     const tickCount = 6; // Cantidad de marcas en los ejes Y primario y secundario
 
@@ -101,12 +101,8 @@ export function addScatterChart ({ sheet, sheetName, release, chartName, eje1Col
             categoryAxis.HasTitle = true;
             categoryAxis.AxisTitle.Text = 'Fecha';
             categoryAxis.TickLabels.NumberFormat = 'mm/yyyy';
-            // const fechaIniSerial = excelDateFromJSDate(fechaInicio);
-            // const fechaFinSerial = excelDateFromJSDate(fechaFin);
-            // categoryAxis.MinimumScale = fechaIniSerial;
-            // categoryAxis.MaximumScale = fechaFinSerial;
-            // categoryAxis.MajorUnit = (fechaFinSerial - fechaIniSerial) / 10;
-            const { min, max } = getDateRangeForWell(sheet, eje1Cols, eje2Cols, filaInicio, filaFin);
+
+            const { min, max } = getDateRangeForWell(sheet, eje1Cols, eje2Cols, filaInicio, filaFin, minFechaUsuario = null, maxFechaUsuario = null);
             categoryAxis.MinimumScale = min;
             categoryAxis.MaximumScale = max;
             categoryAxis.MajorUnit = (max - min) / 10;
@@ -200,46 +196,80 @@ function setYAxis (axis, tickCount) {
 }
 
 /**
- * Recorre los valores de las columnas de eje1 y eje2 y devuelve
- * el serial Excel de la primer y última fecha donde hay dato.
+ * Devuelve el número de serie Excel de la primera y última fecha donde hay al menos un dato
+ * en las series del eje primario o secundario, acotado opcionalmente por fechas límite
+ * definidas por el usuario.
+ *
+ * Las fechas devueltas siempre corresponden a valores reales presentes en la columna A.
+ * Nota: al limitar .MinimumScale y .MaximumScale no hace falta acotar filaInicio y filaFin,
+ *       excel solo renderiza en base a los primeros aunque deje parte del rango afuera
+ *
+ * @param {object} sheet - Objeto COM de la hoja de Excel.
+ * @param {string[]} eje1Cols - Columnas con series del eje primario.
+ * @param {string[]} eje2Cols - Columnas con series del eje secundario.
+ * @param {number} filaInicio - Fila inicial del rango.
+ * @param {number} filaFin - Fila final del rango.
+ * @param {string|Date} [minFechaUsuario] - Fecha mínima opcional (ej: '2020-01-01' o Date).
+ * @param {string|Date} [maxFechaUsuario] - Fecha máxima opcional (ej: '2022-12-31' o Date).
+ * @returns {{ min: number, max: number }} Fechas en formato serial Excel para eje X.
  */
-function getDateRangeForWell (sheet, eje1Cols, eje2Cols, filaInicio, filaFin) {
-    // 1) leo una vez la columna de fechas
-    const fechasRaw = sheet
-        .Range(`A${filaInicio}:A${filaFin}`)
-        .Value2
-        .map(r => r[0]); // array de seriales Excel
+function getDateRangeForWell (sheet, eje1Cols, eje2Cols, filaInicio, filaFin, minFechaUsuario = null, maxFechaUsuario = null) {
+    const minUserSerial = toExcelSerial(minFechaUsuario);
+    const maxUserSerial = toExcelSerial(maxFechaUsuario);
 
-    // 2) leo todas las series de eje1 y eje2 en Value2 (matrices [ [v], [v], … ])
-    const leerSeries = cols =>
-        cols.map(col =>
-            sheet.Range(`${col}${filaInicio}:${col}${filaFin}`)
-                .Value2
-                .map(r => r[0])
-        );
+    // Array de numeros de serie Excel correspondientes las fechas
+    const fechasRaw = sheet.Range(`A${filaInicio}:A${filaFin}`).Value2.map(r => r[0]); // el map, para aplanar el array de arrays
+
     const series1 = leerSeries(eje1Cols);
     const series2 = leerSeries(eje2Cols);
 
-    // 3) tomo sólo los índices donde alguna serie tenga valor no nulo
+    // Índices de fechasRaw donde al menos una serie tiene valor no nulo ni vacío
     const validIdx = fechasRaw
         .map((_, i) => i)
-        .filter(i =>
-            series1.some(serie => serie[i] != null && serie[i] !== '') ||
-      series2.some(serie => serie[i] != null && serie[i] !== '')
+        .filter(i => series1.some(serie => serie[i] != null && serie[i] !== '') ||
+                     series2.some(serie => serie[i] != null && serie[i] !== '')
         );
 
+    // Si no hay datos válidos, se usa el rango completo
     if (validIdx.length === 0) {
-    // fallback: uso todo el rango
         return {
             min: fechasRaw[0],
             max: fechasRaw[fechasRaw.length - 1]
         };
     }
 
-    // 4) calculo min/max sobre esos índices
+    // en base a los indices obtener los valores seriales de fechas (min y max asumiendo que estan ordenados)
     const validFechas = validIdx.map(i => fechasRaw[i]);
-    return {
-        min: Math.min(...validFechas),
-        max: Math.max(...validFechas)
-    };
+
+    let min = Math.min(...validFechas);
+    let max = Math.max(...validFechas);
+
+    // Acotar con fechas límite si están definidas, buscando valores reales en fechasRaw
+    if (minUserSerial != null) {
+        const encontrada = fechasRaw.find(f => f >= minUserSerial);
+        if (encontrada !== undefined) min = encontrada;
+    }
+    if (maxUserSerial != null) {
+        const encontrada = [...fechasRaw].reverse().find(f => f <= maxUserSerial);
+        if (encontrada !== undefined) max = encontrada;
+    }
+
+    return { min, max };
+
+    // ---------------------------------------------------------------------------------
+    // devuelve arrays planos con los valores de cada columna
+    function leerSeries (cols) {
+        return cols.map(col =>
+            sheet.Range(`${col}${filaInicio}:${col}${filaFin}`).Value2.map(r => r[0])
+        );
+    }
+
+    // Convierte 'YYYY-MM-DD' o Date a serial Excel (base 1900)
+    function toExcelSerial (fecha) {
+        if (!fecha) return null;
+        const dateObj = typeof fecha === 'string' ? new Date(fecha) : fecha;
+        if (!(dateObj instanceof Date) || isNaN(dateObj)) return null;
+        const epoch = new Date(1899, 11, 30);
+        return (dateObj - epoch) / (24 * 60 * 60 * 1000);
+    }
 }
