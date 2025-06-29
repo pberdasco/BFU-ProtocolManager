@@ -18,7 +18,7 @@ export const sections = [
         order: 2,
         title: 'Variación temporal de nivel freatimétrico y concentraciones de CDI',
         paragraph: 'En los siguientes gráficos se presentan las concentraciones de los CDI y los niveles freatimétricos registrados en las campañas de muestreos ' +
-                    'realizadas entre los meses de enero de {RF}. En dichos gráficos se muestra la variación de los niveles freatimétricos y las concentraciones ' +
+                    'realizadas entre los meses de {RF}. En dichos gráficos se muestra la variación de los niveles freatimétricos y las concentraciones ' +
                     'de {CPS} en función del tiempo. Se realizaron gráficos para cada pozo de monitoreo donde fueron registrados dichos CDI.',
         graphCaption: 'Gráfico {sn}{gl}: Variación del nivel freatímetrico y de las concentraciones de {CP} en el pozo {POZO}.'
     },
@@ -26,7 +26,7 @@ export const sections = [
         order: 3,
         title: 'Variación temporal de otras concentraciones de CDI',
         paragraph: 'En los siguientes gráficos se presentan las concentraciones de otros CDI registrados en las campañas de muestreos ' +
-                    'realizadas entre los meses de enero de {RF}. En dichos gráficos se muestra la variación de las concentraciones ' +
+                    'realizadas entre los meses de {RF}. En dichos gráficos se muestra la variación de las concentraciones ' +
                     'de {CPS} en función del tiempo. Se realizaron gráficos para cada pozo de monitoreo donde fueron registrados dichos CDI.',
         graphCaption: 'Gráfico {sn}{gl}: Variación de otras concentraciones de {CP} en el pozo {POZO}.'
     }

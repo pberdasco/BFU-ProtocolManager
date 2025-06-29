@@ -30,7 +30,9 @@ import { addSeries } from './seriesFactory.js';
  *   - internallyFailedCpIds: lista de cpIds que fallaron al agregar su serie.
  */
 export function addScatterChart ({ sheet, sheetName, release, chartName, eje1Cols, eje1CpIds, eje2Cols, eje2CpIds, fechaInicio, fechaFin, filaInicio, filaFin, left, top, width, height, imagesPath }) {
-    const FILA_UM = 3; // Asumiendo que esta constante está definida o es conocida
+    const FILA_UM = 3; // Las unidades de medida estan en la fila 3
+    const tickCount = 6; // Cantidad de marcas en los ejes Y primario y secundario
+
     let chartObj, chart, categoryAxis, primaryAxis, secondaryAxis;
     let datoUm1, datoUm2; // Para los ranges de UM, usando nombres diferentes para evitar confusión con variables globales si existieran
     let pngPath;
@@ -99,11 +101,15 @@ export function addScatterChart ({ sheet, sheetName, release, chartName, eje1Col
             categoryAxis.HasTitle = true;
             categoryAxis.AxisTitle.Text = 'Fecha';
             categoryAxis.TickLabels.NumberFormat = 'mm/yyyy';
-            const fechaIniSerial = excelDateFromJSDate(fechaInicio);
-            const fechaFinSerial = excelDateFromJSDate(fechaFin);
-            categoryAxis.MinimumScale = fechaIniSerial;
-            categoryAxis.MaximumScale = fechaFinSerial;
-            categoryAxis.MajorUnit = (fechaFinSerial - fechaIniSerial) / 10;
+            // const fechaIniSerial = excelDateFromJSDate(fechaInicio);
+            // const fechaFinSerial = excelDateFromJSDate(fechaFin);
+            // categoryAxis.MinimumScale = fechaIniSerial;
+            // categoryAxis.MaximumScale = fechaFinSerial;
+            // categoryAxis.MajorUnit = (fechaFinSerial - fechaIniSerial) / 10;
+            const { min, max } = getDateRangeForWell(sheet, eje1Cols, eje2Cols, filaInicio, filaFin);
+            categoryAxis.MinimumScale = min;
+            categoryAxis.MaximumScale = max;
+            categoryAxis.MajorUnit = (max - min) / 10;
 
             const normalize = u => (u || '').toString().toLowerCase().replace(/[\s.]/g, '');
             const um1Norm = normalize(um1);
@@ -131,6 +137,12 @@ export function addScatterChart ({ sheet, sheetName, release, chartName, eje1Col
                 } else {
                     secondaryAxis.AxisTitle.Text = `Concentración (${um2})`;
                 }
+            }
+
+            // Hacer que tanto el eje primario como el secundario tengan tickCount marcas
+            setYAxis(primaryAxis, tickCount);
+            if (secondaryAxis) {
+                setYAxis(secondaryAxis, tickCount);
             }
 
             // Grabar la imagen en disco
@@ -166,4 +178,68 @@ function excelDateFromJSDate (date) {
     const msPerDay = 24 * 60 * 60 * 1000;
     const dayDiff = (date - epoch) / msPerDay;
     return dayDiff;
+}
+
+/**
+ * Configura un eje Value para que tenga un número fijo de marcas (tickCount).
+ *
+ * @param {object} axis      Objeto COM del eje (chart.Axes(...))
+ * @param {number} tickCount Cantidad de marcas deseadas (incluye extremos)
+ */
+function setYAxis (axis, tickCount) {
+    const min = axis.MinimumScale;
+    const max = axis.MaximumScale;
+
+    axis.MinimumScaleIsAuto = false;
+    axis.MaximumScaleIsAuto = false;
+    axis.MajorUnitIsAuto = false;
+
+    axis.MinimumScale = min;
+    axis.MaximumScale = max;
+    axis.MajorUnit = (max - min) / (tickCount - 1);
+}
+
+/**
+ * Recorre los valores de las columnas de eje1 y eje2 y devuelve
+ * el serial Excel de la primer y última fecha donde hay dato.
+ */
+function getDateRangeForWell (sheet, eje1Cols, eje2Cols, filaInicio, filaFin) {
+    // 1) leo una vez la columna de fechas
+    const fechasRaw = sheet
+        .Range(`A${filaInicio}:A${filaFin}`)
+        .Value2
+        .map(r => r[0]); // array de seriales Excel
+
+    // 2) leo todas las series de eje1 y eje2 en Value2 (matrices [ [v], [v], … ])
+    const leerSeries = cols =>
+        cols.map(col =>
+            sheet.Range(`${col}${filaInicio}:${col}${filaFin}`)
+                .Value2
+                .map(r => r[0])
+        );
+    const series1 = leerSeries(eje1Cols);
+    const series2 = leerSeries(eje2Cols);
+
+    // 3) tomo sólo los índices donde alguna serie tenga valor no nulo
+    const validIdx = fechasRaw
+        .map((_, i) => i)
+        .filter(i =>
+            series1.some(serie => serie[i] != null && serie[i] !== '') ||
+      series2.some(serie => serie[i] != null && serie[i] !== '')
+        );
+
+    if (validIdx.length === 0) {
+    // fallback: uso todo el rango
+        return {
+            min: fechasRaw[0],
+            max: fechasRaw[fechasRaw.length - 1]
+        };
+    }
+
+    // 4) calculo min/max sobre esos índices
+    const validFechas = validIdx.map(i => fechasRaw[i]);
+    return {
+        min: Math.min(...validFechas),
+        max: Math.max(...validFechas)
+    };
 }

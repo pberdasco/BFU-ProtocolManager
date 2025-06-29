@@ -124,6 +124,52 @@ function writeValues (sheet, records, compounds, dates) {
 }
 
 /**
+ * Rellena con 0 las celdas vacías de la columna FLNA (compuestoId = -2),
+ * pero solo dentro del rango de filas donde hay al menos una medición
+ * de Nivel freático (compuestoId = -1).
+ *
+ * Se asume que la columna de FLNA existe en `compounds`, y que las fechas en `dates`
+ * están ordenadas cronológicamente de forma ascendente.
+ *
+ * @param {object} sheet - Hoja de ExcelJS donde escribir los valores.
+ * @param {Array} compounds - Lista de compuestos únicos del pozo actual.
+ * @param {Date[]} dates - Fechas únicas, ordenadas, correspondientes a las filas de datos.
+ */
+function writeCeroForFlna (sheet, compounds, dates) {
+    const waterIndex = compounds.findIndex(c => c.compuestoId === -1);
+    const flnaIndex = compounds.findIndex(c => c.compuestoId === -2);
+
+    if (flnaIndex === -1 || waterIndex === -1) return;
+
+    const waterCol = columnNumberToName(2 + waterIndex);
+    const flnaCol = columnNumberToName(2 + flnaIndex);
+
+    // Buscar filas donde hay valores de nivel freático
+    let filaDesde = null;
+    let filaHasta = null;
+    for (let i = 0; i < dates.length; i++) {
+        const row = 4 + i;
+        const waterCell = sheet.getCell(`${waterCol}${row}`);
+        if (waterCell.value != null) {
+            if (filaDesde === null) filaDesde = row;
+            filaHasta = row;
+        }
+    }
+
+    // Rellenar FLNA con 0 sólo entre esas filas
+    if (filaDesde !== null && filaHasta !== null) {
+        for (let i = 0; i < dates.length; i++) {
+            const row = 4 + i;
+            if (row < filaDesde || row > filaHasta) continue;
+            const cell = sheet.getCell(`${flnaCol}${row}`);
+            if (cell.value == null) {
+                cell.value = 0;
+            }
+        }
+    }
+}
+
+/**
  * Build the workbook given measurements and configuration
  */
 async function buildWorkbook (measurements, grupoConfig) {
@@ -163,20 +209,7 @@ async function buildWorkbook (measurements, grupoConfig) {
         writeCompoundHeaders(sheet, compounds);
         writeDates(sheet, dates);
         writeValues(sheet, records, compounds, dates);
-
-        // --- Llenar con 0 las celdas vacías de FLNA (compuestoId = -2) ---
-        const flnaIndex = compounds.findIndex(c => c.compuestoId === -2);
-        if (flnaIndex !== -1) {
-            // La primer columna de datos es la B (col 2), y sube +idx
-            const flnaCol = columnNumberToName(2 + flnaIndex);
-            for (let i = 0; i < dates.length; i++) {
-                const row = 4 + i;
-                const cell = sheet.getCell(`${flnaCol}${row}`);
-                if (cell.value == null) {
-                    cell.value = 0;
-                }
-            }
-        }
+        writeCeroForFlna(sheet, compounds, dates);
 
         // Estilos de la tabla
         sheet.columns.forEach(column => {
