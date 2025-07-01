@@ -5,8 +5,8 @@ import UMConvertService from '../../umConvert_service.js';
 import UMService from '../../um_service.js';
 
 export default class MannKendallService {
-    static async fullProcess (subproyectoId, fechaEvaluacion) {
-        const data = await MannKendallService.getDataForSubproyecto(subproyectoId, fechaEvaluacion);
+    static async fullProcess (subproyectoId, fechaEvaluacion, fechaDesde, fechaHasta) {
+        const data = await MannKendallService.getDataForSubproyecto(subproyectoId, fechaEvaluacion, fechaDesde, fechaHasta);
         const filesCreated = [];
         data.compuestos.forEach(async compuesto => {
             compuesto.proyecto = data.proyecto;
@@ -19,7 +19,7 @@ export default class MannKendallService {
         return filesCreated;
     }
 
-    static async getDataForSubproyecto (subproyectoId, fechaEvaluacion) {
+    static async getDataForSubproyecto (subproyectoId, fechaEvaluacion, fechaDesde, fechaHasta) {
         try {
             // Datos del subproyecto (para nombre del proyecto y facility)
             const [[subproyecto]] = await pool.query(`
@@ -62,11 +62,14 @@ export default class MannKendallService {
                 JOIN Muestras m ON m.cadenaCustodiaId = ccust.id AND m.tipo = 1
                 JOIN CadenaCompletaFilas cc ON cc.cadenaCustodiaId = ccust.id
                 JOIN CadenaCompletaValores cv ON cv.cadenaCompletaFilaId = cc.id AND cv.muestraId = m.id
-                WHERE em.soloMuestras = false AND em.subproyectoId = ?
+                WHERE em.soloMuestras = false AND em.subproyectoId = ? 
+                AND em.fecha BETWEEN ? AND ?
                 AND cc.compuestoId IN (?) 
                 AND m.pozoId IN (?)`, [
                 subproyectoId,
                 subproyectoId,
+                fechaDesde,
+                fechaHasta,
                 mkCompuestos.map(c => c.compuestoId),
                 mkPozos.map(p => p.pozoId)
             ]);
@@ -164,6 +167,8 @@ export default class MannKendallService {
                 proyecto: subproyecto.proyecto,
                 facility: subproyecto.facility,
                 fechaEvaluacion,
+                fechaDesde,
+                fechaHasta,
                 compuestos: resultado
             };
         } catch (err) {

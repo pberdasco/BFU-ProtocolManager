@@ -1,10 +1,18 @@
 ### GET toma los datos para mandar a armar mannkendall - solo para pruebas porque el get std hace las 2 cosas
-GET http://localhost:5001/mannKendall/data/55
+GET http://localhost:5001/mannKendall/data/151
+
+### GET toma los datos para mandar a armar mannkendall -
+### solo para pruebas porque el get std hace las 2 cosas
+### se agregó fechadDesde y fechaHasta para limitar los datos a tomar
+
+
+GET http://localhost:5001/mannkendall/data/151?fecha=2000-04-20&fechaDesde=2024-01-01&fechaHasta=2025-01-01
+
 
 
 ### GET crea mannnKendall //TODO: cambiar a post
 ### ? 
-GET http://localhost:5001/mannKendall/29?fecha=2025-04-12
+GET http://localhost:5001/mannKendall/151?fecha=2025-06-27&fechaDesde=2023-01-01&fechaHasta=2025-06-01
 
 ### GET crea mannnKendall //TODO: cambiar a post
 ### ? sin fecha = today

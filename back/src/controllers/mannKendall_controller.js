@@ -9,12 +9,12 @@ export default class MannKendallController {
     static async getData (req, res, next) {
         try {
             const { subproyectoId } = req.params;
-            let { fecha } = req.query; // fechaEvaluacion
+            let { fecha, fechaDesde, fechaHasta } = req.query; // fechaEvaluacion y rango de fechas
             if (!fecha) {
                 const hoy = new Date();
                 fecha = hoy.toISOString().split('T')[0]; // → '2025-04-16'
             }
-            const data = await MannKendallService.getDataForSubproyecto(Number(subproyectoId), fecha);
+            const data = await MannKendallService.getDataForSubproyecto(Number(subproyectoId), fecha, fechaDesde, fechaHasta);
             res.json(data);
         } catch (error) {
             showError(req, res, error);
@@ -24,12 +24,12 @@ export default class MannKendallController {
     static async generate (req, res, next) {
         try {
             const { subproyectoId } = req.params;
-            let { fecha } = req.query; // fechaEvaluacion
+            let { fecha, fechaDesde, fechaHasta } = req.query; // fechaEvaluacion y rango de fechas
             if (!fecha) {
                 const hoy = new Date();
                 fecha = hoy.toISOString().split('T')[0]; // → '2025-04-16'
             }
-            const data = await MannKendallService.fullProcess(Number(subproyectoId), fecha);
+            const data = await MannKendallService.fullProcess(Number(subproyectoId), fecha, fechaDesde, fechaHasta);
             res.json(data);
         } catch (error) {
             showError(req, res, error);
