@@ -262,21 +262,18 @@ export function createCompoundRow (fila, data, LQs, UMs, muestrasBloque, matrixI
     const nivelGuia = data.nivelesGuia.find(n =>
         n.compuestoId === fila.compuestoId && n.matrizId === Number(matrixId)
     );
+    // Convertir el nivel guía al um de la fila si no es -1/-2/-3
+    let valorReferencia = getValorReferencia(nivelGuia?.valorReferencia, matrixId);
 
-    // Convertir al um de la fila
-    let valorReferencia = getValorReferencia(nivelGuia?.valorReferencia);
-    if (nivelGuia && nivelGuia.umId && umFila.umId !== nivelGuia.umId) {
-        valorReferencia = convertirValor(nivelGuia.valorReferencia, nivelGuia.umId, umFila.umId, umConvert, conversionesFallidas);
+    const excluidos = ['NL', '<LC', '<LD', 'SOL', 'SAT'];
+    if (!excluidos.includes(valorReferencia) && !isNaN(Number(valorReferencia))) {
+        if (nivelGuia?.umId && umFila?.umId && nivelGuia.umId !== umFila.umId) {
+            valorReferencia = convertirValor(nivelGuia.valorReferencia, nivelGuia.umId, umFila.umId, umConvert, conversionesFallidas);
+        }
     }
-
-    // Formatear el valor de referencia
-    if (valorReferencia !== 'NL' && !isNaN(Number(valorReferencia))) {
-        valorReferencia = toArgNumber(valorReferencia);
-    }
-
     return new TableRow({
         children: [
-            new TableCell({ children: [new Paragraph({ text: compoundName, alignment: AlignmentType.LEFT })] }),
+            new TableCell({ children: [new Paragraph({ text: compoundName, alignment: AlignmentType.CENTER })] }),
             new TableCell({ children: [new Paragraph({ text: lcFormateado, alignment: AlignmentType.CENTER })] }),
             new TableCell({ children: [new Paragraph({ text: umFormateado, alignment: AlignmentType.CENTER })] }),
             ...muestrasBloque.map(s => {
@@ -307,10 +304,16 @@ export function createCompoundRow (fila, data, LQs, UMs, muestrasBloque, matrixI
     });
 }
 
-function getValorReferencia (valor) {
-    if (valor === '-1') return '<LC';
-    if (valor === '-2') return 'SAT';
-    return valor || 'NL';
+function getValorReferencia (valor, matrixId) {
+    const valorNum = parseFloat(valor);
+
+    if (valorNum === -1) return '<LC';
+    if (valorNum === -2) return (matrixId === '1') ? 'SOL' : 'SAT';
+    if (valorNum === -3) return '<LD';
+
+    if (!isNaN(valorNum)) return valorNum;
+
+    return 'NL';
 }
 
 function getMatrixLetter (matrixId) {

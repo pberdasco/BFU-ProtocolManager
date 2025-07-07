@@ -8,13 +8,15 @@ const allowedFields = {
     textoProcesado: 's.textoProcesado',
     compuestoId: 's.compuestoId',
     compuesto: 'c.nombre',
-    matrizId: 's.matrizId'
+    matrizId: 's.matrizId',
+    matriz: 'm.nombre'
 };
 
 const table = 'SinonimosCompuestos';
-const selectBase = 'SELECT s.id, s.textoLab, s.textoProcesado, s.compuestoId, c.nombre as compuesto, s.matrizId';
+const selectBase = 'SELECT s.id, s.textoLab, s.textoProcesado, s.compuestoId, c.nombre as compuesto, s.matrizId, m.nombre as matriz ';
 const selectTables = 'FROM  SinonimosCompuestos s ' +
-                     'LEFT JOIN Compuestos c ON s.compuestoId = c.id ';
+                     'LEFT JOIN Compuestos c ON s.compuestoId = c.id ' +
+                     'LEFT JOIN Matriz m ON s.matrizId = m.codigo ';
 const mainTable = 's';
 const noExiste = 'El SinonimoCompuesto no existe';
 const yaExiste = 'El SinonimoCompuesto ya existe';
