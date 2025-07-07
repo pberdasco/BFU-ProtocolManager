@@ -12,9 +12,9 @@ export const formDataSchema = z.object({
 });
 
 export const compuestoSchema = z.object({
-    compuestoLab: z.string().min(1).max(45).nullable(),
+    compuestoLab: z.string().min(1).max(60).nullable(),
     compuestoId: z.number().int().positive().nullable(),
-    metodoLab: z.string().min(1).max(45).nullable(),
+    metodoLab: z.string().min(1).max(60).nullable(),
     metodoId: z.number().int().positive().nullable(),
     unidadLab: z.string().min(1).max(10).nullable(),
     unidadId: z.number().int().positive().nullable()
