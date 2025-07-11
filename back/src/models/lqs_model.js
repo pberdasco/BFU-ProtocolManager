@@ -6,6 +6,7 @@ export default class Lq {
     umId;
     valorLQ; // decimal (8,5)
     matrizId;
+    matriz; // string
 
     constructor (row) {
         this.id = row.id;
@@ -15,6 +16,7 @@ export default class Lq {
         this.umId = row.umId;
         this.valorLQ = row.valorLQ;
         this.matrizId = row.matrizId;
+        this.matriz = row.matriz;
     }
 
     toJson () {
@@ -25,7 +27,8 @@ export default class Lq {
             metodoId: this.metodoId,
             umId: this.umId,
             valorLQ: this.valorLQ,
-            matrizId: this.matrizId
+            matrizId: this.matrizId,
+            matriz: this.matriz
         };
     }
 }

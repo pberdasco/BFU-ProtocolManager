@@ -12,16 +12,18 @@ const allowedFields = {
     UMId: 'l.UMId',
     UM: 'u.nombre',
     valorLQ: 'l.valorLQ',
-    matrizId: 'l.matrizId'
+    matrizId: 'l.matrizId',
+    matriz: 'mt.nombre'
 };
 
 const table = 'Lqs';
-const selectBase = 'SELECT l.id, l.laboratorioId, b.nombre as laboratorio, l.compuestoId, c.nombre as compuesto, l.metodoId, m.nombre as metodo, l.UMId, u.nombre as UM, l.valorLQ, l.matrizId ';
+const selectBase = 'SELECT l.id, l.laboratorioId, b.nombre as laboratorio, l.compuestoId, c.nombre as compuesto, l.metodoId, m.nombre as metodo, l.UMId, u.nombre as UM, l.valorLQ, l.matrizId ,mt.nombre as matriz';
 const selectTables = 'FROM Lqs l ' +
                      'LEFT JOIN Laboratorios B ON L.LaboratorioId = B.id ' +
                      'LEFT JOIN Compuestos C ON L.compuestoId = C.id ' +
                      'LEFT JOIN Metodos M ON M.Id = L.metodoId ' +
-                     'LEFT JOIN UM U ON U.Id = L.UMId';
+                     'LEFT JOIN UM U ON U.Id = L.UMId ' +
+                     'LEFT JOIN Matriz mt ON mt.codigo = l.matrizId';
 const mainTable = 'L';
 const noExiste = 'El LQ no existe';
 const yaExiste = 'El LQ ya existe';
