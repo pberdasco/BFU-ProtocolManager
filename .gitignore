@@ -2,6 +2,3 @@ back/node_modules
 back/.env
 back/logs/
 ./.gitignore
-public
-output.xlsx
-output-Copy.xlsx
