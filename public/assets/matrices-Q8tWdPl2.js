@@ -1,0 +1,1 @@
+import{u as a}from"./useQuery-CW2cZTZx.js";import{a as o}from"./apiResource-5P-thon0.js";const c=async()=>(await new o("matriz").fetch()).data,u=()=>{const{data:r=[],isLoading:e,error:s,...t}=a({queryKey:["matrices"],queryFn:c});return{matrices:r,isLoadingMatrices:e,errorMatrices:s,...t}};export{u};
