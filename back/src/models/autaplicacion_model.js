@@ -15,7 +15,7 @@ export default class autaplicacion {
         this.sitioWeb2 = row.sitioWeb2;
         this.provinciaId = row.provinciaId;
         this.provincia = row.provincia;
-        this.matrizId = row.matriz;
+        this.matrizId = row.matrizId;
         this.matriz = row.matriz;
     }
 
