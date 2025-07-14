@@ -1,0 +1,1 @@
+import{u as a}from"./useQuery-DBqjJV59.js";import{a as n}from"./apiResource-5P-thon0.js";const c=async o=>(await new n("pozos").fetch({filter:["subproyectoId","=",o],sort:[{selector:"nombre",desc:!1}]})).data,p=o=>{const{data:e=[],isLoading:s,error:r,...t}=a({queryKey:["pozos",o],queryFn:()=>c(o),enabled:!!o});return{pozos:e,isLoadingPozos:s,errorPozos:r,...t}};export{p as u};
