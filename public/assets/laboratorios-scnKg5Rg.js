@@ -1,0 +1,1 @@
+import{u as a}from"./useQuery-B74RDuhm.js";import{a as t}from"./apiResource-X6nNJMGp.js";const i=async()=>(await new t("laboratorios").fetch({sort:[{selector:"nombre",desc:!1}]})).data,u=()=>{const{data:o=[],isLoading:r,error:s,...e}=a({queryKey:["laboratorios"],queryFn:i});return{laboratorios:o,isLoadingLaboratorios:r,errorLaboratorios:s,...e}};export{u};
