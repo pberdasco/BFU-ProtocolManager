@@ -3,7 +3,7 @@
 
 ### GET 
 ### ? Todas lss autoridades de aplicacion
-GET http://localhost:5001/autaplicacion/
+GET http://localhost:5111/autaplicacion/
 
 ### ? Autoridades de aplicación por el nombre
 # Este request filtra compuesto con nombre = 'Nacion'
