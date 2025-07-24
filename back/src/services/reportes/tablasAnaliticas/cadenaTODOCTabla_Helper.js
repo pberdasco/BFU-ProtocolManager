@@ -87,7 +87,18 @@ export function createSubTitleParagraph (matrixName) {
 
 function greyCell (text, opts = {}) {
     return new TableCell({
-        children: [new Paragraph({ text, alignment: AlignmentType.CENTER })],
+        children: [
+            new Paragraph({
+                children: [
+                    new TextRun({
+                        text,
+                        font: 'Arial',
+                        size: 20 // 10 pt
+                    })
+                ],
+                alignment: AlignmentType.CENTER
+            })
+        ],
         shading: { fill: HEADER_COLOR, type: ShadingType.CLEAR, color: 'auto' },
         verticalAlign: VerticalAlign.CENTER,
         ...opts
@@ -123,9 +134,9 @@ export function createFechaMuestreoRow (fechaMuestreo, muestrasBloque) {
                 children: [
                     new Paragraph({
                         children: [
-                            new TextRun({ text: 'Nivel' }),
+                            new TextRun({ text: 'Nivel', font: 'Arial', size: 20 }),
                             new TextRun({ break: 1 }),
-                            new TextRun({ text: 'Guía' })
+                            new TextRun({ text: 'Guía', font: 'Arial', size: 20 })
                         ],
                         alignment: AlignmentType.CENTER
                     })
@@ -268,14 +279,14 @@ export function createCompoundRow (fila, data, LQs, UMs, muestrasBloque, matrixI
     const excluidos = ['NL', '<LC', '<LD', 'SOL', 'SAT'];
     if (!excluidos.includes(valorReferencia) && !isNaN(Number(valorReferencia))) {
         if (nivelGuia?.umId && umFila?.umId && nivelGuia.umId !== umFila.umId) {
-            valorReferencia = convertirValor(nivelGuia.valorReferencia, nivelGuia.umId, umFila.umId, umConvert, conversionesFallidas);
+            valorReferencia = toArgNumber(convertirValor(nivelGuia.valorReferencia, nivelGuia.umId, umFila.umId, umConvert, conversionesFallidas));
         }
     }
     return new TableRow({
         children: [
-            new TableCell({ children: [new Paragraph({ text: compoundName, alignment: AlignmentType.CENTER })] }),
-            new TableCell({ children: [new Paragraph({ text: lcFormateado, alignment: AlignmentType.CENTER })] }),
-            new TableCell({ children: [new Paragraph({ text: umFormateado, alignment: AlignmentType.CENTER })] }),
+            new TableCell({ children: [parArial10(compoundName)] }),
+            new TableCell({ children: [parArial10(lcFormateado)] }),
+            new TableCell({ children: [parArial10(umFormateado)] }),
             ...muestrasBloque.map(s => {
                 // Obtener el valor de la medición
                 let val = fila[s.muestra];
@@ -293,14 +304,17 @@ export function createCompoundRow (fila, data, LQs, UMs, muestrasBloque, matrixI
                 else if (val == null) val = 'NA';
                 else if (!isNaN(Number(val))) val = toArgNumber(val);
 
-                return new TableCell({
-                    children: [new Paragraph({ text: String(val), alignment: AlignmentType.CENTER })]
-                });
+                return new TableCell({ children: [parArial10(String(val))] });
             }),
-            new TableCell({
-                children: [new Paragraph({ text: String(valorReferencia), alignment: AlignmentType.CENTER })]
-            })
+            new TableCell({ children: [parArial10(String(valorReferencia))] })
         ]
+    });
+}
+
+function parArial10 (text) {
+    return new Paragraph({
+        children: [new TextRun({ text: String(text), font: 'Arial', size: 20 })],
+        alignment: AlignmentType.CENTER
     });
 }
 
