@@ -158,7 +158,7 @@ function processCondition (field, operator, value) {
         v.push(value);
         break;
     case '!=':
-        w = `${field} != ?`;
+        w = `${field} <> ?`;
         v.push(value);
         break;
     case '>':
