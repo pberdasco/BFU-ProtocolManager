@@ -6,7 +6,7 @@ export default class Regulado {
     compuestoId; // int (FK)
     compuesto; // string(45)
     norma; // string(45)
-    valorReferencia; // decimal(8,3)
+    valorReferencia; // decimal(12,5)
     matrizId;
     umId; // int (FK)
     um; // string(10)

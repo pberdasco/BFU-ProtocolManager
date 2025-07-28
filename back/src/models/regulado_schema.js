@@ -8,7 +8,7 @@ export const reguladoCreateSchema = z.object({
     compuestoId: z.number().int().min(1, 'El ID del compuesto debe ser válido'),
     norma: z.string().max(45, 'La norma no puede superar los 45 caracteres'),
     umId: z.number().int().positive(),
-    valorReferencia: numberSchema({ desde: -3, hasta: 999.99999 }) // -3= <=ND, -2= SAT/SOL  -1= <LQ
+    valorReferencia: numberSchema({ desde: -3, hasta: 9999999.99999 }) // -3= <=ND, -2= SAT/SOL  -1= <LQ
 });
 
 export const reguladoUpdateSchema = reguladoCreateSchema.partial();

@@ -4,9 +4,10 @@ export const formDataSchema = z.object({
     evento: z.number().int().positive(),
     laboratorio: z.number().int().positive(),
     matrizId: z.number().int().positive(),
+    indicePagina: z.number().int().positive(),
     adelanto: z.array(
         z.object({
-            name: z.string().min(5).max(45, 'El archivo debe tener menos de 45 caracteres incluyendo el .xlsx').regex(/\.xlsx$/i, 'Debe ser un archivo Excel tipo .xlsx')
+            name: z.string().min(5).max(65, 'El archivo debe tener menos de 45 caracteres incluyendo el .xlsx').regex(/\.xlsx$/i, 'Debe ser un archivo Excel tipo .xlsx')
         })
     ).nonempty('Debe subir al menos un archivo')
 });

@@ -36,7 +36,7 @@ export default class ProtocolosService {
             const [rows] = await pool.query(sql, values);
 
             return {
-                data: rows, // Si algo no coincidiera entre la base y el objeto seria necesario llamar a un Laboratosio.toJsonArray()
+                data: rows,
                 totalCount
             };
         } catch (error) {
@@ -58,7 +58,7 @@ export default class ProtocolosService {
             conn.release();
             return {
                 protocoloId,
-                nombre: formData.adelanto?.[0]?.name.replace(/\.(xlsx|xls)$/, ''),
+                nombre: formData.adelanto?.[0]?.name.replace(/\.(xlsx|xls)$/, '') + '-' + formData.indicePagina,
                 evento: formData.evento,
                 laboratorio: formData.laboratorio,
                 matrizId: formData.matrizId,
@@ -147,7 +147,7 @@ export default class ProtocolosService {
                     laboratorio: protocolo.laboratorio,
                     matrizId: protocolo.matrizId,
                     fecha: protocolo.fecha,
-                    adelanto: [{ name: protocolo.nombre + '.xlsx' }]
+                    adelanto: [{ name: protocolo.nombre }] // + '.xlsx'
                 },
                 adelantoData: {
                     data,
@@ -166,7 +166,7 @@ async function insertProtocolo (conn, formData) {
                             VALUES (?, NOW(), ?, ?, ?)
                         `;
     const [protocoloResult] = await conn.query(protocoloSql, [
-        formData.adelanto?.[0]?.name.replace(/\.(xlsx|xls)$/, ''),
+        formData.adelanto?.[0]?.name.replace(/\.(xlsx|xls)$/, '') + '-' + formData.indicePagina,
         formData.evento,
         formData.laboratorio,
         formData.matrizId
