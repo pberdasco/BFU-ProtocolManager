@@ -1,1 +1,0 @@
-import{u as t}from"./useQuery-u5ONSuT_.js";import{a as c}from"./apiResource-5P-thon0.js";const u=async()=>(await new c("subproyectos").fetch({sort:[{selector:"codigo",desc:!1}]})).data,p=()=>{const{data:o=[],isLoading:e,error:r,...s}=t({queryKey:["subproyectos"],queryFn:u});return{subproyectos:o,isLoadingSubproyectos:e,errorSubproyecto:r,...s}};export{p as u};

@@ -1,1 +1,0 @@
-import{u as t}from"./useQuery-Cu8cFUK3.js";import{a}from"./apiResource-CLOj6waL.js";const n=async()=>(await new a("metodos").fetch({sort:[{selector:"nombre",desc:!1}]})).data,u=()=>{const{data:e=[],isLoading:o,error:s,...r}=t({queryKey:["metodos"],queryFn:n});return{metodos:e,isLoadingMetodos:o,errorMetodos:s,...r}};export{u};

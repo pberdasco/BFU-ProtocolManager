@@ -1,1 +1,0 @@
-function r(e){return e.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[.,/#!$%^&*;:{}=\-_`~()[\]+–]/g,"").replace(/\s+/g,"").toLowerCase()}function a(e){return e.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[.,/#!$^&*;:{}=_`~()[\]+]/g,"").replace(/\s+/g,"").replace(/[-–]+/g,"-").toLowerCase()}export{r as a,a as n};

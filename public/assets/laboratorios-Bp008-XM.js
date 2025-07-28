@@ -1,1 +1,0 @@
-import{u as a}from"./useQuery-DA5bnrbd.js";import{a as t}from"./apiResource-5P-thon0.js";const i=async()=>(await new t("laboratorios").fetch({sort:[{selector:"nombre",desc:!1}]})).data,u=()=>{const{data:o=[],isLoading:r,error:s,...e}=a({queryKey:["laboratorios"],queryFn:i});return{laboratorios:o,isLoadingLaboratorios:r,errorLaboratorios:s,...e}};export{u};

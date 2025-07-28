@@ -1,1 +1,0 @@
-import{aq as a,cY as t,a3 as o,aJ as s}from"./index-Dyddoe5k.js";const n=t.locale.bind(t),e=o.load.bind(o);o.format.bind(o);const l=s.format.bind(s);s.parse.bind(s);const r=a.format.bind(a);a.parse.bind(a);export{l as a,n as b,r as f,e as l};

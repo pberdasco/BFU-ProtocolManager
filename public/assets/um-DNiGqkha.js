@@ -1,1 +1,0 @@
-import{u as t}from"./useQuery-DBqjJV59.js";import{a}from"./apiResource-5P-thon0.js";const n=async()=>(await new a("um").fetch({sort:[{selector:"nombre",desc:!1}]})).data,i=()=>{const{data:e=[],isLoading:r,error:s,...o}=t({queryKey:["um"],queryFn:n});return{UM:e,isLoadingUM:r,errorUM:s,...o}};export{i as u};

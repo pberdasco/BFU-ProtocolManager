@@ -1,1 +1,0 @@
-import{u as t}from"./useQuery-DBqjJV59.js";import{a as u}from"./apiResource-5P-thon0.js";const c=async()=>(await new u("compuestos").fetch({sort:[{selector:"codigo",desc:!1}]})).data,p=()=>{const{data:s=[],isLoading:o,error:e,...r}=t({queryKey:["compuestos"],queryFn:c});return{compuestos:s,isLoadingCompuestos:o,errorCompuestos:e,...r}};export{p as u};
