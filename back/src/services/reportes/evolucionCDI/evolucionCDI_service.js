@@ -21,6 +21,8 @@ export default class evolucionCDIService {
      * @param {string} options.proyectoNombre - Nombre del proyecto (usado para nombrar archivos).
      * @param {Array<Object>} options.graficosConfig - Configuración de los gráficos (ejes y agrupaciones de compuestos).
      * @param {Array<Object>} options.gruposConfig - Configuración de los grupos de pozos (nombre del grupo, pozos incluidos).
+     * @param {string} options.minFechaUsuario - Graficar desde fecha aaaa-mm-dd.
+     * @param {string} options.maxFechaUsuario - Graficar hasta fecha aaaa-mm-dd.
      *
      * @returns {Promise<{
      *   status: 'Ok' | 'Warn' | 'Fail',

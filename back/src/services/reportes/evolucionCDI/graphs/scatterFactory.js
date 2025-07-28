@@ -102,7 +102,7 @@ export function addScatterChart ({ sheet, sheetName, release, chartName, eje1Col
             categoryAxis.AxisTitle.Text = 'Fecha';
             categoryAxis.TickLabels.NumberFormat = 'mm/yyyy';
 
-            const { min, max } = getDateRangeForWell(sheet, eje1Cols, eje2Cols, filaInicio, filaFin, minFechaUsuario = null, maxFechaUsuario = null);
+            const { min, max } = getDateRangeForWell(sheet, eje1Cols, eje2Cols, filaInicio, filaFin, minFechaUsuario, maxFechaUsuario);
             categoryAxis.MinimumScale = min;
             categoryAxis.MaximumScale = max;
             categoryAxis.MajorUnit = (max - min) / 10;

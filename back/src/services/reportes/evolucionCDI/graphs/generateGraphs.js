@@ -22,6 +22,8 @@ const { release, Object: ActiveXObject } = require('winax');
  * @param {string} workbookPath  Ruta al archivo .xlsx de trabajo
  * @param {string} imagesPath    Carpeta donde se guardarán los PNG
  * @param {number} subproyectoId ID del subproyecto (solo para nombrar el chart)
+ * @param {string || null} minFechaUsuario - Graficar desde fecha aaaa-mm-dd.
+ * @param {string || null} maxFechaUsuario - Graficar hasta fecha aaaa-mm-dd.
  * @returns {{
  *   status: 'Ok'|'Warn'|'Fail' | 'NoData', : Estado general tras procesar todos los gráficos
  *               - 'Ok': todos los gráficos se generaron correctamente (o fueron NoData, sin advertencias).

@@ -1,11 +1,15 @@
 import { z } from 'zod';
 
-const isoDateString = z.string().refine(
-    (val) => /^\d{4}-\d{2}-\d{2}$/.test(val) && !isNaN(new Date(val).getTime()),
-    {
-        message: "Debe tener formato 'aaaa-mm-dd' y ser una fecha válida"
-    }
-);
+const fechaUsuarioSchema = z
+    .string()
+    .refine(
+        (val) =>
+            /^\d{4}-\d{2}-\d{2}$/.test(val) || // 'aaaa-mm-dd'
+      !isNaN(Date.parse(val)), // permite también ISO u otras formas válidas
+        {
+            message: "Debe ser una fecha válida en formato 'aaaa-mm-dd' o ISO 8601"
+        }
+    );
 
 const grupoSchema = z.object({
     id: z.number().int().positive(),
@@ -29,6 +33,6 @@ export const configSchema = z.object({
     proyectoNombre: z.string().min(1),
     gruposConfig: z.array(grupoSchema),
     graficosConfig: z.array(graficoSchema),
-    minFechaUsuario: isoDateString.nullable(),
-    maxFechaUsuario: isoDateString.nullable()
+    minFechaUsuario: fechaUsuarioSchema.nullable(),
+    maxFechaUsuario: fechaUsuarioSchema.nullable()
 });

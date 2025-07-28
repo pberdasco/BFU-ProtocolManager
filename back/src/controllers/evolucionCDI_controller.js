@@ -58,7 +58,6 @@ export default class EvolucionCDIController {
                 throw error;
             }
         }
-        // console.log('validation: ', config);
 
         return [errores, config];
     }
