@@ -30,7 +30,7 @@ Content-Type: application/json
 
 ### Create
 ### ? Crear un Analisis Requerido 
-POST http://localhost:5001/analisisrequeridos/
+POST http:/{{host}}:{{port}}/api/analisisrequeridos/
 Content-Type: application/json
 
 {
@@ -43,8 +43,8 @@ Content-Type: application/json
 
 ### Delete
 ### ? Borrar un analisis que no existe
-DELETE http://localhost:5001/analisisrequeridos/35
+DELETE http://{{host}}:{{port}}/api/analisisrequeridos/35
 
 ### Delete
 ### ? Borrar un analisis que sí existe
-DELETE http://localhost:5001/relCompuestoGrupo/4
+DELETE http://{{host}}:{{port}}/api/relCompuestoGrupo/4

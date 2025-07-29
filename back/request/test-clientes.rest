@@ -1,22 +1,24 @@
+@host = localhost
+@port = 5111
 ### autaplicacion/ 
 #* allowedFields = ["id", "nombre"];
 
 ### GET 
 ### ? Todas los Clientes
-GET http://localhost:5001/clientes/
+GET http://{{host}}:{{port}}/api/clientes/
 
 ### ? Clientes por el nombre
 # Este request filtra cliente con nombre = 'YPF'
 # Formato interno: ["nombre","=","YPF"]
-GET http://localhost:5001/clientes?$filter=[%22nombre%22%2C%22%3D%22%2C%22YPF%22]
+GET http://{{host}}:{{port}}/api/clientes?$filter=[%22nombre%22%2C%22%3D%22%2C%22YPF%22]
 
 
 ### ? Get por ID
-GET http://localhost:5001/clientes/3
+GET http://{{host}}:{{port}}/api/clientes/3
 
 ### Updates
 ### ? Actualizar un cliene
-PUT http://localhost:5001/clientes/2
+PUT http://{{host}}:{{port}}/api/clientes/2
 Content-Type: application/json
 
 {
@@ -26,7 +28,7 @@ Content-Type: application/json
 
 ### Create
 ### ? Crear un cliente 
-POST http://localhost:5001/clientes/
+POST http://{{host}}:{{port}}/api/clientes/
 Content-Type: application/json
 
 {
@@ -37,8 +39,8 @@ Content-Type: application/json
 
 ### Delete
 ### ? Borrar un cliente que no existe
-DELETE http://localhost:5001/clientes/77
+DELETE http://{{host}}:{{port}}/api/clientes/77
 
 ### Delete
 ### ? Borrar un cliente que sí existe
-DELETE http://localhost:5001/clientes/3
+DELETE http://{{host}}:{{port}}/api/clientes/3

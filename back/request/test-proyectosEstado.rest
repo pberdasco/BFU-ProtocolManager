@@ -1,9 +1,11 @@
+@host = localhost
+@port = 5111
 ### proyectosEstado/ 
 
 ### GET 
 ### ? Todos los estados
-GET http://localhost:5001/proyectosestado/
+GET http://{{host}}:{{port}}/api/proyectosestado/
 
 
 ### ? Get por ID
-GET http://localhost:5001/proyectosestado/2
+GET http://{{host}}:{{port}}/api/proyectosestado/2

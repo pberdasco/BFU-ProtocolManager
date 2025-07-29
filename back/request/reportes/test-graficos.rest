@@ -1,22 +1,24 @@
+@host = localhost
+@port = 5111
 ### Graficos/ 
 #* allowedFields = ["id", "nombre", "eje1", "eje2"];
 
 ### GET 
 ### ? Todos los Graficos
-GET http://localhost:5001/graficos/
+GET http://{{host}}:{{port}}/api/graficos/
 
 ### ? Graficos por nombre
 # Este request filtra compuesto con nombre = 'NP-HTP'
 # Formato interno: ["nombre","=","NP-HTP"]
-GET http://localhost:5001/graficos?$filter=[%22nombre%22%2C%22%3D%22%2C%22NP-HTP%22]
+GET http://{{host}}:{{port}}/api/graficos?$filter=[%22nombre%22%2C%22%3D%22%2C%22NP-HTP%22]
 
 
 ### ? Get por ID
-GET http://localhost:5001/graficos/1
+GET http://{{host}}:{{port}}/api/graficos/1
 
 ### Updates
 ### ? Actualizar un grafico que no existe
-PUT http://localhost:5001/graficos/45
+PUT http://{{host}}:{{port}}/api/graficos/45
 Content-Type: application/json
 
 {
@@ -26,7 +28,7 @@ Content-Type: application/json
 }
 
 ### ? Actualizar un grafico
-PUT http://localhost:5001/graficos/2
+PUT http://{{host}}:{{port}}/api/graficos/2
 Content-Type: application/json
 
 {
@@ -38,7 +40,7 @@ Content-Type: application/json
 
 ### Create
 ### ? Crear un Grafico 
-POST http://localhost:5001/graficos/
+POST http://{{host}}:{{port}}/api/graficos/
 Content-Type: application/json
 
 {
@@ -49,8 +51,8 @@ Content-Type: application/json
 
 ### Delete
 ### ? Borrar un grafico que no existe
-DELETE http://localhost:5001/graficos/35
+DELETE http://{{host}}:{{port}}/api/graficos/35
 
 ### Delete
 ### ? Borrar un labortorio que sí existe
-DELETE http://localhost:5001/graficos/3
+DELETE http://{{host}}:{{port}}/api/graficos/3

@@ -1,22 +1,24 @@
+@host = localhost
+@port = 5111
 ### metodos/ 
 #* allowedFields = ["id", "nombre", " sinonimo", " funcion" ];
 
 ### GET 
 ### ? Todas los Metodos
-GET http://localhost:5001/metodos/
+GET http://{{host}}:{{port}}/api/metodos/
 
 ### ? Metodos por el nombre
 # Este request filtra cliente con nombre = 'EPA 418'
 # Formato interno: ["nombre","=","EPA 418"]
-GET http://localhost:5001/metodos?$filter=[%22nombre%22%2C%22%3D%22%2C%22EPA 418%22]
+GET http://{{host}}:{{port}}/api/metodos?$filter=[%22nombre%22%2C%22%3D%22%2C%22EPA 418%22]
 
 
 ### ? Get por ID
-GET http://localhost:5001/metodos/3
+GET http://{{host}}:{{port}}/api/metodos/3
 
 ### Updates
 ### ? Actualizar un metodo
-PUT http://localhost:5001/metodos/3
+PUT http://{{host}}:{{port}}/api/metodos/3
 Content-Type: application/json
 
 {
@@ -27,7 +29,7 @@ Content-Type: application/json
 
 ### Create
 ### ? Crear un cliente 
-POST http://localhost:5001/metodos/
+POST http://{{host}}:{{port}}/api/metodos/
 Content-Type: application/json
 
 {
@@ -38,4 +40,4 @@ Content-Type: application/json
 
 ### Delete
 ### ? Borrar un metodo
-DELETE http://localhost:5001/metodos/7
+DELETE http://{{host}}:{{port}}/api/metodos/7

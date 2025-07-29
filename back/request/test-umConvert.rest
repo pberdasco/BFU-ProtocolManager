@@ -1,11 +1,14 @@
+
+@host = localhost
+@port = 5111
 ### umConvert/ 
 
 ### GET 
 ### ? Todas las Conversiones de unidades de medida
-GET http://localhost:5001/umConvert/
+GET http://{{host}}:{{port}}/api/umConvert/
 
 
 ### ? Obtener un factor
 ### convertir la um 2 en la um 1
-GET http://localhost:5001/umConvert/2/1
+GET http://{{host}}:{{port}}/api/umConvert/2/1
 

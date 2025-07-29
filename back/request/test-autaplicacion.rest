@@ -1,22 +1,25 @@
+@host = localhost
+@port = 5111
+
 ### autaplicacion/ 
 #* allowedFields = ["id", "nombre", "sitioWeb1", "sitioWeb2"];
 
 ### GET 
 ### ? Todas lss autoridades de aplicacion
-GET http://localhost:5111/autaplicacion/
+GET http://{{host}}:{{port}}/api/autaplicacion/
 
 ### ? Autoridades de aplicación por el nombre
 # Este request filtra compuesto con nombre = 'Nacion'
 # Formato interno: ["nombre","=","NQN"]
-GET http://localhost:5001/autaplicacion?$filter=[%22nombre%22%2C%22%3D%22%2C%22NQN%22]
+GET http://{{host}}:{{port}}/api/autaplicacion?$filter=[%22nombre%22%2C%22%3D%22%2C%22NQN%22]
 
 
 ### ? Get por ID
-GET http://localhost:5001/autaplicacion/3
+GET http:/{{host}}:{{port}}/api/autaplicacion/3
 
 ### Updates
 ### ? Actualizar una autoridad de aplicacion que no existe
-PUT http://localhost:5001/autaplicacion/45
+PUT http://{{host}}:{{port}}/api/autaplicacion/45
 Content-Type: application/json
 
 {
@@ -26,7 +29,7 @@ Content-Type: application/json
 }
 
 ### ? Actualizar una autoridad de aplicación
-PUT http://localhost:5001/autaplicacion/2
+PUT http://{{host}}:{{port}}/api/autaplicacion/2
 Content-Type: application/json
 
 {
@@ -38,7 +41,7 @@ Content-Type: application/json
 
 ### Create
 ### ? Crear una Autoridad de aplicacion 
-POST http://localhost:5001/autaplicacion/
+POST http://{{host}}:{{port}}/api/autaplicacion/
 Content-Type: application/json
 
 {
@@ -52,8 +55,8 @@ Content-Type: application/json
 
 ### Delete
 ### ? Borrar un compuesto que no existe
-DELETE http://localhost:5001/autaplicacion/99
+DELETE http://{{host}}:{{port}}/api/autaplicacion/99
 
 ### Delete
 ### ? Borrar una autoridad de aplicacion sí existe
-DELETE http://localhost:5001/autaplicacion/6
+DELETE http://{{host}}:{{port}}/api/autaplicacion/6

@@ -1,22 +1,24 @@
+@host = localhost
+@port = 5111
 ### LQS/ 
 #* allowedFields = ["id", "laboratorioId", "compuestoId", "valorLQ"];
 
 ### GET 
 ### ? Todas los LQs
-GET http://localhost:5001/lqs/
+GET http://{{host}}:{{port}}/api/lqs/
 
 ### ? LQs por el laboratorioId
 # Este request filtra compuesto con laboratorioId = '1'
 # Formato interno: ["laboratorioId","=","1"]
-GET http://localhost:5001/lqs?$filter=[%22laboratorioId%22%2C%22%3D%22%2C%221%22]
+GET http://{{host}}:{{port}}/api/lqs?$filter=[%22laboratorioId%22%2C%22%3D%22%2C%221%22]
 
 
 ### ? Get por ID
-GET http://localhost:5001/lqs/2
+GET http://{{host}}:{{port}}/api/lqs/2
 
 ### Updates
 ### ? Actualizar un LQ que no existe
-PUT http://localhost:5001/lqs/45
+PUT http://{{host}}:{{port}}/api/lqs/45
 Content-Type: application/json
 
 {
@@ -29,7 +31,7 @@ Content-Type: application/json
 }
 
 ### ? Actualizar un LQ
-PUT http://localhost:5001/lqs/2
+PUT http://{{host}}:{{port}}/api/lqs/2
 Content-Type: application/json
 
 {
@@ -44,7 +46,7 @@ Content-Type: application/json
 
 ### Create
 ### ? Crear un LQ 
-POST http://localhost:5001/lqs/
+POST http://{{host}}:{{port}}/api/lqs/
 Content-Type: application/json
 
 {
@@ -58,7 +60,7 @@ Content-Type: application/json
 
 ### Create
 ### ? Crear un LQ 
-POST http://localhost:5001/lqs/
+POST http://{{host}}:{{port}}/api/lqs/
 Content-Type: application/json
 
 {
@@ -72,8 +74,8 @@ Content-Type: application/json
 
 ### Delete
 ### ? Borrar un LQS que no existe
-DELETE http://localhost:5001/lqs/5
+DELETE http://{{host}}:{{port}}/api/lqs/5
 
 ### Delete
 ### ? Borrar una autoridad de aplicacion sí existe
-DELETE http://localhost:5001/lqs/10
+DELETE http://{{host}}:{{port}}/api/lqs/10

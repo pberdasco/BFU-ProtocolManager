@@ -1,7 +1,8 @@
+@host = localhost
+@port = 5111
 
 ### Create 
-### ? Crear un LQ 
-POST http://localhost:5001/cadenatoexcel/
+POST http://{{host}}:{{port}}/api/cadenatoexcel/
 Content-Type: application/json
 
 {
@@ -13,7 +14,7 @@ Content-Type: application/json
       "matriz": "Agua",
       "cliente": "YPF",
       "proyecto": "200100-001",
-      "laboratorio": "Inducer",
+      "laboratorio": "Induser",
       "muestras": [
         {
           "id": 20,
@@ -63,7 +64,7 @@ Content-Type: application/json
       "matriz": "Agua",
       "cliente": "YPF",
       "proyecto": "200100-001",
-      "laboratorio": "Inducer",
+      "laboratorio": "Induser",
       "muestras": [
         {
           "id": 23,
@@ -112,7 +113,7 @@ Content-Type: application/json
 }
 
 ### Get
-GET http://localhost:5001/cadenatoexcel/200184-076-EneroGeneral01.xlsx
+GET http://{{host}}:{{port}}/api/cadenatoexcel/200184-076-EneroGeneral01.xlsx
 
 ### ? Esto es mejor probarlo poniendo en en navegador
-### ? http://localhost:5001/cadenatoexcel/200184-076-EneroGeneral01.xlsx
+### ? http://{{host}}:{{port}}/api/cadenatoexcel/200184-076-EneroGeneral01.xlsx

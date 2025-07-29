@@ -1,22 +1,24 @@
+@host = localhost
+@port = 5111
 ## mkpozos 
 #* allowedFields = ["id", "subproyectoId", "pozoId", "hojaId"];
 
 ### GET 
 ### ? Todos los pozos en mkpozos
-GET http://localhost:5001/mkpozos/
+GET http://{{host}}:{{port}}/api/mkpozos/
 
 ### ? mkpozos por el subproyectoId
 # Este request filtra pozos con subproyectoId = '29'
 # Formato interno: ["subproyectoId","=","29"]
-GET http://localhost:5001/mkpozos?$filter=[%22subproyectoId%22%2C%22%3D%22%2C%2229%22]
+GET http://{{host}}:{{port}}/api/mkpozos?$filter=[%22subproyectoId%22%2C%22%3D%22%2C%2229%22]
 
 
 ### ? Get por ID
-GET http://localhost:5001/mkpozos/1
+GET http://{{host}}:{{port}}/api/mkpozos/1
 
 ### Updates
 ### ? Actualizar un mkpozo que no existe
-PUT http://localhost:5001/mkpozos/45
+PUT http://{{host}}:{{port}}/api/mkpozos/45
 Content-Type: application/json
 
 {
@@ -26,7 +28,7 @@ Content-Type: application/json
 }
 
 ### ? Actualizar un mkpozo
-PUT http://localhost:5001/mkpozos/1
+PUT http://{{host}}:{{port}}/api/mkpozos/1
 Content-Type: application/json
 
 {
@@ -38,7 +40,7 @@ Content-Type: application/json
 
 ### Create
 ### ? Crear un mkpozo
-POST http://localhost:5001/mkpozos/
+POST http://{{host}}:{{port}}/api/mkpozos/
 Content-Type: application/json
 
 {
@@ -50,14 +52,14 @@ Content-Type: application/json
 
 ### Delete
 ### ? Borrar un mkpozo que no existe
-DELETE http://localhost:5001/mkpozos/10
+DELETE http://{{host}}:{{port}}/api/mkpozos/10
 
 ### Delete
 ### ? Borrar un mkpozo que sí existe
-DELETE http://localhost:5001/mkpozos/2
+DELETE http://{{host}}:{{port}}/api/mkpozos/2
 
 ### Reemplazar todos los pozos de un subproyecto
-POST http://localhost:5001/mkpozos/replace
+POST http://{{host}}:{{port}}/api/mkpozos/replace
 Content-Type: application/json
 
 [

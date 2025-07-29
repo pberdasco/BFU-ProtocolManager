@@ -1,21 +1,23 @@
+@host = localhost
+@port = 5111
 ### autaplicacion/ 
 #* allowedFields = ["id", "nombre"];
 
 ### GET 
 ### ? Todas las unidades de medida
-GET http://localhost:5001/um/
+GET http://{{host}}:{{port}}/api/um/
 
 ### ? Unidades de medida con nombre que contiene mg
 # Formato interno: ["nombre","contains","mg"]
-GET http://localhost:5001/um?$filter=[%22nombre%22%2C%22%contains%22%2C%22mg%22]
+GET http://{{host}}:{{port}}/api/um?$filter=[%22nombre%22%2C%22%contains%22%2C%22mg%22]
 
 
 ### ? Get por ID
-GET http://localhost:5001/um/2
+GET http://{{host}}:{{port}}/api/um/2
 
 ### Updates
 ### ? Actualizar una um
-PUT http://localhost:5001/um/3
+PUT http://{{host}}:{{port}}/api/um/3
 Content-Type: application/json
 
 {
@@ -25,7 +27,7 @@ Content-Type: application/json
 
 ### Create
 ### ? Crear un cliente 
-POST http://localhost:5001/um/
+POST http://{{host}}:{{port}}/api/um/
 Content-Type: application/json
 
 {
@@ -35,8 +37,8 @@ Content-Type: application/json
 
 ### Delete
 ### ? Borrar un cliente que no existe
-DELETE http://localhost:5001/clientes/77
+DELETE http://{{host}}:{{port}}/api/clientes/77
 
 ### Delete
 ### ? Borrar un cliente que sí existe
-DELETE http://localhost:5001/clientes/3
+DELETE http://{{host}}:{{port}}/api/clientes/3

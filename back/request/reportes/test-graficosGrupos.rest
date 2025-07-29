@@ -1,22 +1,24 @@
+@host = localhost
+@port = 5111
 ### GraficosGrupos/ 
 #* allowedFields = ["id", "subproyectoId", "nombre", "pozos", "graficos"];
 
 ### GET 
 ### ? Todos los GraficosGrupos
-GET http://localhost:5001/graficosGrupos/
+GET http://{{host}}:{{port}}/api/graficosGrupos/
 
 ### ? GraficosGrupos por nombre
 # Este request filtra graficosGrupos con nombre = 'Gr1'
 # Formato interno: ["nombre","=","Gr1"]
-GET http://localhost:5001/graficosGrupos?$filter=[%22nombre%22%2C%22%3D%22%2C%22Gr1%22]
+GET http://{{host}}:{{port}}/api/graficosGrupos?$filter=[%22nombre%22%2C%22%3D%22%2C%22Gr1%22]
 
 
 ### ? Get por ID
-GET http://localhost:5001/graficosGrupos/1
+GET http://{{host}}:{{port}}/api/graficosGrupos/1
 
 ### Updates
 ### ? Actualizar un graficoGrupo que no existe
-PUT http://localhost:5001/graficosGrupos/45
+PUT http://{{host}}:{{port}}/api/graficosGrupos/45
 Content-Type: application/json
 
 {
@@ -27,7 +29,7 @@ Content-Type: application/json
 }
 
 ### ? Actualizar un graficoGrupo
-PUT http://localhost:5001/graficosGrupos/2
+PUT http://{{host}}:{{port}}/api/graficosGrupos/2
 Content-Type: application/json
 
 {
@@ -40,7 +42,7 @@ Content-Type: application/json
 
 ### Create
 ### ? Crear un Grafico 
-POST http://localhost:5001/graficosGrupos/
+POST http://{{host}}:{{port}}/api/graficosGrupos/
 Content-Type: application/json
 
 {
@@ -52,8 +54,8 @@ Content-Type: application/json
 
 ### Delete
 ### ? Borrar un graficoGrupo que no existe
-DELETE http://localhost:5001/graficosGrupos/35
+DELETE http://{{host}}:{{port}}/api/graficosGrupos/35
 
 ### Delete
 ### ? Borrar un labortorio que sí existe
-DELETE http://localhost:5001/graficosGrupos/3
+DELETE http://{{host}}:{{port}}/api/graficosGrupos/3

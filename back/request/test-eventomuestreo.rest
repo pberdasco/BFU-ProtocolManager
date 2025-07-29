@@ -1,31 +1,33 @@
+@host = localhost
+@port = 5111
 ### eventomuestreo/ 
 #* allowedFields = ["id", "fecha", "subproyectoId", "nombre", "cadenaCustodiaLink"];
 
 ### GET 
 ### ? Todos los eventos de nuestreo
-GET http://localhost:5001/eventomuestreo/
+GET http://{{host}}:{{port}}/api/eventomuestreo/
 
 ### ? Filtra Eventos de Muestreo  
 # Este request filtra los Eventos de Muestreo del subproyectoId  = 4
 # Formato interno: ["subproyectoId","=","4"]
-GET http://localhost:5001/eventomuestreo?$filter=[%22subproyectoId%22%2C%22%3D%22%2C%222%22]
+GET http://{{host}}:{{port}}/api/eventomuestreo?$filter=[%22subproyectoId%22%2C%22%3D%22%2C%222%22]
 
 ### ? Filtra Eventos de Muestreo  
 # Este request filtra los Eventos de Muestreo del subproyectoId  = 4
 # Formato interno: ["soloMuestras", "!=", true]
-GET http://localhost:5001/eventomuestreo?$filter=[%22soloMuestras%22%2C%22!%3D%22%2Ctrue]
+GET http://{{host}}:{{port}}/api/eventomuestreo?$filter=[%22soloMuestras%22%2C%22!%3D%22%2Ctrue]
 
 ### GET by Id
 ### ? 
-GET http://localhost:5001/eventomuestreo/8
+GET http://{{host}}:{{port}}/api/eventomuestreo/8
 
 ### GET Full Data by Id
 ### ? 
-GET http://localhost:5001/eventomuestreo/fulldata/8
+GET http://{{host}}:{{port}}/api/eventomuestreo/fulldata/8
 
 ### Updates
 ### ? Actualizar un evento de muestreo que no existe
-PUT http://localhost:5001/eventomuestreo/8
+PUT http://{{host}}:{{port}}/api/eventomuestreo/8
 Content-Type: application/json
 
 {
@@ -36,7 +38,7 @@ Content-Type: application/json
 }
 
 ### ? Actualizar un evento de muestreo
-PUT http://localhost:5001/eventomuestreo/1
+PUT http://{{host}}:{{port}}/api/eventomuestreo/1
 Content-Type: application/json
 
 {
@@ -48,7 +50,7 @@ Content-Type: application/json
 
 ### Create
 ### ? Crear un evento de muestreo 
-POST http://localhost:5001/eventomuestreo/
+POST http:/{{host}}:{{port}}/api/eventomuestreo/
 Content-Type: application/json
 
 {
@@ -61,5 +63,5 @@ Content-Type: application/json
 
 ### Delete
 ### ? Borrar un evento de muestreo
-DELETE http://localhost:5001/eventomuestreo/4
+DELETE http://{{host}}:{{port}}/api/eventomuestreo/4
 

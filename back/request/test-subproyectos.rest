@@ -1,23 +1,25 @@
+@host = localhost
+@port = 5111
 ### subproyectos
 #* allowedFields = ["id", "codigo", "nombreLocacion", "ubicacion", "autAplicacionId", "proyectoId"];
 #* getFields = allowedFields + "proyecto" + "autoridad"
 
 ### GET 
 ### ? Todos los proyectos
-GET http://localhost:5001/subproyectos/
+GET http://{{host}}:{{port}}/api/subproyectos/
 
 ### ? Todos los subproyectos cn filtro simple
 # Este request filtra subproyectos que comienzan con 
 # Formato interno: ["codigo","startswith","300115"]
-GET http://localhost:5001/subproyectos?$filter=%5B%22codigo%22%2C%22startswith%22%2C%22300115%22%5D
+GET http://{{host}}:{{port}}/api/subproyectos?$filter=%5B%22codigo%22%2C%22startswith%22%2C%22300115%22%5D
 
 ### GET by Id
 ### ? 
-GET http://localhost:5001/subproyectos/1
+GET http://{{host}}:{{port}}/api/subproyectos/1
 
 
 ### Create
-POST http://localhost:5001/subproyectos/
+POST http://{{host}}:{{port}}/api/subproyectos/
 Content-Type: application/json
 
 {
@@ -36,4 +38,4 @@ Content-Type: application/json
 
 ### DELETE
 ### ? 
-DELETE  http://localhost:5001/subproyectos/5
+DELETE  http://{{host}}:{{port}}/api/subproyectos/5

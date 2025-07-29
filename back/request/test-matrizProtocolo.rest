@@ -1,10 +1,12 @@
-### matrizcadena/ 
+@host = localhost
+@port = 5111
 
+### matrizcadena/ 
 
 ### GET 
 ### ? matriz de un evento
-GET http://localhost:5001/matrizcadena?eventoId=8
+GET http://{{host}}:{{port}}/api/matrizcadena?eventoId=222
 
 ### ? matriz de una cadenas de custodia
-GET http://localhost:5001/matrizcadena?cadenaId=9
+GET http://{{host}}:{{port}}/api/matrizcadena?cadenaId=150
 

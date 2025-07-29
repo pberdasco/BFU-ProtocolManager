@@ -1,3 +1,4 @@
-
+@host = localhost
+@port = 5111
 ### Obtener valores en tabla plana
-GET http://localhost:5001/valoresPlanos/valoresSubproyecto/266
+GET http://{{host}}:{{port}}/api/valoresPlanos/valoresSubproyecto/266

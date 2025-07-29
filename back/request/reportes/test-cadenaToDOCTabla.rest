@@ -1,4 +1,5 @@
-
+@host = localhost
+@port = 5111
 ### Create 
 ### ? Crear un LQ 
 POST http://localhost:5001/cadenatodoctabla/

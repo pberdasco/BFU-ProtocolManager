@@ -1,39 +1,41 @@
+@host = localhost
+@port = 5111
 ### proyectos/ 
 #* allowedFields = ["id", "codigo", "nombre", "empresa"];
 
 ### GET by Id
 ### ? Un proyecto
-GET http://localhost:5001/proyectos/3
+GET http://{{host}}:{{port}}/api/proyectos/3
 
 ### GET 
 ### ? Todos los proyectos
-GET http://localhost:5001/proyectos/
+GET http://{{host}}:{{port}}/api/proyectos/
 
 ### ? Todos los Proyectos de empresa YPF
 # Este request filtra proyectos cuya Empresa = 'YPF'
 # Formato interno: ["empresa","=","YPF"]
-GET http://localhost:5001/proyectos?$filter=[%22empresa%22%2C%22%3D%22%2C%22YPF%22]
+GET http://{{host}}:{{port}}/api/proyectos?$filter=[%22empresa%22%2C%22%3D%22%2C%22YPF%22]
 
 ### ? Proyectos entre 200111 y 200115 ambos inclusive
 # Este request filtra proyectos con Codigo entre 200111 y 200999 (inclusive)
 # Formato interno: [["codigo",">=","200111"],"and",["codigo","<=","200999"]]
-GET http://localhost:5001/proyectos?$filter=%5B%5B%22codigo%22%2C%22%3E%3D%22%2C%22200111%22%5D%2C%22and%22%2C%5B%22codigo%22%2C%22%3C%3D%22%2C%22200999%22%5D%5D
+GET http://{{host}}:{{port}}/api/proyectos?$filter=%5B%5B%22codigo%22%2C%22%3E%3D%22%2C%22200111%22%5D%2C%22and%22%2C%5B%22codigo%22%2C%22%3C%3D%22%2C%22200999%22%5D%5D
 
 
 ### ? Los primeros 10 Proyectos YPF en orden ascendente de "nombre"
 # y devuelve la primera página (10 ítems a partir del registro 0).
 # Formato filtro interno: ["empresa","=","Vista"]
 # Formato sort interno: [{"selector":"nombre","desc":false}]
-GET http://localhost:5001/proyectos?$filter=[%22empresa%22,%22=%22,%22Vista%22]&$sort=[{%22selector%22:%22nombre%22,%22desc%22:false}]&$skip=0&$take=10
+GET http://{{host}}:{{port}}/api/proyectos?$filter=[%22empresa%22,%22=%22,%22Vista%22]&$sort=[{%22selector%22:%22nombre%22,%22desc%22:false}]&$skip=0&$take=10
 
 ### ? Conjunto vacio por filtros combinados
 # Este request prueba que deberia hacer con un Id de fila enfocada
 # Formato interno: [["id","=","1"],"and",["codigo","contains","200115"]]
-GET http://localhost:5001/proyectos?$filter=%5B%5B%22id%22%2C%22%3D%22%2C1%5D%2C%22and%22%2C%5B%22codigo%22%2C%22contains%22%2C%22200115%22%5D%5D
+GET http://{{host}}:{{port}}/api/proyectos?$filter=%5B%5B%22id%22%2C%22%3D%22%2C1%5D%2C%22and%22%2C%5B%22codigo%22%2C%22contains%22%2C%22200115%22%5D%5D
 
 ### Updates
 ### ? Actualizar un proyecto 
-PUT http://localhost:5001/proyectos/3
+PUT http://{{host}}:{{port}}/api/proyectos/3
 Content-Type: application/json
 
 {
@@ -44,7 +46,7 @@ Content-Type: application/json
 }
 
 ### ? Actualizar un proyecto que no existe
-PUT http://localhost:5001/proyectos/100
+PUT http://{{host}}:{{port}}/api/proyectos/100
 Content-Type: application/json
 
 {
@@ -56,7 +58,7 @@ Content-Type: application/json
 
 ### Create
 ### ? Crear un proyecto 
-POST http://localhost:5001/proyectos/
+POST http://{{host}}:{{port}}/api/proyectos/
 Content-Type: application/json
 
 {
@@ -68,10 +70,10 @@ Content-Type: application/json
 
 ### Delete
 ### ? Borrar un proyecto
-DELETE http://localhost:5001/proyectos/15
+DELETE http://{{host}}:{{port}}/api/proyectos/15
 
 ###
-http://localhost:5001/proyectos?%24filter=%5B%22codigo%22%2C%22contains%22%2C%22200222%22%5D&%24sort=%5B%7B%22selector%22%3A%22nombre%22%2C%22desc%22%3Atrue%7D%2C%7B%22selector%22%3A%22id%22%2C%22desc%22%3Afalse%7D%5D&%24skip=0&%24take=10
+http://{{host}}:{{port}}/api/proyectos?%24filter=%5B%22codigo%22%2C%22contains%22%2C%22200222%22%5D&%24sort=%5B%7B%22selector%22%3A%22nombre%22%2C%22desc%22%3Atrue%7D%2C%7B%22selector%22%3A%22id%22%2C%22desc%22%3Afalse%7D%5D&%24skip=0&%24take=10
 
 
 
@@ -79,8 +81,8 @@ http://localhost:5001/proyectos?%24filter=%5B%22codigo%22%2C%22contains%22%2C%22
 
 ### GET 
 ### ? Todos los proyectos
-GET http://localhost:5001/proyectos/extended
+GET http://{{host}}:{{port}}/api/proyectos/extended
 
 ### GET by Id
 ### ? Un proyecto
-GET http://localhost:5001/proyectos/3/extended
+GET http://{{host}}:{{port}}/api/proyectos/3/extended

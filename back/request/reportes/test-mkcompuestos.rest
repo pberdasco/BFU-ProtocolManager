@@ -1,22 +1,24 @@
+@host = localhost
+@port = 5111
 ## mkcompuestos 
 #* allowedFields = ["id", "subproyectoId", "compuestoId"];
 
 ### GET 
 ### ? Todos los compuestos en mkcompuestos
-GET http://localhost:5001/mkcompuestos/
+GET http://{{host}}:{{port}}/api/mkcompuestos/
 
 ### ? mkcompuestos por el subproyectoId
 # Este request filtra compuestos con subproyectoId = '6'
 # Formato interno: ["subproyectoId","=","6"]
-GET http://localhost:5001/mkcompuestos?$filter=[%22subproyectoId%22%2C%22%3D%22%2C%226%22]
+GET http://{{host}}:{{port}}/api/mkcompuestos?$filter=[%22subproyectoId%22%2C%22%3D%22%2C%226%22]
 
 
 ### ? Get por ID
-GET http://localhost:5001/mkcompuestos/1
+GET http://{{host}}:{{port}}/api/mkcompuestos/1
 
 ### Updates
 ### ? Actualizar un mkcompuestos que no existe
-PUT http://localhost:5001/mkcompuestos/45
+PUT http://{{host}}:{{port}}/api/mkcompuestos/45
 Content-Type: application/json
 
 {
@@ -26,7 +28,7 @@ Content-Type: application/json
 }
 
 ### ? Actualizar un mkcompuesto
-PUT http://localhost:5001/mkcompuestos/1
+PUT http://{{host}}:{{port}}/api/mkcompuestos/1
 Content-Type: application/json
 
 {
@@ -39,7 +41,7 @@ Content-Type: application/json
 
 ### Create
 ### ? Crear un mkcompuesto
-POST http://localhost:5001/mkcompuestos/
+POST http://{{host}}:{{port}}/api/mkcompuestos/
 Content-Type: application/json
 
 {
@@ -51,14 +53,14 @@ Content-Type: application/json
 
 ### Delete
 ### ? Borrar un mkcompuesto que no existe
-DELETE http://localhost:5001/mkcompuestos/10
+DELETE http://{{host}}:{{port}}/api/mkcompuestos/10
 
 ### Delete
 ### ? Borrar un mkcompuesto que sí existe
-DELETE http://localhost:5001/mkcompuestos/7
+DELETE http://{{host}}:{{port}}/api/mkcompuestos/7
 
 ### Reemplazar todos los compuestos de un subproyecto
-POST http://localhost:5001/mkcompuestos/replace
+POST http://{{host}}:{{port}}/api/mkcompuestos/replace
 Content-Type: application/json
 
 [

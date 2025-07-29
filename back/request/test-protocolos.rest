@@ -1,4 +1,7 @@
-POST http://localhost:5001/protocolos
+@host = localhost
+@port = 5111
+
+POST http://{{host}}:{{port}}/api/protocolos
 Content-Type: application/json
 
 {
@@ -31,10 +34,10 @@ Content-Type: application/json
 }
 
 ### GET con el formato de las tablas
-GET http://localhost:5001/protocolos/15/extended
+GET http://{{host}}:{{port}}/api/protocolos/15/extended
 
 ### GET con el formato de frontend
-GET http://localhost:5001/protocolos/12/original
+GET http://{{host}}:{{port}}/api/protocolos/12/original
 
 ### Get ALL basico
-GET http://localhost:5001/protocolos/
+GET http://{{host}}:{{port}}/api/protocolos/

@@ -1,26 +1,28 @@
+@host = localhost
+@port = 5111
 ### GET toma los datos para mandar a armar mannkendall - solo para pruebas porque el get std hace las 2 cosas
-GET http://localhost:5001/mannKendall/data/151
+GET http://{{host}}:{{port}}/api/mannKendall/data/151
 
 ### GET toma los datos para mandar a armar mannkendall -
 ### solo para pruebas porque el get std hace las 2 cosas
 ### se agregó fechadDesde y fechaHasta para limitar los datos a tomar
 
 
-GET http://localhost:5001/mannkendall/data/151?fecha=2000-04-20&fechaDesde=2024-01-01&fechaHasta=2025-01-01
+GET http://{{host}}:{{port}}/api/mannkendall/data/151?fecha=2000-04-20&fechaDesde=2024-01-01&fechaHasta=2025-01-01
 
 
 
 ### GET crea mannnKendall //TODO: cambiar a post
 ### ? 
-GET http://localhost:5001/mannKendall/151?fecha=2025-06-27&fechaDesde=2023-01-01&fechaHasta=2025-06-01
+GET http://{{host}}:{{port}}/api/mannKendall/151?fecha=2025-06-27&fechaDesde=2023-01-01&fechaHasta=2025-06-01
 
 ### GET crea mannnKendall //TODO: cambiar a post
 ### ? sin fecha = today
-GET http://localhost:5001/mannKendall/266
+GET http://{{host}}:{{port}}/api/mannKendall/266
 
 ### POST
 ### ? Traer un zipfile con todos los xlsm
-POST http://localhost:5001/mannkendall/getzip
+POST http://{{host}}:{{port}}/api/mannkendall/getzip
 Content-Type: application/json
 
 {

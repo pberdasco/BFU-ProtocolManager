@@ -1,9 +1,12 @@
-### MATRIZ/ 
+@host = localhost
+@port = 5111### MATRIZ/ 
 
 ### GET 
 ### ? Todas las Matrices
-GET http://localhost:5001/matriz/
+GET http://{{host}}:{{port}}/api/compuestos/
+/matriz/
 
 
 ### ? Get por ID
-GET http://localhost:5001/matriz/3
+GET http://{{host}}:{{port}}/api/compuestos/
+/matriz/3
