@@ -1,3 +1,9 @@
+-- Borrar todas las transacciones de un subproyecto
+--   CadenaCompletaValores -> CadenaCompletaFilas -|
+--   analisisRequeridos                                                       -| 
+--   ResultadosProtocolo -> MuestrasProtocolo -> itemsProtocolo -> protocolos -|
+--                                                                             |-> Muestras -> CadenaCustodia -> EventoMuestreo
+
 SET SQL_SAFE_UPDATES = 0;
 SET @subpCodigo = '201894-085';
 

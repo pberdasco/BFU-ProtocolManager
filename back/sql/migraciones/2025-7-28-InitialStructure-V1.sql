@@ -106,7 +106,7 @@ CREATE TABLE `CadenaCompletaValores` (
   `Id` int NOT NULL AUTO_INCREMENT,
   `cadenaCompletaFilaId` int NOT NULL,
   `muestraId` int NOT NULL,
-  `valor` decimal(8,3) DEFAULT NULL,
+  `valor` decimal(12,5) DEFAULT NULL,
   PRIMARY KEY (`Id`),
   KEY `CadenaCompletaValores_Fila_idx` (`cadenaCompletaFilaId`),
   KEY `CadenaCompletaValores_Muestra_idx` (`muestraId`),
@@ -153,7 +153,7 @@ CREATE TABLE `Clientes` (
   `Nombre` varchar(45) NOT NULL,
   PRIMARY KEY (`Id`),
   UNIQUE KEY `Codigo_UNIQUE` (`Codigo`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=101 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -174,7 +174,7 @@ CREATE TABLE `Compuestos` (
   UNIQUE KEY `Id_UNIQUE` (`Id`),
   KEY `Compuesto_Tipo_idx` (`MatrizCodigo`),
   CONSTRAINT `Compuesto_Matriz` FOREIGN KEY (`MatrizCodigo`) REFERENCES `Matriz` (`Codigo`)
-) ENGINE=InnoDB AUTO_INCREMENT=521 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=527 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -264,9 +264,9 @@ DROP TABLE IF EXISTS `ItemsProtocolo`;
 CREATE TABLE `ItemsProtocolo` (
   `Id` int NOT NULL AUTO_INCREMENT,
   `ProtocoloId` int NOT NULL,
-  `CompuestoLab` varchar(45) DEFAULT NULL,
+  `CompuestoLab` varchar(60) DEFAULT NULL,
   `CompuestoId` int DEFAULT NULL,
-  `MetodoLab` varchar(45) DEFAULT NULL,
+  `MetodoLab` varchar(60) DEFAULT NULL,
   `MetodoId` int DEFAULT NULL,
   `UmLab` varchar(10) DEFAULT NULL,
   `UmId` int DEFAULT NULL,
@@ -296,7 +296,7 @@ CREATE TABLE `Laboratorios` (
   `Formato` varchar(10) DEFAULT NULL,
   PRIMARY KEY (`Id`),
   UNIQUE KEY `Id_UNIQUE` (`Id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -312,7 +312,7 @@ CREATE TABLE `LQs` (
   `CompuestoId` int NOT NULL,
   `MetodoId` int DEFAULT NULL,
   `UMId` int NOT NULL,
-  `ValorLQ` decimal(8,5) NOT NULL,
+  `ValorLQ` decimal(12,5) NOT NULL,
   `MatrizId` int NOT NULL,
   PRIMARY KEY (`Id`),
   UNIQUE KEY `Id_UNIQUE` (`Id`),
@@ -322,7 +322,7 @@ CREATE TABLE `LQs` (
   KEY `LQs-Metodo_idx` (`MetodoId`),
   KEY `LQs-UM_idx` (`UMId`),
   CONSTRAINT `LQs-Cmpuesto` FOREIGN KEY (`CompuestoId`) REFERENCES `Compuestos` (`Id`)
-) ENGINE=InnoDB AUTO_INCREMENT=741 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5990 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -352,7 +352,7 @@ CREATE TABLE `Metodos` (
   `Id` int NOT NULL AUTO_INCREMENT,
   `Nombre` varchar(45) NOT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1000 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1001 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -366,12 +366,15 @@ CREATE TABLE `mkCompuestos` (
   `Id` int NOT NULL AUTO_INCREMENT,
   `subproyectoId` int NOT NULL,
   `compuestoId` int NOT NULL,
+  `umId` int NOT NULL,
   PRIMARY KEY (`Id`),
   UNIQUE KEY `subproyecto-compuesto` (`subproyectoId`,`compuestoId`),
   KEY `mkCompuestos-subproyecto_idx` (`subproyectoId`),
   KEY `mkCompuestos-compuestos_idx` (`compuestoId`),
+  KEY `mkCompuestos-um_idx` (`umId`),
   CONSTRAINT `mkCompuestos-compuestos` FOREIGN KEY (`compuestoId`) REFERENCES `Compuestos` (`Id`),
-  CONSTRAINT `mkCompuestos-subproyecto` FOREIGN KEY (`subproyectoId`) REFERENCES `SubProyectos` (`Id`)
+  CONSTRAINT `mkCompuestos-subproyecto` FOREIGN KEY (`subproyectoId`) REFERENCES `SubProyectos` (`Id`),
+  CONSTRAINT `mkCompuestos-um` FOREIGN KEY (`umId`) REFERENCES `UM` (`Id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -409,9 +412,10 @@ CREATE TABLE `Muestras` (
   `PozoId` int DEFAULT NULL,
   `CadenaCustodiaId` int NOT NULL,
   `Nombre` varchar(20) DEFAULT NULL,
-  `NivelFreatico` decimal(8,3) DEFAULT NULL,
-  `Profundidad` decimal(8,3) DEFAULT NULL,
-  `FLNA` decimal(8,3) DEFAULT NULL,
+  `NivelFreatico` decimal(6,3) DEFAULT '0.000',
+  `NivelFLNA` decimal(6,3) DEFAULT NULL,
+  `FLNA` decimal(6,3) DEFAULT NULL,
+  `Profundidad` decimal(6,3) DEFAULT '0.000',
   `CadenaOPDS` varchar(10) DEFAULT NULL,
   `ProtocoloOPDS` varchar(10) DEFAULT NULL,
   PRIMARY KEY (`Id`),
@@ -457,6 +461,8 @@ CREATE TABLE `Pozos` (
   `Nombre` varchar(20) NOT NULL,
   `EstadoId` int NOT NULL DEFAULT '1',
   `TipoId` int NOT NULL DEFAULT '1',
+  `Latitud` decimal(9,6) DEFAULT NULL,
+  `Longitud` decimal(9,6) DEFAULT NULL,
   PRIMARY KEY (`Id`),
   UNIQUE KEY `Id_UNIQUE` (`Id`),
   UNIQUE KEY `supProyecto_Pozo` (`SubProyectoId`,`Nombre`),
@@ -466,7 +472,7 @@ CREATE TABLE `Pozos` (
   CONSTRAINT `Pozos-Estado` FOREIGN KEY (`EstadoId`) REFERENCES `PozosEstado` (`Id`),
   CONSTRAINT `Pozos-SubProyecto` FOREIGN KEY (`SubProyectoId`) REFERENCES `SubProyectos` (`Id`),
   CONSTRAINT `Pozos-Tipo` FOREIGN KEY (`TipoId`) REFERENCES `PozosTipo` (`Id`)
-) ENGINE=InnoDB AUTO_INCREMENT=986 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2564 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -480,7 +486,7 @@ CREATE TABLE `PozosEstado` (
   `Id` int NOT NULL AUTO_INCREMENT,
   `Nombre` varchar(20) NOT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -494,7 +500,7 @@ CREATE TABLE `PozosTipo` (
   `Id` int NOT NULL AUTO_INCREMENT,
   `Nombre` varchar(20) NOT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -506,7 +512,7 @@ DROP TABLE IF EXISTS `Protocolos`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `Protocolos` (
   `Id` int NOT NULL AUTO_INCREMENT,
-  `Nombre` varchar(30) NOT NULL,
+  `Nombre` varchar(60) NOT NULL,
   `Fecha` date NOT NULL,
   `LaboratorioId` int NOT NULL,
   `EventoMuestreoId` int NOT NULL,
@@ -589,7 +595,7 @@ CREATE TABLE `Regulados` (
   `FechaVigencia` date NOT NULL,
   `CompuestoId` int NOT NULL,
   `Norma` varchar(45) DEFAULT NULL,
-  `ValorReferencia` decimal(10,3) NOT NULL,
+  `ValorReferencia` decimal(12,5) NOT NULL,
   `UMId` int DEFAULT NULL,
   PRIMARY KEY (`Id`),
   UNIQUE KEY `Id_UNIQUE` (`Id`),
@@ -599,7 +605,7 @@ CREATE TABLE `Regulados` (
   CONSTRAINT `Regulacion-AutAplicacion` FOREIGN KEY (`AutAplicacionId`) REFERENCES `AutAplicacion` (`Id`),
   CONSTRAINT `Regulacion-Compuesto` FOREIGN KEY (`CompuestoId`) REFERENCES `Compuestos` (`Id`),
   CONSTRAINT `Regulacion-UM` FOREIGN KEY (`UMId`) REFERENCES `UM` (`Id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8039 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8090 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -619,7 +625,7 @@ CREATE TABLE `RelCompuestoGrupo` (
   KEY `Rel_Grupo_idx` (`GrupoId`),
   CONSTRAINT `Rel_Compuesto` FOREIGN KEY (`CompuestoId`) REFERENCES `Compuestos` (`Id`),
   CONSTRAINT `Rel_Grupo` FOREIGN KEY (`GrupoId`) REFERENCES `GrupoCompuestos` (`Id`)
-) ENGINE=InnoDB AUTO_INCREMENT=499 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=522 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -633,7 +639,7 @@ CREATE TABLE `ResultadosProtocolo` (
   `Id` int NOT NULL AUTO_INCREMENT,
   `ItemProtocoloId` int NOT NULL,
   `MuestraProtocoloId` int NOT NULL,
-  `Valor` decimal(7,3) DEFAULT NULL,
+  `Valor` decimal(12,5) DEFAULT NULL,
   PRIMARY KEY (`Id`),
   KEY `ResultadosProt-ItemProt_idx` (`ItemProtocoloId`),
   KEY `ResultadosProt-MuestraProt_idx` (`MuestraProtocoloId`),
@@ -661,7 +667,7 @@ CREATE TABLE `SinonimosCompuestos` (
   KEY `SinonimoC-Matriz_idx` (`MatrizId`),
   CONSTRAINT `SinonimoC-Compuesto` FOREIGN KEY (`CompuestoId`) REFERENCES `Compuestos` (`Id`),
   CONSTRAINT `SinonimoC-Matriz` FOREIGN KEY (`MatrizId`) REFERENCES `Matriz` (`Id`)
-) ENGINE=InnoDB AUTO_INCREMENT=503 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=707 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -680,7 +686,7 @@ CREATE TABLE `SinonimosMetodos` (
   UNIQUE KEY `TextoProcesado_UNIQUE` (`TextoProcesado`),
   KEY `SinonimoM-Metodo_idx` (`MetodoId`),
   CONSTRAINT `SinonimoM-Metodo` FOREIGN KEY (`MetodoId`) REFERENCES `Metodos` (`Id`)
-) ENGINE=InnoDB AUTO_INCREMENT=290 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='		';
+) ENGINE=InnoDB AUTO_INCREMENT=352 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='		';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -734,7 +740,7 @@ CREATE TABLE `SubProyectos` (
   CONSTRAINT `Subproyecto-AutAplicacionSuelo` FOREIGN KEY (`AutAplicacionSueloId`) REFERENCES `AutAplicacion` (`Id`),
   CONSTRAINT `SubProyecto-Proyecto` FOREIGN KEY (`ProyectoId`) REFERENCES `Proyectos` (`Id`),
   CONSTRAINT `SupProyecto-AutAplicacionAgua` FOREIGN KEY (`AutAplicacionAguaId`) REFERENCES `AutAplicacion` (`Id`)
-) ENGINE=InnoDB AUTO_INCREMENT=266 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=270 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -748,7 +754,7 @@ CREATE TABLE `UM` (
   `Id` int NOT NULL AUTO_INCREMENT,
   `Nombre` varchar(10) NOT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -768,7 +774,7 @@ CREATE TABLE `UMConvert` (
   KEY `UMConvert-HastaUM_idx` (`HastaUMId`),
   CONSTRAINT `UMConvert-DesdeUM` FOREIGN KEY (`DesdeUmId`) REFERENCES `UM` (`Id`),
   CONSTRAINT `UMConvert-HastaUM` FOREIGN KEY (`HastaUMId`) REFERENCES `UM` (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -787,6 +793,50 @@ CREATE TABLE `Usuarios` (
   UNIQUE KEY `Id_UNIQUE` (`Id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Temporary view structure for view `valoresplanos`
+--
+
+DROP TABLE IF EXISTS `valoresplanos`;
+/*!50001 DROP VIEW IF EXISTS `valoresplanos`*/;
+SET @saved_cs_client     = @@character_set_client;
+/*!50503 SET character_set_client = utf8mb4 */;
+/*!50001 CREATE VIEW `valoresplanos` AS SELECT 
+ 1 AS `subproyectoId`,
+ 1 AS `matrizNombre`,
+ 1 AS `nombre`,
+ 1 AS `tipoMuestra`,
+ 1 AS `pozoId`,
+ 1 AS `pozoNombre`,
+ 1 AS `fecha`,
+ 1 AS `soloMuestras`,
+ 1 AS `compuestoCodigo`,
+ 1 AS `compuestoId`,
+ 1 AS `compuestoNombre`,
+ 1 AS `unidad`,
+ 1 AS `valor`,
+ 1 AS `tipoDato`,
+ 1 AS `valorChart`*/;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Final view structure for view `valoresplanos`
+--
+
+/*!50001 DROP VIEW IF EXISTS `valoresplanos`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8mb4 */;
+/*!50001 SET character_set_results     = utf8mb4 */;
+/*!50001 SET collation_connection      = utf8mb4_0900_ai_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`%` SQL SECURITY DEFINER */
+/*!50001 VIEW `valoresplanos` AS with `datosraw` as (select `em`.`SubProyectoId` AS `subproyectoId`,(case `cc`.`MatrizCodigo` when 1 then 'Agua' when 2 then 'FLNA' when 3 then 'Suelo' when 4 then 'Gases' else 'Desconocido' end) AS `matrizNombre`,`m`.`Nombre` AS `nombre`,(case `m`.`Tipo` when 1 then 'Pozo' when 2 then 'Sondeo' when 3 then 'Equipo' when 4 then 'Blanco' else 'Desconocido' end) AS `tipoMuestra`,`p`.`Id` AS `pozoId`,`p`.`Nombre` AS `pozoNombre`,`em`.`Fecha` AS `fecha`,json_extract(json_object('v',(`em`.`SoloMuestras` = 1)),'$.v') AS `soloMuestras`,`c`.`Codigo` AS `compuestoCodigo`,`c`.`Id` AS `compuestoId`,`c`.`Nombre` AS `compuestoNombre`,`um`.`Nombre` AS `unidad`,cast(`ccv`.`valor` as decimal(10,4)) AS `valor`,'compuesto' AS `tipoDato` from (((((((`eventomuestreo` `em` join `cadenacustodia` `cc` on((`cc`.`EventoMuestreoId` = `em`.`Id`))) join `muestras` `m` on((`m`.`CadenaCustodiaId` = `cc`.`Id`))) left join `pozos` `p` on((`p`.`Id` = `m`.`PozoId`))) join `cadenacompletavalores` `ccv` on((`ccv`.`muestraId` = `m`.`Id`))) join `cadenacompletafilas` `ccf` on((`ccf`.`Id` = `ccv`.`cadenaCompletaFilaId`))) join `compuestos` `c` on((`c`.`Id` = `ccf`.`compuestoId`))) left join `um` on((`um`.`Id` = `ccf`.`umId`))) union all select `em`.`SubProyectoId` AS `subproyectoId`,(case `cc`.`MatrizCodigo` when 1 then 'Agua' when 2 then 'FLNA' when 3 then 'Suelo' when 4 then 'Gases' else 'Desconocido' end) AS `matrizNombre`,`m`.`Nombre` AS `nombre`,(case `m`.`Tipo` when 1 then 'Pozo' when 2 then 'Sondeo' when 3 then 'Equipo' when 4 then 'Blanco' else 'Desconocido' end) AS `tipoMuestra`,`p`.`Id` AS `pozoId`,`p`.`Nombre` AS `pozoNombre`,`em`.`Fecha` AS `fecha`,json_extract(json_object('v',(`em`.`SoloMuestras` = 1)),'$.v') AS `soloMuestras`,'00000001' AS `compuestoCodigo`,-(1) AS `compuestoId`,'Nivel freático' AS `compuestoNombre`,'m.b.b.p.' AS `unidad`,cast((case when (`m`.`NivelFreatico` = 0) then -(4) else `m`.`NivelFreatico` end) as decimal(10,4)) AS `valor`,'nivel' AS `tipoDato` from (((`eventomuestreo` `em` join `cadenacustodia` `cc` on((`cc`.`EventoMuestreoId` = `em`.`Id`))) join `muestras` `m` on((`m`.`CadenaCustodiaId` = `cc`.`Id`))) left join `pozos` `p` on((`p`.`Id` = `m`.`PozoId`))) where (`m`.`NivelFreatico` is not null) union all select `em`.`SubProyectoId` AS `subproyectoId`,(case `cc`.`MatrizCodigo` when 1 then 'Agua' when 2 then 'FLNA' when 3 then 'Suelo' when 4 then 'Gases' else 'Desconocido' end) AS `matrizNombre`,`m`.`Nombre` AS `nombre`,(case `m`.`Tipo` when 1 then 'Pozo' when 2 then 'Sondeo' when 3 then 'Equipo' when 4 then 'Blanco' else 'Desconocido' end) AS `tipoMuestra`,`p`.`Id` AS `pozoId`,`p`.`Nombre` AS `pozoNombre`,`em`.`Fecha` AS `fecha`,json_extract(json_object('v',(`em`.`SoloMuestras` = 1)),'$.v') AS `soloMuestras`,'00000002' AS `compuestoCodigo`,-(2) AS `compuestoId`,'FLNA' AS `compuestoNombre`,'m' AS `unidad`,cast((case when (`m`.`FLNA` = 0) then -(4) else `m`.`FLNA` end) as decimal(10,4)) AS `valor`,'fase' AS `tipoDato` from (((`eventomuestreo` `em` join `cadenacustodia` `cc` on((`cc`.`EventoMuestreoId` = `em`.`Id`))) join `muestras` `m` on((`m`.`CadenaCustodiaId` = `cc`.`Id`))) left join `pozos` `p` on((`p`.`Id` = `m`.`PozoId`))) where (`m`.`FLNA` is not null)) select `dr`.`subproyectoId` AS `subproyectoId`,`dr`.`matrizNombre` AS `matrizNombre`,`dr`.`nombre` AS `nombre`,`dr`.`tipoMuestra` AS `tipoMuestra`,`dr`.`pozoId` AS `pozoId`,`dr`.`pozoNombre` AS `pozoNombre`,`dr`.`fecha` AS `fecha`,`dr`.`soloMuestras` AS `soloMuestras`,`dr`.`compuestoCodigo` AS `compuestoCodigo`,`dr`.`compuestoId` AS `compuestoId`,`dr`.`compuestoNombre` AS `compuestoNombre`,`dr`.`unidad` AS `unidad`,`dr`.`valor` AS `valor`,`dr`.`tipoDato` AS `tipoDato`,(case when (`dr`.`valor` in (-(4),-(3),-(2))) then NULL when (`dr`.`valor` <= 0) then 0.0001 else `dr`.`valor` end) AS `valorChart` from `datosraw` `dr` */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -797,4 +847,4 @@ CREATE TABLE `Usuarios` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-05-19 11:40:15
+-- Dump completed on 2025-07-29 11:56:13
