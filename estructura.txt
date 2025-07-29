@@ -1,0 +1,275 @@
+.
+├── back
+│   ├── README.md
+│   ├── VerificarWinax.ps1
+│   ├── assets
+│   │   ├── CadenaCustodiaNuevo.xlsx
+│   │   ├── MannKendall-Back.xlsm
+│   │   └── MannKendall.xlsm
+│   ├── documents
+│   │   ├── CreacionBaseDatosConDocker.md
+│   │   └── dbUser.docx
+│   ├── logs
+│   │   ├── errors.log
+│   │   └── info.log
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── request
+│   │   ├── reportes
+│   │   │   ├── test-cadenaToDOCTabla.rest
+│   │   │   ├── test-evolucionCDI.rest
+│   │   │   ├── test-graficos.rest
+│   │   │   ├── test-graficosGrupos.rest
+│   │   │   ├── test-mannKendall.rest
+│   │   │   ├── test-mkcompuestos.rest
+│   │   │   └── test-mkpozos.rest
+│   │   ├── test-analisisRequeridos.rest
+│   │   ├── test-autaplicacion.rest
+│   │   ├── test-cadenaCompleta.rest
+│   │   ├── test-cadenaToExcel.rest
+│   │   ├── test-cadenasCustodia.rest
+│   │   ├── test-cadenasSubproyectoCompuesto.rest
+│   │   ├── test-clientes.rest
+│   │   ├── test-compuestos.rest
+│   │   ├── test-eventomuestreo.rest
+│   │   ├── test-grupoCompuestos.rest
+│   │   ├── test-laboratorios.rest
+│   │   ├── test-lqs.rest
+│   │   ├── test-matriz.rest
+│   │   ├── test-matrizProtocolo.rest
+│   │   ├── test-metodos.rest
+│   │   ├── test-muestras.rest
+│   │   ├── test-pozos.rest
+│   │   ├── test-protocolos.rest
+│   │   ├── test-proyectos.rest
+│   │   ├── test-proyectosEstado.rest
+│   │   ├── test-regulados.rest
+│   │   ├── test-relCG.rest
+│   │   ├── test-sinonimos.rest
+│   │   ├── test-subproyectos.rest
+│   │   ├── test-um.rest
+│   │   ├── test-umConvert.rest
+│   │   ├── test-valoresPlanos.rest
+│   │   └── test-varios.rest
+│   ├── sql
+│   │   ├── addLQsWithMethod999.sql
+│   │   ├── bfu-project-db-MasterData.sql
+│   │   ├── bfu-project-db-struct.sql
+│   │   ├── bfu-project-db.sql
+│   │   └── deleteSubproyectoTransactions.sql
+│   └── src
+│       ├── controllers
+│       │   ├── analisisRequeridos_controller.js
+│       │   ├── autaplicacion_controller.js
+│       │   ├── cadenaCompleta_controller.js
+│       │   ├── cadenaToDOCTabla_controller.js
+│       │   ├── cadenaToExcel_controller.js
+│       │   ├── cadenasCustodia_controller.js
+│       │   ├── cadenasSubproyectoCompuesto_controller.js
+│       │   ├── clientes_controller.js
+│       │   ├── compuestos_controller.js
+│       │   ├── eventomuestreo_controller.js
+│       │   ├── evolucionCDI_controller.js
+│       │   ├── graficosGrupos_controller.js
+│       │   ├── graficos_controller.js
+│       │   ├── grupoCompuestos_controller.js
+│       │   ├── laboratorios_controller.js
+│       │   ├── lqs_controller.js
+│       │   ├── mannKendall_controller.js
+│       │   ├── matrices_controller.js
+│       │   ├── matrizCadena_controller.js
+│       │   ├── metodos_controller.js
+│       │   ├── mkCompuestos_controller.js
+│       │   ├── mkPozos_controller.js
+│       │   ├── muestras_controller.js
+│       │   ├── pozosEstado_controller.js
+│       │   ├── pozosTipo_controller.js
+│       │   ├── pozos_controller.js
+│       │   ├── protocolos_controller.js
+│       │   ├── provincias_controller.js
+│       │   ├── proyectosEstado_controller.js
+│       │   ├── proyectos_controller.js
+│       │   ├── regulados_controller.js
+│       │   ├── relCompuestoGrupo_controller.js
+│       │   ├── sinonimosCompuestos_controller.js
+│       │   ├── sinonimosMetodos_controller.js
+│       │   ├── sinonimosUMs_controller.js
+│       │   ├── subproyectos_controller.js
+│       │   ├── umConvert_controller.js
+│       │   ├── um_controller.js
+│       │   ├── usuarios_controller.js
+│       │   ├── valoresPlanos_controller.js
+│       │   └── zipDownload_controller.js
+│       ├── database
+│       │   └── db.js
+│       ├── middleware
+│       │   ├── bcrypt_handle.js
+│       │   ├── controllerErrors.js
+│       │   ├── jwt_handle.js
+│       │   ├── logRequest.js
+│       │   ├── parseDevExtremeQuery.js
+│       │   └── session.js
+│       ├── models
+│       │   ├── analisisrequeridos_model.js
+│       │   ├── analisisrequeridos_schema.js
+│       │   ├── autaplicacion_model.js
+│       │   ├── autaplicacion_schema.js
+│       │   ├── cadenaCompleta_schema.js
+│       │   ├── cadenaToDOCTabla_schema.js
+│       │   ├── cadenaToExcel_schema.js
+│       │   ├── cadenasCustodia_model.js
+│       │   ├── cadenasCustodia_schema.js
+│       │   ├── clientes_model.js
+│       │   ├── clientes_schema.js
+│       │   ├── compuestos_model.js
+│       │   ├── compuestos_schema.js
+│       │   ├── eventomuestreo_model.js
+│       │   ├── eventomuestreo_schema.js
+│       │   ├── evolucionCDI_schema.js
+│       │   ├── graficosGrupos_model.js
+│       │   ├── graficosGrupos_schema.js
+│       │   ├── graficos_model.js
+│       │   ├── graficos_schema.js
+│       │   ├── grupoCompuestos_model.js
+│       │   ├── grupoCompuestos_schema.js
+│       │   ├── laboratorios_model.js
+│       │   ├── laboratorios_schema.js
+│       │   ├── lqs_model.js
+│       │   ├── lqs_schema.js
+│       │   ├── matrices_model.js
+│       │   ├── matrizCadena_schema.js
+│       │   ├── metodos_model.js
+│       │   ├── metodos_schema.js
+│       │   ├── mkCompuestos_models.js
+│       │   ├── mkCompuestos_schema.js
+│       │   ├── mkPozos_models.js
+│       │   ├── mkPozos_schema.js
+│       │   ├── muestras_model.js
+│       │   ├── muestras_schema.js
+│       │   ├── pozosEstado_model.js
+│       │   ├── pozosTipo_model.js
+│       │   ├── pozos_model.js
+│       │   ├── pozos_schema.js
+│       │   ├── protocolos_schema.js
+│       │   ├── provincia_model.js
+│       │   ├── proyectosEstado_model.js
+│       │   ├── proyectosExtended_model.js
+│       │   ├── proyectos_model.js
+│       │   ├── proyectos_schema.js
+│       │   ├── regulado_schema.js
+│       │   ├── regulados_model.js
+│       │   ├── relCompuestoGrupo_model.js
+│       │   ├── relCompuestoGrupo_schema.js
+│       │   ├── sinonimosCompuesto_model.js
+│       │   ├── sinonimosCompuesto_schema.js
+│       │   ├── sinonimosMetodo_model.js
+│       │   ├── sinonimosMetodo_schema.js
+│       │   ├── sinonimosUm_model.js
+│       │   ├── sinonimosUm_schema.js
+│       │   ├── subproyectos_model.js
+│       │   ├── subproyectos_schema.js
+│       │   ├── um_model.js
+│       │   ├── um_schema.js
+│       │   ├── usuarios_model.js
+│       │   └── utils
+│       │       ├── dateSchema.js
+│       │       └── numberSchema.js
+│       ├── routers
+│       │   ├── analisisRequeridos_router.js
+│       │   ├── autaplicacion_router.js
+│       │   ├── cadenaCompleta_router.js
+│       │   ├── cadenaToDocTabla_router.js
+│       │   ├── cadenaToExcel_router.js
+│       │   ├── cadenasCustodia_router.js
+│       │   ├── cadenasSubproyectoCompuesto_router.js
+│       │   ├── clientes_router.js
+│       │   ├── compuestos_router.js
+│       │   ├── eventomuestreo_router.js
+│       │   ├── evolucionCDI_router.js
+│       │   ├── graficosGrupos_router.js
+│       │   ├── graficos_router.js
+│       │   ├── grupoCompuestos_router.js
+│       │   ├── laboratorios_router.js
+│       │   ├── lqs_router.js
+│       │   ├── mannKendall_router.js
+│       │   ├── matrices_router.js
+│       │   ├── matrizCadena_router.js
+│       │   ├── metodos_router.js
+│       │   ├── mkCompuestos_router.js
+│       │   ├── mkPozos_router.js
+│       │   ├── muestras_router.js
+│       │   ├── pozosEstado_router.js
+│       │   ├── pozosTipo_router.js
+│       │   ├── pozos_router.js
+│       │   ├── protocolos_router.js
+│       │   ├── provincias_router.js
+│       │   ├── proyectosEstado_router.js
+│       │   ├── proyectos_router.js
+│       │   ├── regulados_router.js
+│       │   ├── relCompuestoGrupo_router.js
+│       │   ├── sinonimosCompuestos_router.js
+│       │   ├── sinonimosMetodos_router.js
+│       │   ├── sinonimosUMs_router.js
+│       │   ├── subproyectos_router.js
+│       │   ├── umConvert_router.js
+│       │   ├── um_router.js
+│       │   ├── usuarios_router.js
+│       │   ├── valoresPlanos_router.js
+│       │   └── zipDownload_router.js
+│       ├── server.js
+│       ├── services
+│       │   ├── MatrizCadena_service.js
+│       │   ├── SinonimosUMs_service.js
+│       │   ├── analisisrequeridos_service.js
+│       │   ├── autaplicacion_service.js
+│       │   ├── cadenaCompleta_service.js
+│       │   ├── cadenaToExcel_service.js
+│       │   ├── cadenasCustodia_service.js
+│       │   ├── cadenasSubproyectoCompuesto_service.js
+│       │   ├── clientes_service.js
+│       │   ├── compuestos_service.js
+│       │   ├── eventomuestreo_service.js
+│       │   ├── grupoCompuestos_service.js
+│       │   ├── laboratorios_service.js
+│       │   ├── lqs_service.js
+│       │   ├── matrices_service.js
+│       │   ├── metodos_service.js
+│       │   ├── muestras_service.js
+│       │   ├── pozosEstado_Service.js
+│       │   ├── pozosTipo_service.js
+│       │   ├── pozos_service.js
+│       │   ├── protocolos_service.js
+│       │   ├── provincias_service.js
+│       │   ├── proyectosEstado_service.js
+│       │   ├── proyectos_service.js
+│       │   ├── regulados_service.js
+│       │   ├── relCompuestoGrupo_service.js
+│       │   ├── reportes
+│       │   │   ├── evolucionCDI
+│       │   │   ├── mannKendall
+│       │   │   └── tablasAnaliticas
+│       │   ├── sinonimosCompuestos_service.js
+│       │   ├── sinonimosMetodos_service.js
+│       │   ├── subproyectos_service.js
+│       │   ├── umConvert_service.js
+│       │   ├── um_service.js
+│       │   ├── usuarios_service.js
+│       │   └── valoresPlanos_service.js
+│       └── utils
+│           ├── filenameGenerator.js
+│           ├── logger.js
+│           ├── stdError.js
+│           └── textNormalizer.js
+├── estructura.txt
+├── gitInstructions.md
+└── public
+    ├── ImagenPozos3.png
+    ├── assets
+    ├── favicon.ico
+    ├── index.html
+    ├── logo192.png
+    ├── logo512.png
+    ├── manifest.json
+    └── robots.txt
+
+23 directories, 666 files

@@ -1,22 +1,26 @@
+@host = localhost
+@port = 5111
+
+
 ### relCompuestosGrupo/ 
 #* allowedFields = ["id", "grupoId", "grupo", "compuestoId", "compuesto", "matrizCompuestoId", "matrizCompuesto", "matrizGrupoId", "MatrizGrupo"];
 
 ### GET 
 ### ? Todos los analisis
-GET http://localhost:5001/analisisrequeridos/
+GET http://{{host}}:{{port}}/api/analisisrequeridos/
 
 ### ? Analisis por grupo
 # Este request filtra los analisis con metodo que contiene "8015"
 # Formato interno: ["metodo","contains","8015"]
-GET http://localhost:5001/analisisrequeridos?$filter=[%22metodo%22%2C%22contains%22%2C%228015%22]
+GET http://{{host}}:{{port}}/api/analisisrequeridos?$filter=[%22metodo%22%2C%22contains%22%2C%228015%22]
 
 
 ### ? Get por ID
-GET http://localhost:5001/analisisRequeridos/2
+GET http://{{host}}:{{port}}/api/analisisRequeridos/2
 
 ### Updates
 ### ? Actualizar un analisis
-PUT http://localhost:5001/analisisrequeridos/2
+PUT http://{{host}}:{{port}}/api/analisisrequeridos/2
 Content-Type: application/json
 
 {
