@@ -4,3 +4,4 @@ back/logs/
 ./.gitignore
 public/*
 !public/.gitkeep
+!public/index.html
