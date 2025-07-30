@@ -12,3 +12,4 @@ eventomuestreoRouter.get('/fulldata/:id', EventomuestreoController.getFullDataBy
 eventomuestreoRouter.post('/', EventomuestreoController.create);
 eventomuestreoRouter.put('/:id', EventomuestreoController.update);
 eventomuestreoRouter.delete('/:id', EventomuestreoController.delete);
+eventomuestreoRouter.post('/:id/duplicar', EventomuestreoController.duplicar);

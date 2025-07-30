@@ -1,5 +1,7 @@
 import { pool, dbErrorMsg } from '../database/db.js';
 import Evento from '../models/eventomuestreo_model.js';
+import AnalisisRequeridosService from './analisisrequeridos_service.js';
+import MuestrasService from './muestras_service.js';
 
 const allowedFields = {
     id: 'E.id',
@@ -210,6 +212,51 @@ export default class EventomuestreoService {
             return response;
         } catch (error) {
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);
+        }
+    }
+
+    static async duplicarEvento ({ eventoId, nuevaFecha, nuevoNombre }) {
+        const conn = await pool.getConnection();
+        try {
+            await conn.beginTransaction();
+
+            // Obtener evento original
+            const eventoOriginal = await this.getById(eventoId);
+
+            // Crear nuevo evento
+            const nuevoEvento = {
+                fecha: nuevaFecha,
+                nombre: nuevoNombre,
+                subproyectoId: eventoOriginal.subproyectoId,
+                soloMuestras: eventoOriginal.soloMuestras
+            };
+            const [eventoResult] = await conn.query('INSERT INTO Eventomuestreo SET ?', [nuevoEvento]);
+            const nuevoEventoId = eventoResult.insertId;
+
+            // Obtener cadenas sin suelo
+            const [cadenas] = await conn.query(
+                'SELECT * FROM CadenaCustodia WHERE eventoMuestreoId = ? AND matrizCodigo <> 3',
+                [eventoId]
+            );
+
+            for (const cadena of cadenas) {
+                const nuevaCadena = { ...cadena, eventoMuestreoId: nuevoEventoId };
+                delete nuevaCadena.id;
+
+                const [resCadena] = await conn.query('INSERT INTO CadenaCustodia SET ?', [nuevaCadena]);
+                const nuevaCadenaId = resCadena.insertId;
+
+                await AnalisisRequeridosService.copyFromCadena(cadena.id, nuevaCadenaId, conn);
+                await MuestrasService.copyFromCadena(cadena.id, nuevaCadenaId, conn);
+            }
+
+            await conn.commit();
+            return nuevoEventoId;
+        } catch (error) {
+            await conn.rollback();
+            throw dbErrorMsg(error.status || 500, error.message || 'Error al duplicar evento');
+        } finally {
+            conn.release();
         }
     }
 }

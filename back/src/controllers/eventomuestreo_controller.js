@@ -1,6 +1,6 @@
 import EventomuestreoService from '../services/eventomuestreo_service.js';
 import { showError } from '../middleware/controllerErrors.js';
-import { eventomuestreoCreateSchema, eventomuestreoUpdateSchema } from '../models/eventomuestreo_schema.js';
+import { eventomuestreoCreateSchema, eventomuestreoUpdateSchema, eventomuestreoDuplicateSchema } from '../models/eventomuestreo_schema.js';
 import { z } from 'zod';
 
 export default class EventomuestreoController {
@@ -77,6 +77,34 @@ export default class EventomuestreoController {
 
             await EventomuestreoService.delete(id);
             res.status(204).send();
+        } catch (error) {
+            showError(req, res, error);
+        }
+    }
+
+    static async duplicar (req, res, next) {
+        try {
+            const id = parseInt(req.params.id);
+            if (isNaN(id)) throw Object.assign(new Error('El id debe ser numérico.'), { status: 400 });
+
+            // Validar body
+            const result = eventomuestreoDuplicateSchema.safeParse(req.body);
+            if (!result.success) {
+                const errores = result.error.errors.map(issue => ({
+                    field: issue.path.join('.'),
+                    message: issue.message
+                }));
+                throw Object.assign(new Error('Problemas con el req.body'), { status: 400, fields: errores });
+            }
+
+            const nuevoId = await EventomuestreoService.duplicarEvento({
+                eventoId: id,
+                nuevaFecha: result.data.fecha,
+                nuevoNombre: result.data.nombre
+            });
+
+            const eventoDuplicado = await EventomuestreoService.getById(nuevoId);
+            res.status(200).json(eventoDuplicado.toJson());
         } catch (error) {
             showError(req, res, error);
         }

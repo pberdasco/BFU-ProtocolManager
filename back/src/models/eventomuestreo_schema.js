@@ -10,3 +10,8 @@ export const eventomuestreoCreateSchema = z.object({
 });
 
 export const eventomuestreoUpdateSchema = eventomuestreoCreateSchema.partial();
+
+export const eventomuestreoDuplicateSchema = z.object({
+    fecha: dateSchema,
+    nombre: z.string().max(45)
+});

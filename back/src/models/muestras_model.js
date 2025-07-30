@@ -2,7 +2,9 @@ export default class Muestra {
     id; // int
     pozoId; // int (FK)
     cadenaCustodiaId; // int (FK)
-    nombre; // string(45)
+    nombreBase; // string(16)
+    nombreIndex; // int
+    nombre; // string(20)  - Se arma con nombreBase + "-" + nombreIndex
     tipo; // int (1,2,3)
     nivelFreatico; // decimal(6,3)
     nivelFLNA; // decimal(6,3)
@@ -15,6 +17,8 @@ export default class Muestra {
         this.id = row.id;
         this.pozoId = row.pozoId;
         this.cadenaCustodiaId = row.cadenaCustodiaId;
+        this.nombreBase = row.nombreBase;
+        this.nombreIndex = row.nombreIndex;
         this.nombre = row.nombre;
         this.tipo = row.tipo;
         this.nivelFreatico = parseFloat(row.nivelFreatico);
@@ -30,6 +34,8 @@ export default class Muestra {
             id: this.id,
             pozoId: this.pozoId,
             cadenaCustodiaId: this.cadenaCustodiaId,
+            nombreBase: this.nombreBase,
+            nombreIndex: this.nombreIndex,
             nombre: this.nombre,
             tipo: this.tipo,
             nivelFreatico: this.nivelFreatico,
