@@ -65,3 +65,12 @@ Content-Type: application/json
 ### ? Borrar un evento de muestreo
 DELETE http://{{host}}:{{port}}/api/eventomuestreo/4
 
+### Duplicate
+### ? Duplicar un evento de muestreo
+POST http://{{host}}:{{port}}/api/eventomuestreo/1618/duplicar
+Content-Type: application/json
+
+{
+  "fecha": "2025-08-01",
+  "nombre": "DUP_2025-08-01"
+}

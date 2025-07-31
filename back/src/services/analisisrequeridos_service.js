@@ -103,17 +103,17 @@ export default class AnalisisRequeridosService {
 
     static async copyFromCadena (origCadenaId, nuevaCadenaId, conn) {
         const [rows] = await conn.query(
-            'SELECT tipo, grupoId, compuestoId, metodoId FROM AnalisisRequeridos WHERE cadenaCustodiaId = ?',
+            'SELECT Tipo, GrupoId, CompuestoId, MetodoId FROM AnalisisRequeridos WHERE cadenaCustodiaId = ?',
             [origCadenaId]
         );
 
         for (const r of rows) {
             await conn.query('INSERT INTO AnalisisRequeridos SET ?', [{
                 cadenaCustodiaId: nuevaCadenaId,
-                tipo: r.tipo,
-                grupoId: r.grupoId,
-                compuestoId: r.compuestoId,
-                metodoId: r.metodoId
+                tipo: r.Tipo,
+                grupoId: r.GrupoId,
+                compuestoId: r.CompuestoId,
+                metodoId: r.MetodoId
             }]);
         }
     }

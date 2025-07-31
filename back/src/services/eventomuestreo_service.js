@@ -239,15 +239,24 @@ export default class EventomuestreoService {
                 [eventoId]
             );
 
+            const prefCad = [null, 'AG_', 'PH_', '', 'GS_'];
+            const ultCad = [0, 1, 1, 0, 1];
             for (const cadena of cadenas) {
-                const nuevaCadena = { ...cadena, eventoMuestreoId: nuevoEventoId };
-                delete nuevaCadena.id;
+                const nuevaCadena = {
+                    Nombre: prefCad[cadena.MatrizCodigo] + nuevaFecha + '/' + ultCad[cadena.MatrizCodigo],
+                    LaboratorioId: cadena.LaboratorioId,
+                    Fecha: nuevaFecha,
+                    EventoMuestreoId: nuevoEventoId,
+                    SubproyectoId: cadena.SubproyectoId,
+                    MatrizCodigo: cadena.MatrizCodigo
+                };
+                ultCad[cadena.matrizCodigo]++;
 
                 const [resCadena] = await conn.query('INSERT INTO CadenaCustodia SET ?', [nuevaCadena]);
                 const nuevaCadenaId = resCadena.insertId;
 
-                await AnalisisRequeridosService.copyFromCadena(cadena.id, nuevaCadenaId, conn);
-                await MuestrasService.copyFromCadena(cadena.id, nuevaCadenaId, conn);
+                await AnalisisRequeridosService.copyFromCadena(cadena.Id, nuevaCadenaId, conn);
+                await MuestrasService.copyFromCadena(cadena.Id, nuevaCadenaId, conn);
             }
 
             await conn.commit();

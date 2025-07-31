@@ -18,15 +18,17 @@ GET http://{{host}}:{{port}}/api/muestras/1579
 
 ### Updates
 ### ? Actualizar una muestra 
-PUT http://{{host}}:{{port}}/api/muestras/9
+PUT http://{{host}}:{{port}}/api/muestras/21094
 Content-Type: application/json
 
 {
-  "pozoId": 1,
-  "cadenaCustodiaId": 1,
-  "nombre": "Muestra 1-1",
+  "pozoId": 1028,
+  "cadenaCustodiaId": 1833,
+  "nombreBase": "MA PM7",
+  "nombreIndex": 3,
+  "nombre": "MA PM7/3",
   "tipo": 1,
-  "nivelFreatico": 1.32,
+  "nivelFreatico": 1.5,
   "profundidad": 0,
   "flna": 0,
   "cadenaOPDS": "",
@@ -41,18 +43,20 @@ POST http://{{host}}:{{port}}/api/muestras/
 Content-Type: application/json
 
 {
-  "pozoId": 3,
-  "cadenaCustodiaId": 1,
-  "nombre": "Muestra 1-1",
+  "pozoId": 1028,
+  "cadenaCustodiaId": 1833,
+  "nombreBase": "MA PM7",
+  "nombreIndex": 4,
+  "nombre": "MA PM7/4",
   "tipo": 1,
   "nivelFreatico": 1.32,
   "profundidad": 0,
   "flna": 0,
-  "cadenaOPDS": "",
+  "cadenaOPDS": "XXXXX",
   "protocoloOPDS": ""      
 }
 
 ### Delete
 ### ? Borrar una muestra
-DELETE http://{{host}}:{{port}}/api/muestras/3
+DELETE http://{{host}}:{{port}}/api/muestras/21092
 
