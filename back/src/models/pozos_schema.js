@@ -7,7 +7,10 @@ export const pozosCreateSchema = z.object({
     estadoId: z.number().int(),
     tipoId: z.number().int(),
     latitud: numberSchema({ desde: -90.999999, hasta: 90.999999 }).nullable().optional(),
-    longitud: numberSchema({ desde: -180.999999, hasta: 180.999999 }).nullable().optional()
+    longitud: numberSchema({ desde: -180.999999, hasta: 180.999999 }).nullable().optional(),
+    UltMuestraAguaIdx: z.number().int().nullable(),
+    UltMuestraFLNAIdx: z.number().int().nullable(),
+    UltMuestraGasIdx: z.number().int().nullable()
 });
 
 export const pozosUpdateSchema = pozosCreateSchema.partial();

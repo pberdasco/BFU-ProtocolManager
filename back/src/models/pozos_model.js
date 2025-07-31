@@ -6,6 +6,9 @@ export default class Pozo {
     tipoId; // int
     latitud; // decimal(9,6)
     longitud; // decimal(9,6)
+    UltMuestraAguaIdx; // int
+    UltMuestraFLNAIdx; // int
+    UltMuestraGasIdx; // int
 
     constructor (row) {
         this.id = row.id;
@@ -17,6 +20,9 @@ export default class Pozo {
         this.tipo = row.tipo;
         this.latitud = row.latitud;
         this.longitud = row.longitud;
+        this.UltMuestraAguaIdx = row.UltMuestraAguaIdx;
+        this.UltMuestraFLNAIdx = row.UltMuestraFLNAIdx;
+        this.UltMuestraGasIdx = row.UltMuestraGasIdx;
     }
 
     toJson () {
@@ -29,7 +35,10 @@ export default class Pozo {
             tipoId: this.tipoId,
             tipo: this.tipo,
             latitud: this.latitud,
-            longitud: this.longitud
+            longitud: this.longitud,
+            UltMuestraAguaIdx: this.UltMuestraAguaIdx,
+            UltMuestraFLNAIdx: this.UltMuestraFLNAIdx,
+            UltMuestraGasIdx: this.UltMuestraGasIdx
         };
     }
 }

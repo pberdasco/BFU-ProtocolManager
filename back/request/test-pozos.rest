@@ -18,14 +18,20 @@ GET http://{{host}}:{{port}}/api/pozos/1
 
 ### Updates
 ### ? Actualizar un pozo que no existe
-PUT http://{{host}}:{{port}}/api/pozos/9
+PUT http://{{host}}:{{port}}/api/pozos/999
 Content-Type: application/json
 
 {
-  "subproyectoId": 1,
-  "nombre": "PM4",
+  "subproyectoId": 151,
+  "nombre": "PM15",
   "estado": 1,
-  "tipo": 1
+  "tipoId": 1,
+  "latitud": null,
+  "longitud": null,
+  "UltMuestraAguaIdx": 1,
+  "UltMuestraFLNAIdx": 0,
+  "UltMuestraGasIdx": 1
+  
 }
 
 ### ? Actualizar un pozo
@@ -33,14 +39,21 @@ PUT http://{{host}}:{{port}}/api/pozos/1
 Content-Type: application/json
 
 {
-  "subproyectoId": 1,
-  "nombre": "PM4",
-  "estado": 1,
-  "tipo": 3
+  "id": 1,
+  "subproyectoId": 151,
+  "nombre": "PM11",
+  "estadoId": 1,
+  "tipoId": 3,
+  "latitud": null,
+  "longitud": null,
+  "UltMuestraAguaIdx": 1,
+  "UltMuestraFLNAIdx": 0,
+  "UltMuestraGasIdx": 2
+  
 }
 
 ### Create
-### ? Crear un proyecto con campos invalidos
+### ? Crear un pozo con campos invalidos
 POST http://{{host}}:{{port}}/api/pozos/
 Content-Type: application/json
 
@@ -48,26 +61,33 @@ Content-Type: application/json
   "subproyectoId": 5,
   "subproyecto": "300119-03",
   "nombre": "99",
-  "estado": 99,
-  "tipo": 99
+  "estadoId": 99,
+  "tipoId": 99,
+  "UltMuestraAguaIdx": 5,
+  "UltMuestraFLNAIdx": 0,
+  "UltMuestraGasIdx": 2
+  
 }
 
 
 ### Create
-### ? Crear un proyecto 
+### ? Crear un pozo 
 POST http://{{host}}:{{port}}/api/pozos/
 Content-Type: application/json
 
 {
-  "subproyectoId": 5,
-  "nombre": "PM6",
-  "estado": 1,
-  "tipo": 1
+  "subproyectoId": 151,
+  "nombre": "99",
+  "estadoId": 1,
+  "tipoId": 1,
+  "UltMuestraAguaIdx": 5,
+  "UltMuestraFLNAIdx": 0,
+  "UltMuestraGasIdx": 2
 }
 
 ### Delete
-### ? Borrar un proyecto
-DELETE http://{{host}}:{{port}}/api/pozos/5
+### ? Borrar un pozo
+DELETE http://{{host}}:{{port}}/api/pozos/1009
 
 ###
 http://{{host}}:{{port}}/api/proyectos?%24filter=%5B%22codigo%22%2C%22contains%22%2C%22200222%22%5D&%24sort=%5B%7B%22selector%22%3A%22nombre%22%2C%22desc%22%3Atrue%7D%2C%7B%22selector%22%3A%22id%22%2C%22desc%22%3Afalse%7D%5D&%24skip=0&%24take=10
