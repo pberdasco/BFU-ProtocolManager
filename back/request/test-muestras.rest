@@ -14,7 +14,7 @@ GET http://{{host}}:{{port}}/api/muestras?$filter=[%22nombre%22%2C%22%3D%22%2C%2
 
 ### GET by Id
 ### ? 
-GET http://{{host}}:{{port}}/api/muestras/1579
+GET http://{{host}}:{{port}}/api/muestras/21094
 
 ### Updates
 ### ? Actualizar una muestra 
