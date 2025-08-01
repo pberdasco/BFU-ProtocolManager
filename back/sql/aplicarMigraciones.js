@@ -52,7 +52,12 @@ async function aplicarMigraciones () {
             try {
                 console.log(`→ Aplicando: ${archivo}`);
                 console.log(sql);
-                await conn.query(sql);
+                const statements = sql.split(/;\s*[\r\n]+/);
+                for (const stmt of statements) {
+                    if (stmt.trim()) {
+                        await conn.query(stmt);
+                    }
+                }
                 await conn.query(
                     'INSERT INTO MigracionesAplicadas (nombreArchivo, aplicadoPor, comentario) VALUES (?, ?, ?)',
                     [archivo, process.env.USER || 'script', comentario]
