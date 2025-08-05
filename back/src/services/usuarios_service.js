@@ -43,7 +43,7 @@ export default class UsuariosService {
             return JWT.generateToken(user.toJson());
         } catch (error) {
             if (error.status === 401) throw error;
-            dbErrorMsg(500, error?.sqlMessage);
+            throw dbErrorMsg(500, error?.sqlMessage);
         }
     }
 }

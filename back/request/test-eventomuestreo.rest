@@ -74,3 +74,8 @@ Content-Type: application/json
   "fecha": "2025-08-01",
   "nombre": "DUP_2025-08-01"
 }
+
+
+### ? Filtra el ultimo Eventos de Muestreo del un subproyecto que sea soloMustras  
+# [["soloMuestras","=",true],"and",["subproyectoId","=",266]]
+GET http://{{host}}:{{port}}/api/eventomuestreo?$filter=[[%22soloMuestras%22,%22=%22,1],%22and%22,[%22subproyectoId%22,%22=%22,266]]&$sort=[{%22selector%22:%22fecha%22,%22desc%22:true}]&$take=1
