@@ -1,0 +1,1 @@
+INSERT INTO `SinonimosUM` (`TextoLab`, `TextoProcesado`, `UmId`) VALUES ('mg/kg MS', 'mgkgms', '14');

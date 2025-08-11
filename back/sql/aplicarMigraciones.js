@@ -17,7 +17,6 @@ const isDryRun = args.includes('--dry-run');
 async function aplicarMigraciones () {
     const conn = await pool.getConnection();
     try {
-        // Leer scripts ya aplicados
         const [aplicadas] = await conn.query('SELECT nombreArchivo FROM MigracionesAplicadas');
         const yaAplicadas = new Set(aplicadas.map(r => r.nombreArchivo));
 
@@ -33,7 +32,7 @@ async function aplicarMigraciones () {
                 console.log('Modo dry-run activado. Las siguientes migraciones se aplicarían:');
                 pendientes.forEach(a => console.log(`→ ${a}`));
             } else {
-                console.log('Modo dry-run activado. No quedan migracione pendientes por aplicar');
+                console.log('Modo dry-run activado. No quedan migraciones pendientes por aplicar');
             }
             conn.release();
             process.exit(0);
@@ -46,25 +45,40 @@ async function aplicarMigraciones () {
             // Extraer comentario si está en la primera línea
             const primeraLinea = sql.split('\n')[0].trim();
             const comentario = primeraLinea.startsWith('--')
-                ? primeraLinea.replace(/^--\s*/, '').slice(0, 254) // Limita a 255 caracteres
+                ? primeraLinea.replace(/^--\s*/, '').slice(0, 254)
                 : null;
 
+            console.log(`→ Aplicando: ${archivo}`);
+
+            // Iniciar transacción por archivo
+            await conn.beginTransaction();
             try {
-                console.log(`→ Aplicando: ${archivo}`);
-                console.log(sql);
-                const statements = sql.split(/;\s*[\r\n]+/);
+                // Ejecutar statements (uno por uno)
+                // Nota: este split es simple; si usás procedimientos/DELIMITER, ver notas abajo.
+                const statements = sql
+                    .split(/;\s*(?:\r?\n)+/g)
+                    .map(s => s.trim())
+                    .filter(s => s.length > 0);
+
                 for (const stmt of statements) {
-                    if (stmt.trim()) {
-                        await conn.query(stmt);
-                    }
+                    console.log('----> ', stmt);
+                    await conn.query(stmt);
                 }
+
+                // Registrar la migración dentro de la misma transacción
                 await conn.query(
                     'INSERT INTO MigracionesAplicadas (nombreArchivo, aplicadoPor, comentario) VALUES (?, ?, ?)',
                     [archivo, process.env.USER || 'script', comentario]
                 );
+
+                // Commit si todo fue bien
+                await conn.commit();
                 console.log(`✔ Aplicado: ${archivo}\n`);
             } catch (err) {
+                // Rollback si algo falla en este archivo
+                await conn.rollback();
                 console.error(`✗ Error en ${archivo}:`, err.message);
+                // Re-lanzar con tu formato estándar
                 throw dbErrorMsg(500, `Error al aplicar ${archivo}: ${err.message}`);
             }
         }
