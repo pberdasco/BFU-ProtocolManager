@@ -8,9 +8,9 @@ export const pozosCreateSchema = z.object({
     tipoId: z.number().int(),
     latitud: numberSchema({ desde: -90.999999, hasta: 90.999999 }).nullable().optional(),
     longitud: numberSchema({ desde: -180.999999, hasta: 180.999999 }).nullable().optional(),
-    UltMuestraAguaIdx: z.number().int().nullable(),
-    UltMuestraFLNAIdx: z.number().int().nullable(),
-    UltMuestraGasIdx: z.number().int().nullable()
+    UltMuestraAguaIdx: z.number().int().nullable().optional(),
+    UltMuestraFLNAIdx: z.number().int().nullable().optional(),
+    UltMuestraGasIdx: z.number().int().nullable().optional()
 });
 
 export const pozosUpdateSchema = pozosCreateSchema.partial();
