@@ -48,13 +48,13 @@ Content-Type: application/json
 }
 
 ### Obtener una Cadena Completa por ID
-GET http://{{host}}:{{port}}/api/cadenaCompleta/9
+GET http://{{host}}:{{port}}/api/cadenaCompleta/180
 
 ### Obtener las Cadenas Completa de un evento por ID
-GET http://{{host}}:{{port}}/api/cadenaCompleta/evento/8
+GET http://{{host}}:{{port}}/api/cadenaCompleta/evento/81
 
 ### Obtener las Cadenas Completa de un evento por ID con filtro por matriz
-GET http://{{host}}:{{port}}/api/cadenaCompleta/evento/8?matrizId=1
+GET http://{{host}}:{{port}}/api/cadenaCompleta/evento/81?matrizId=1
 
 ### Eliminar una Cadena Completa por ID
 DELETE http://{{host}}:{{port}}/api/cadenaCompleta/9

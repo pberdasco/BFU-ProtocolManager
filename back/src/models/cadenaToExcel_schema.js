@@ -44,7 +44,9 @@ const cadenaSchema = z.object({
     proyecto: z.string().min(1).max(255),
     laboratorio: z.string().min(1).max(255),
     muestras: z.array(muestraSchema).default([]),
-    analisis: z.array(analisisSchema).default([])
+    analisis: z.array(analisisSchema).default([]),
+    soloMedidas: z.boolean()
+
 });
 
 // Esquema para el cuerpo completo

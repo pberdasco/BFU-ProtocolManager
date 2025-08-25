@@ -108,6 +108,7 @@ export default class EventomuestreoService {
                     CC.id AS cadenaCustodiaId, 
                     CC.nombre AS cadenaNombre, 
                     CC.fecha AS cadenaFecha,
+                    CC.soloMedidas AS soloMedidas,
                     MUE.id AS muestraId,
                     MUE.nombre AS muestraNombre, 
                     P.nombre AS pozoNombre, 
@@ -157,6 +158,7 @@ export default class EventomuestreoService {
                         cliente: row.cliente,
                         proyecto: row.proyecto,
                         laboratorio: row.laboratorio,
+                        soloMedidas: !!row.soloMedidas,
                         muestras: new Map(), // Usamos Map para evitar duplicados y asegurar ordenación
                         analisis: new Map()
                     });
@@ -204,6 +206,7 @@ export default class EventomuestreoService {
                     cliente: c.cliente,
                     proyecto: c.proyecto,
                     laboratorio: c.laboratorio,
+                    soloMedidas: c.soloMedidas,
                     muestras: Array.from(c.muestras.values()), // Convertimos Map a Array ordenado
                     analisis: Array.from(c.analisis.values()) // Convertimos Map a Array ordenado
                 }))
@@ -238,6 +241,7 @@ export default class EventomuestreoService {
                 'SELECT * FROM CadenaCustodia WHERE eventoMuestreoId = ? AND matrizCodigo <> 3',
                 [eventoId]
             );
+            // ? Si el evento es SoloMuestras forzar a las cadenas SoloMedidas??
 
             const prefCad = [null, 'AG_', 'PH_', '', 'GS_'];
             const ultCad = [0, 1, 1, 0, 1];
@@ -248,9 +252,10 @@ export default class EventomuestreoService {
                     Fecha: nuevaFecha,
                     EventoMuestreoId: nuevoEventoId,
                     SubproyectoId: cadena.SubproyectoId,
-                    MatrizCodigo: cadena.MatrizCodigo
+                    MatrizCodigo: cadena.MatrizCodigo,
+                    SoloMedidas: !!cadena.SoloMedidas
                 };
-                ultCad[cadena.matrizCodigo]++;
+                ultCad[cadena.MatrizCodigo]++;
 
                 const [resCadena] = await conn.query('INSERT INTO CadenaCustodia SET ?', [nuevaCadena]);
                 const nuevaCadenaId = resCadena.insertId;

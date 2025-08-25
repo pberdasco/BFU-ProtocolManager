@@ -112,6 +112,9 @@ export default class CadenaToExcelService {
             const hojasExpandida = [];
 
             for (const item of cadenasArray) {
+                // ⛔ Omitir cadenas soloMedidas
+                if (Number(item.soloMedidas) === 1) continue;
+
                 const { muestras = [], analisis = [], nombre, ...resto } = item;
                 // Si no hay ni muestras ni analisis, se omite la cadena
                 if (muestras.length === 0 && analisis.length === 0) {
@@ -210,7 +213,15 @@ export default class CadenaToExcelService {
                 // Insertar análisis de forma similar
                 let analisisIndex = 0;
                 for (let rowNumber = startRow; rowNumber <= endRow && analisisIndex < analisis.length; rowNumber++) {
-                    const texto = analisis[analisisIndex].tipo === 1 ? analisis[analisisIndex].grupo : analisis[analisisIndex].compuestoNombre + ' - ' + analisis[analisisIndex].metodo;
+                    const metodo = analisis[analisisIndex].metodo || '';
+                    const metodoLimpio = metodo.toLowerCase().includes('desconocido') || metodo.toLowerCase().includes('definir')
+                        ? ''
+                        : ' - ' + metodo;
+
+                    const texto = analisis[analisisIndex].tipo === 1
+                        ? analisis[analisisIndex].grupo
+                        : analisis[analisisIndex].compuestoNombre + metodoLimpio;
+
                     newSheet.getCell(`${colAnalisis}${rowNumber}`).value = texto;
                     analisisIndex++;
                 }

@@ -119,8 +119,10 @@ export default class MuestrasService {
      *
      * Solo aplica si la cadena está asociada a una matriz válida (agua=1, FLNA=2, gases=4).
      * Las cadenas de suelo (matriz 3) no afectan ningún índice.
+     * Si la cadena es de Agua y es SoloMedidas=1 tampoco deben afectar ninún indice
      *
      * La funcion se ejecuta tanto en create como update y delete de muestras.
+     *
      *
      * @param {number} nombreIndex - El nuevo índice de muestra a evaluar.
      * @param {number} pozoId - ID del pozo asociado.
@@ -133,10 +135,13 @@ export default class MuestrasService {
         if ((typeof nombreIndex !== 'number' || nombreIndex < 0) || !pozoId || !cadenaCustodiaId) return;
         try {
             const [cadenaRows] = await pool.query(
-                'SELECT MatrizCodigo FROM CadenaCustodia WHERE id = ?',
+                'SELECT MatrizCodigo , soloMedidas FROM CadenaCustodia WHERE id = ?',
                 [cadenaCustodiaId]
             );
             if (cadenaRows.length === 0) return;
+
+            const esSoloMedidas = Number(cadenaRows[0].soloMedidas) === 1;
+            if (esSoloMedidas) return;
 
             const matrizCodigo = cadenaRows[0].MatrizCodigo;
             let campoActualizar = null;
@@ -210,8 +215,10 @@ export default class MuestrasService {
 
         for (const m of muestras) {
             // Obtener matrizCodigo de la cadena original
-            const [matrizRes] = await conn.query('SELECT MatrizCodigo FROM CadenaCustodia WHERE id = ?', [origCadenaId]);
+            const [matrizRes] = await conn.query('SELECT MatrizCodigo, soloMedidas FROM CadenaCustodia WHERE id = ?', [origCadenaId]);
             const matrizCodigo = matrizRes[0]?.MatrizCodigo;
+            const esSoloMedidas = Number(matrizRes[0]?.soloMedidas) === 1;
+
             if (!matrizCodigo) continue;
 
             // Obtener índice actual del pozo
@@ -227,7 +234,8 @@ export default class MuestrasService {
 
             const [pozoRes] = await conn.query(`SELECT ${campo} FROM Pozos WHERE id = ?`, [m.PozoId]);
             const indexActual = pozoRes[0]?.[campo] ?? 0;
-            const nuevoIndex = indexActual + 1;
+
+            const nuevoIndex = esSoloMedidas ? 0 : (indexActual + 1);
 
             const nuevaMuestra = {
                 pozoId: m.PozoId,
@@ -245,7 +253,8 @@ export default class MuestrasService {
             };
 
             await conn.query('INSERT INTO Muestras SET ?', [nuevaMuestra]);
-            await conn.query(`UPDATE Pozos SET ${campo} = ? WHERE id = ?`, [nuevoIndex, m.PozoId]);
+            // solo actualiza el indice de pozos cuando la muestra no es de una cadena de Solo Medidas
+            if (!esSoloMedidas) { await conn.query(`UPDATE Pozos SET ${campo} = ? WHERE id = ?`, [nuevoIndex, m.PozoId]); }
         }
     }
 }

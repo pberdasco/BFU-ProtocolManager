@@ -9,11 +9,13 @@ const allowedFields = {
     subproyectoId: 'c.subproyectoId',
     matrizCodigo: 'c.matrizCodigo',
     laboratorioId: 'c.laboratorioId',
-    laboratorio: 'l.nombre'
+    laboratorio: 'l.nombre',
+    soloMedidas: 'c.soloMedidas'
+
 };
 
 const table = 'CadenaCustodia';
-const selectBase = 'SELECT c.id, c.nombre, c.fecha, c.eventoMuestreoId, c.subproyectoId, c.matrizCodigo, c.laboratorioId, l.nombre as laboratorio, ' +
+const selectBase = 'SELECT c.id, c.nombre, c.fecha, c.eventoMuestreoId, c.subproyectoId, c.matrizCodigo, c.laboratorioId, l.nombre as laboratorio, c.soloMedidas, ' +
                    '(SELECT COUNT(*) FROM Muestras m WHERE m.cadenaCustodiaId = c.id) AS cantidadMuestras, ' +
                    '(SELECT COUNT(*) FROM AnalisisRequeridos a WHERE a.cadenaCustodiaId = c.id) AS cantidadAnalisis ';
 const selectTables = 'FROM CadenaCustodia c ' +

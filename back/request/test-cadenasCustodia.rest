@@ -1,33 +1,42 @@
 @host = localhost
 @port = 5111
 
-### eventomuestreo/ 
+### Cadena de Custodia/ 
 #* allowedFields = ["id", "fecha", "subproyectoId", "nombre", "cadenaCustodiaLink"];
 
 ### GET 
-### ? Todos los eventos de nuestreo
+### ? Todos las cadenas de custodia
 GET http://{{host}}:{{port}}/api/cadenascustodia/
+
+### GET 
+### ? Todos las cadenas de custodia que son soloMedidas
+
+GET http://{{host}}:{{port}}/api/cadenascustodia?$filter=["soloMedidas","=","1"]
+
 
 ### ? Filtra Cadenas de Custodia  
 # Este request filtra los Eventos de Muestreo del eventoMuestreoId  = 1
 # Formato interno: ["eventoMuestreoId","=","2"]
-GET http://{{host}}:{{port}}/api/cadenascustodia?$filter=[%22eventoMuestreoId%22%2C%22%3D%22%2C%222%22]
+GET http://{{host}}:{{port}}/api/cadenascustodia?$filter=[%22eventoMuestreoId%22%2C%22%3D%22%2C%2210%22]
+
+
 
 ### GET by Id
 ### ? 
-GET http://{{host}}:{{port}}/api/cadenascustodia/1
+GET http://{{host}}:{{port}}/api/cadenascustodia/17
 
 ### Updates
 ### ? Actualizar una cadena de custodia
-PUT http://{{host}}:{{port}}/api/cadenascustodia/2
+PUT http://{{host}}:{{port}}/api/cadenascustodia/168
 Content-Type: application/json
 
 {
-  "nombre": "Cadena Actual",
-  "fecha": "2024-09-01",
-  "laboratorioId": 1,
-  "eventoMuestreoId": 2,
-  "matrizCodigo": 2
+  "laboratorioId": 6,
+  "eventoMuestreoId": 10,
+  "subproyectoId": 270,
+  "matrizCodigo": 1,
+  "soloMedidas": false
+
 }
 
 
@@ -37,11 +46,13 @@ POST http://{{host}}:{{port}}/api/cadenascustodia/
 Content-Type: application/json
 
 {
-  "nombre": "Cadena Delete",
-  "fecha": "2024-09-02",
-  "laboratorioId": 1,
-  "eventoMuestreoId": 2,
-  "matrizCodigo": 1
+  "laboratorioId": 6,
+  "eventoMuestreoId": 20,
+  "subproyectoId": 270,
+  "matrizCodigo": 1,
+  "nombre": "Cadena Prueba",
+  "fecha": "2025-08-15",
+  "soloMedidas": true
 }
 
 ### Delete

@@ -7,7 +7,9 @@ export const cadenasCustodiaCreateSchema = z.object({
     eventoMuestreoId: z.number().int().min(1, 'El ID del evento de muestreo debe ser un entero positivo'),
     subproyectoId: z.number().int().min(1, 'El ID del subproyecto debe ser un entero positivo'),
     matrizCodigo: z.number().int().min(1, 'El Codigo de la Matriz debe ser un entero positivo'),
-    fecha: dateSchema
+    fecha: dateSchema,
+    soloMedidas: z.boolean()
+
 });
 
 export const cadenasCustodiaUpdateSchema = cadenasCustodiaCreateSchema.partial();

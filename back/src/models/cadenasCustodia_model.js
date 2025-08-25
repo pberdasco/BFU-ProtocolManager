@@ -9,6 +9,7 @@ export default class CadenasCustodia {
     laboratorio; // string(45)
     cantidadMuestras; // int
     cantidadAnalisis; // int
+    soloMedidas; // tiniInt(0/1) - manejarlo como boolean
 
     constructor (row) {
         this.id = row.id;
@@ -21,6 +22,7 @@ export default class CadenasCustodia {
         this.laboratorio = row.laboratorio;
         this.cantidadMuestras = row.cantidadMuestras;
         this.cantidadAnalisis = row.cantidadAnalisis;
+        this.soloMedidas = !!row.soloMedidas;
     }
 
     toJson () {
@@ -34,7 +36,8 @@ export default class CadenasCustodia {
             fecha: this.fecha,
             laboratorio: this.laboratorio,
             cantidadMuestras: this.cantidadMuestras,
-            cantidadAnalisis: this.cantidadAnalisis
+            cantidadAnalisis: this.cantidadAnalisis,
+            soloMedidas: this.soloMedidas
         };
     }
 }
