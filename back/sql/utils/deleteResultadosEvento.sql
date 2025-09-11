@@ -1,5 +1,5 @@
 -- Borra todos los protocolos y sus asignaciones para un evento.
--- Borra tambien las cadenas con sus analisis y muestras y luego el evento.
+--    (deja intactos las cadenas + muestras + analisis)
 
 SET SQL_SAFE_UPDATES = 0;
 SET @subpCodigo = '201894-151';
@@ -42,20 +42,5 @@ DELETE P
 FROM protocolos P
 WHERE P.EventoMuestreoId = @eventoId;
 
--- Analisis requeridos, muestras, cadenas, evento
-DELETE AR
-FROM analisisRequeridos AR
-JOIN cadenaCustodia CC ON AR.cadenaCustodiaId = CC.id
-WHERE CC.EventoMuestreoId = @eventoId;
-
-DELETE M FROM Muestras m
-LEFT JOIN CadenaCustodia CC ON M.CadenaCustodiaId = CC.id
-WHERE CC.EventoMuestreoId = @eventoId;
-
-DELETE FROM CadenaCustodia CC
-WHERE CC.EventoMuestreoId = @eventoId;
-
-DELETE FROM EventoMuestreo E
-WHERE E.Id = @eventoId;
 
 SET SQL_SAFE_UPDATES = 1;

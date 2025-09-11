@@ -7,7 +7,7 @@
 SET SQL_SAFE_UPDATES = 0;
 SET @subpCodigo = '201894-085';
 
-USE `bfu-project-testdb`;
+USE `bfu-project-db`;
 
 SELECT id INTO @subproyecto FROM subproyectos WHERE codigo = @subpCodigo;
 SELECT @subproyecto;
