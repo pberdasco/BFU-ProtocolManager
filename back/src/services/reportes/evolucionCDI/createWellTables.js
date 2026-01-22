@@ -200,7 +200,7 @@ async function buildWorkbook (measurements, grupoConfig) {
         // Sanitize worksheet name (Excel has restrictions on worksheet names)
         // const safePozoName = pozoName.replace(/[*?:/\\[\]]/g, '_').substring(0, 31);
         const safePozoName = pozoName
-            .replace(/'/g, '-P')
+            .replace(/'/g, 'Prima')
             .replace(/[*?:/\\[\]]/g, '_')
             .substring(0, 31);
 
@@ -248,7 +248,7 @@ async function buildWorkbook (measurements, grupoConfig) {
 
         // Record index for fechas
         indexByPozo.push({
-            pozo: pozoName,
+            pozo: safePozoName,
             fechaInicio: dates[0],
             filaInicio: 4,
             fechaFin: dates[dates.length - 1],
@@ -260,7 +260,7 @@ async function buildWorkbook (measurements, grupoConfig) {
             const colNum = 2 + idx;
             indexByCompuesto.push({
                 pozoId,
-                pozo: pozoName,
+                pozo: safePozoName,
                 compuestoId: c.compuestoId,
                 compuesto: c.nombre,
                 columna: columnNumberToName(colNum)

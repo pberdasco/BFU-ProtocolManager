@@ -107,7 +107,6 @@ export async function getPlainData (subproyectoId, uniquePozos, uniqueCompuestos
     try {
         // Obtener todas las cadenas del subproyecto y matriz
         const [measurements] = await pool.query(sql, [subproyectoId, uniquePozos, uniqueCompuestos, subproyectoId, uniquePozos, subproyectoId, uniquePozos, uniqueCompuestos]);
-        console.log('measurements: ', measurements);
 
         const rangoFechas = minAndMaxFecha(measurements);
         return { rangoFechas, measurements };

@@ -61,7 +61,6 @@ export function generateGraphs (indexByWell, indexByCompound, grupos, graficosCo
     try {
         excel = openExcel();
         workbook = openWorkbook(excel, workbookPath);
-        console.log('indexByCompound: ', indexByCompound);
 
         const sheetNamesById = indexByCompound.reduce((map, { pozoId, pozo }) => {
             map[pozoId] = pozo;
@@ -70,11 +69,21 @@ export function generateGraphs (indexByWell, indexByCompound, grupos, graficosCo
 
         grupos.forEach((grupo, gIdx) => {
             grupo.pozos.forEach(pozoId => {
-                console.log(`Procesando grupo ${gIdx} pozo ${pozoId}`);
-                console.log('---');
-                console.log('Grupo:', gIdx);
-                console.log('pozoId:', pozoId, 'tipo:', typeof pozoId);
-                console.log('sheetNamesById keys:', Object.keys(sheetNamesById).slice(0, 10));
+                if (!sheetNamesById[pozoId]) {
+                    logger.warn(`[generateGraphs] El pozoId ${pozoId} no tiene datos. Registrando en log y saltando...`);
+                    log.push({
+                        pozoId,
+                        pozo: `ID: ${pozoId} (Sin datos)`,
+                        graficoId: null,
+                        graficoNombre: 'N/A',
+                        section: 0,
+                        CP: 'N/A',
+                        chartName: 'N/A',
+                        pngPath: '',
+                        status: 'NoData'
+                    });
+                    return;
+                }
                 const sheetName = getSheetName(pozoId, sheetNamesById);
                 let sheet = null;
                 try {
@@ -282,19 +291,10 @@ function saveAndClose (workbook, excel) {
 }
 
 function getSheetName (pozoId, sheetNamesById) {
-    console.log('sheetnamebyid: ', sheetNamesById);
-    console.log('getSheetName -> pozoId:', pozoId, 'tipo:', typeof pozoId);
-    console.log('sheetNamesById[pozoId]:', sheetNamesById[pozoId]);
-
     const name = sheetNamesById[pozoId];
-    const safePozoName = name;
-    //     .replace(/'/g, '-P')
-    //     .replace(/[*?:/\\[\]]/g, '_')
-    //     .substring(0, 31);
-    // console.log('name: ', name, safePozoName);
 
-    if (!safePozoName) throw stdErrorMsg(400, `[generateGraphs] No se encontró nombre de hoja para pozoId=${pozoId}`);
-    return safePozoName;
+    if (!name) throw stdErrorMsg(400, `[generateGraphs] No se encontró nombre de hoja para pozoId=${pozoId}`);
+    return name;
 }
 
 /**
