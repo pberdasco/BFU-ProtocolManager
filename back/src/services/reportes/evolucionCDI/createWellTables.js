@@ -198,7 +198,11 @@ async function buildWorkbook (measurements, grupoConfig) {
         const pozoName = records[0].pozoNombre;
 
         // Sanitize worksheet name (Excel has restrictions on worksheet names)
-        const safePozoName = pozoName.replace(/[*?:/\\[\]]/g, '_').substring(0, 31);
+        // const safePozoName = pozoName.replace(/[*?:/\\[\]]/g, '_').substring(0, 31);
+        const safePozoName = pozoName
+            .replace(/'/g, '-P')
+            .replace(/[*?:/\\[\]]/g, '_')
+            .substring(0, 31);
 
         const compounds = getUniqueCompounds(records);
         const dates = getUniqueDates(records);
