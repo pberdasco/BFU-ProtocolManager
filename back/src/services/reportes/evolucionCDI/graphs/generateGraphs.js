@@ -287,11 +287,11 @@ function getSheetName (pozoId, sheetNamesById) {
     console.log('sheetNamesById[pozoId]:', sheetNamesById[pozoId]);
 
     const name = sheetNamesById[pozoId];
-    const safePozoName = name
-        .replace(/'/g, '-P')
-        .replace(/[*?:/\\[\]]/g, '_')
-        .substring(0, 31);
-    console.log('name: ', name, safePozoName);
+    const safePozoName = name;
+    //     .replace(/'/g, '-P')
+    //     .replace(/[*?:/\\[\]]/g, '_')
+    //     .substring(0, 31);
+    // console.log('name: ', name, safePozoName);
 
     if (!safePozoName) throw stdErrorMsg(400, `[generateGraphs] No se encontró nombre de hoja para pozoId=${pozoId}`);
     return safePozoName;
