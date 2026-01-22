@@ -277,9 +277,17 @@ function saveAndClose (workbook, excel) {
 }
 
 function getSheetName (pozoId, sheetNamesById) {
+    console.log('sheetnamebyid: ', sheetNamesById);
+
     const name = sheetNamesById[pozoId];
-    if (!name) throw stdErrorMsg(400, `[generateGraphs] No se encontró nombre de hoja para pozoId=${pozoId}`);
-    return name;
+    const safePozoName = name
+        .replace(/'/g, '-P')
+        .replace(/[*?:/\\[\]]/g, '_')
+        .substring(0, 31);
+    console.log('name: ', name, safePozoName);
+
+    if (!safePozoName) throw stdErrorMsg(400, `[generateGraphs] No se encontró nombre de hoja para pozoId=${pozoId}`);
+    return safePozoName;
 }
 
 /**
