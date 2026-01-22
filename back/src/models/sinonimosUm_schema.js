@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
 export const sinonimoUmCreateSchema = z.object({
-    textoLab: z.string().max(10, 'El textoLab no puede superar los 10 caracteres'),
-    textoProcesado: z.string().max(10, 'El textoProcesado no puede superar los 10 caracteres'),
+    textoLab: z.string().max(15, 'El textoLab no puede superar los 15 caracteres'),
+    textoProcesado: z.string().max(15, 'El textoProcesado no puede superar los 15 caracteres'),
     umId: z.number().int().min(1, 'El ID de la unidad de medida debe ser un entero positivo')
 });
 

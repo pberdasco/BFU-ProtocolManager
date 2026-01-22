@@ -17,7 +17,7 @@ export const compuestoSchema = z.object({
     compuestoId: z.number().int().positive().nullable(),
     metodoLab: z.string().min(1).max(60).nullable(),
     metodoId: z.number().int().positive().nullable(),
-    unidadLab: z.string().min(1).max(10).nullable(),
+    unidadLab: z.string().min(1).max(15).nullable(),
     unidadId: z.number().int().positive().nullable()
 }).passthrough(); // Permite que existan otros campos dinámicos (las muestras)
 
