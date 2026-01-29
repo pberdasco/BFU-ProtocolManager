@@ -159,6 +159,13 @@ function processSheetGroup (filePath, sheetIndex, compuesto, grupo, logLines) {
             return row;
         });
 
+        const expectedCols = 1 + (grupo.sampleIndices?.length ?? 0);
+
+        // si no hay mediciones, crear una primera fila “base” vacía para poder rellenar
+        if (values.length === 0) {
+            values.push(new Array(expectedCols).fill(''));
+        }
+
         // Rellenar con filas vacías si la cantidad de mediciones es menor que totalFilas
         const filasFaltantes = totalFilas - values.length;
         for (let i = 0; i < filasFaltantes; i++) {
