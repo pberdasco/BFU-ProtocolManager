@@ -30,11 +30,13 @@ export async function getPlainData (subproyectoId, uniquePozos, uniqueCompuestos
                             p.subproyectoId,
                             p.id AS pozoId,
                             p.nombre AS pozoNombre,
+                            em.fecha AS fecha_dt,
                             DATE_FORMAT(em.fecha, '%Y-%m-%dT%H:%i:%s.000Z') AS fecha,
                             JSON_EXTRACT(JSON_OBJECT('v', em.soloMuestras = 1), '$.v') AS soloMuestras,
                             c.codigo AS compuestoCodigo,
                             c.id AS compuestoId,
                             c.nombre AS compuestoNombre,
+                            um.id AS umId,
                             um.nombre AS unidad,
                             CAST(ccv.valor AS DECIMAL(10,4)) AS valor,
                             'compuesto' AS tipoDato
@@ -46,20 +48,22 @@ export async function getPlainData (subproyectoId, uniquePozos, uniqueCompuestos
                         JOIN CadenaCompletaFilas ccf ON ccf.id = ccv.cadenaCompletaFilaId
                         JOIN Compuestos c ON c.id = ccf.compuestoId
                         JOIN UM um ON um.id = ccf.umId
-                        WHERE p.subproyectoId = ? AND pozoId IN (?) AND compuestoId IN (?)
-    
+                        WHERE p.subproyectoId = ? AND p.id IN (?) AND c.id IN (?)
+
                         UNION ALL
-    
-                        -- Nivel freático como "compuesto virtual"
+
+                        -- Nivel freático (sin umId real)
                         SELECT
                             p.subproyectoId,
                             p.id AS pozoId,
                             p.nombre AS pozoNombre,
+                            em.fecha AS fecha_dt,
                             DATE_FORMAT(em.fecha, '%Y-%m-%dT%H:%i:%s.000Z') AS fecha,
                             JSON_EXTRACT(JSON_OBJECT('v', em.soloMuestras = 1), '$.v') AS soloMuestras,
                             '00000001' AS compuestoCodigo,
                             -1 AS compuestoId,
                             'Nivel freático' AS compuestoNombre,
+                            NULL AS umId,
                             'm.b.b.p.' AS unidad,
                             CAST(CASE WHEN m.nivelFreatico = 0 THEN -4 ELSE m.nivelFreatico END AS DECIMAL(10,4)) AS valor,
                             'nivel' AS tipoDato
@@ -68,20 +72,22 @@ export async function getPlainData (subproyectoId, uniquePozos, uniqueCompuestos
                         JOIN Muestras m ON m.cadenaCustodiaId = cc.id
                         JOIN Pozos p ON p.id = m.pozoId
                         WHERE m.nivelFreatico IS NOT NULL
-                        AND p.subproyectoId = ? AND pozoId IN (?)
-    
+                        AND p.subproyectoId = ? AND p.id IN (?)
+
                         UNION ALL
-    
-                        -- FLNA como "compuesto virtual"
+
+                        -- FLNA (sin umId real)
                         SELECT
                             p.subproyectoId,
                             p.id AS pozoId,
                             p.nombre AS pozoNombre,
+                            em.fecha AS fecha_dt,
                             DATE_FORMAT(em.fecha, '%Y-%m-%dT%H:%i:%s.000Z') AS fecha,
                             JSON_EXTRACT(JSON_OBJECT('v', em.soloMuestras = 1), '$.v') AS soloMuestras,
                             '00000002' AS compuestoCodigo,
                             -2 AS compuestoId,
                             'FLNA' AS compuestoNombre,
+                            NULL AS umId,
                             'm' AS unidad,
                             CAST(CASE WHEN m.flna = 0 THEN -4 ELSE m.flna END AS DECIMAL(10,4)) AS valor,
                             'fase' AS tipoDato
@@ -90,18 +96,65 @@ export async function getPlainData (subproyectoId, uniquePozos, uniqueCompuestos
                         JOIN Muestras m ON m.cadenaCustodiaId = cc.id
                         JOIN Pozos p ON p.id = m.pozoId
                         WHERE m.flna IS NOT NULL
-                        AND p.subproyectoId = ? AND pozoId IN (?)
-                    )
-                    SELECT 
-                        dr.*,
-                        CASE
-                            WHEN dr.valor IN (-4, -3, -2) THEN NULL      -- NA o ND → null en chart
-                            WHEN dr.valor <= 0 THEN 0.00001          -- NC       → valor muy pequeño / podria ser 1/2*LQ
-                            ELSE dr.valor                            -- resto    → valor real
-                        END AS valorChart
+                        AND p.subproyectoId = ? AND p.id IN (?)
+                    ),
+                    ConDestino AS (
+                        SELECT
+                            dr.*,
+                            -- unidad destino = unidad del registro más viejo (solo para compuestos reales)
+                            CASE
+                                WHEN dr.tipoDato = 'compuesto'
+                                THEN FIRST_VALUE(dr.umId) OVER (
+                                    PARTITION BY dr.subproyectoId, dr.pozoId, dr.compuestoId
+                                    ORDER BY dr.fecha_dt
+                                )
+                                ELSE NULL
+                            END AS umDestinoId
                         FROM DatosRaw dr
-                        WHERE dr.compuestoId IN (?)
-                        ORDER BY dr.fecha, dr.pozoId, dr.compuestoId;
+                    ),
+                    Convertido AS (
+                        SELECT
+                            cd.*,
+                            uDest.nombre AS unidadDestino,
+                            uc.factor AS factorConversion,
+                            -- valor convertido: solo convertir positivos (los -1/-2/-3/-4 se respetan)
+                            CASE
+                                WHEN cd.tipoDato <> 'compuesto' THEN cd.valor
+                                WHEN cd.umDestinoId IS NULL OR cd.umId IS NULL OR cd.umId = cd.umDestinoId THEN cd.valor
+                                WHEN cd.valor <= 0 THEN cd.valor
+                                WHEN uc.factor IS NULL THEN cd.valor  -- si falta conversión, lo dejamos igual (o podés forzar NULL/error)
+                                ELSE CAST(cd.valor * uc.factor AS DECIMAL(10,4))
+                            END AS valorConv
+                        FROM ConDestino cd
+                        LEFT JOIN umconvert uc
+                            ON uc.DesdeUmId = cd.umId
+                        AND uc.HastaUmId = cd.umDestinoId
+                        LEFT JOIN UM uDest
+                            ON uDest.id = cd.umDestinoId
+                    )
+                    SELECT
+                        subproyectoId,
+                        pozoId,
+                        pozoNombre,
+                        fecha,
+                        soloMuestras,
+                        compuestoCodigo,
+                        compuestoId,
+                        compuestoNombre,
+                        CASE
+                            WHEN tipoDato = 'compuesto' AND umDestinoId IS NOT NULL THEN unidadDestino
+                            ELSE unidad
+                        END AS unidad,
+                        valorConv AS valor,
+                        tipoDato,
+                        CASE
+                            WHEN valorConv IN (-4, -3, -2) THEN NULL
+                            WHEN valorConv <= 0 THEN 0.00001
+                            ELSE valorConv
+                        END AS valorChart
+                    FROM Convertido
+                    WHERE compuestoId IN (?)
+                    ORDER BY fecha_dt, pozoId, compuestoId;
                     `;
 
     try {
