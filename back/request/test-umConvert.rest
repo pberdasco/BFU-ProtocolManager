@@ -12,3 +12,36 @@ GET http://{{host}}:{{port}}/api/umConvert/
 ### convertir la um 2 en la um 1
 GET http://{{host}}:{{port}}/api/umConvert/2/1
 
+
+### GET 
+### ? Todas las Conversiones de unidades de medida
+GET http://{{host}}:{{port}}/api/umConvert/dx/
+
+
+## Updates
+### ? Actualizar una um
+PUT http://{{host}}:{{port}}/api/umConvert/dx/6
+Content-Type: application/json
+
+{
+  "factor": 1
+}
+
+
+### Create
+### ? Crear un cliente 
+POST http://{{host}}:{{port}}/api/umConvert/
+Content-Type: application/json
+
+{
+  "nombre": "cm3"
+}
+
+
+### Delete
+### ? Borrar un cliente que no existe
+DELETE http://{{host}}:{{port}}/api/clientes/77
+
+### Delete
+### ? Borrar un cliente que sí existe
+DELETE http://{{host}}:{{port}}/api/clientes/3
