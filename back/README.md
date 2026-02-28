@@ -1,3 +1,11 @@
+⚠ Este proyecto usa npm (NO pnpm)
+
+Motivo: dependencia winax (addon nativo COM) no funciona correctamente con pnpm.
+Usar siempre:
+
+nvm use 22.22.0 (a la fecha feb2026, winax no estaba disponible para node 24 o superiores)
+npm install (o npm ci en deploy)
+
 # Backend para Gestión de Cadenas de Custodia y Análisis de Muestras
 
 ![Node.js](https://img.shields.io/badge/Node%2Ejs-v22%2Ex-blue?logo=node%2Ejs) ![Base de Datos](https://img.shields.io/badge/MySQL-v8%2Ex-blue?logo=mysql)
@@ -46,7 +54,6 @@ src/
 
 3. Instalación de winax (solo se utiliza para la funcionalidad Mann-Kendall)
    ⚠️ winax requiere compilación nativa. Antes de instalarlo, asegurate de tener:
-
    - Python 3.x accesible desde consola
    - Visual Studio con herramientas de desarrollo C++ o Visual Studio Build Tools
    - Windows SDK (para la version 10 u 11 segun sea el SO)

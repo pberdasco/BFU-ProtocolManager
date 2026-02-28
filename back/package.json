@@ -33,5 +33,6 @@
   "devDependencies": {
     "eslint": "^8.57.1",
     "semistandard": "^17.0.0"
-  }
+  },
+  "packageManager": "npm@10.9.4"
 }
