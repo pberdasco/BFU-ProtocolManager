@@ -15,6 +15,7 @@ export default class CadenaToExcelService {
             let chunkIndex = 0;
 
             const basePath = process.env.CADENA_EXCEL_PATH;
+            fs.mkdirSync(basePath, { recursive: true });
             const fileName = `${cadena.proyecto.trim()}-${cleanString(cadena.nombre)}.xlsx`;
             const destinoBase = path.join(basePath, fileName);
 
