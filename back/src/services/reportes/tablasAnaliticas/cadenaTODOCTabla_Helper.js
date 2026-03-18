@@ -91,7 +91,7 @@ function greyCell (text, opts = {}) {
             new Paragraph({
                 children: [
                     new TextRun({
-                        text,
+                        text: text || '',
                         font: 'Arial',
                         size: 20 // 10 pt
                     })
