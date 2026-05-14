@@ -39,7 +39,7 @@ export default class CadenaToExcelService {
                 const startRow = 11;
                 const endRow = 27;
                 const colMuestra = 'C';
-                const colAnalisis = 'W';
+                const colAnalisis = 'X';
 
                 muestrasChunk.forEach((muestra, index) => {
                     const rowNumber = startRow + index;
@@ -198,7 +198,7 @@ export default class CadenaToExcelService {
                 const colIndice = 'B';
                 const colMuestra = 'C';
                 const colCoordenadas = 'H';
-                const colAnalisis = 'W';
+                const colAnalisis = 'X';
 
                 // Insertar muestras: asignamos un número en la columna B y la muestra en la columna definida
                 let muestraIndex = 0;
