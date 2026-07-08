@@ -1,6 +1,6 @@
 import ProyectosService from '../services/proyectos_service.js';
 import { showError } from '../middleware/controllerErrors.js';
-import { proyectoCreateSchema, proyectoUpdateSchema, proyectoCreateExtendedSchema } from '../models/proyectos_schema.js';
+import { proyectoCreateSchema, proyectoUpdateSchema, proyectoCreateExtendedSchema, proyectoRenumeracionSchema } from '../models/proyectos_schema.js';
 // import { proyectoUpdateExtendedSchema } from '../models/proyectos_schema.js';
 import { z } from 'zod';
 
@@ -129,6 +129,30 @@ export default class ProyectosController {
         }
     }
 
+    static async validarRenumeracion (req, res, next) {
+        try {
+            const [errores, data] = ProyectosController.bodyValidations(req.body, 'renumeracion');
+            if (errores.length !== 0) throw Object.assign(new Error('Problemas con el req.body'), { status: 400, fields: errores });
+
+            const resultado = await ProyectosService.validarRenumeracion(data);
+            res.status(200).json(resultado);
+        } catch (error) {
+            showError(req, res, error);
+        }
+    }
+
+    static async renumerar (req, res, next) {
+        try {
+            const [errores, data] = ProyectosController.bodyValidations(req.body, 'renumeracion');
+            if (errores.length !== 0) throw Object.assign(new Error('Problemas con el req.body'), { status: 400, fields: errores });
+
+            const resultado = await ProyectosService.renumerar(data);
+            res.status(200).json(resultado);
+        } catch (error) {
+            showError(req, res, error);
+        }
+    }
+
     /**
      * Valida y filtra con Zod los body para alta y modificacion
      * Los campos sobrantes los ignora. Para modificación admite parciales (partial)
@@ -148,6 +172,8 @@ export default class ProyectosController {
                 proyecto = proyectoCreateExtendedSchema.parse(record);
             } else if (method === 'createExtended') {
                 proyecto = proyectoCreateExtendedSchema.parse(record);
+            } else if (method === 'renumeracion') {
+                proyecto = proyectoRenumeracionSchema.parse(record);
             }
         } catch (error) {
             if (error instanceof z.ZodError) {

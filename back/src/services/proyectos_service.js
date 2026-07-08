@@ -12,12 +12,14 @@ const allowedFields = {
     clienteCod: 'c.codigo',
     cliente: 'c.nombre',
     estadoCodigo: 'p.estadoCodigo',
-    estado: 'e.nombre'
+    estado: 'e.nombre',
+    codigoAnterior: 'p.codigoAnterior',
+    fechaExpiracionCodigoAnterior: 'p.fechaExpiracionCodigoAnterior'
 };
 
 const table = 'Proyectos';
 const mainTable = 'p';
-const selectBase = 'SELECT p.id, p.codigo, p.nombre, p.clienteId, p.estadoCodigo, e.nombre as estado, c.codigo as clienteCod, c.nombre as cliente';
+const selectBase = 'SELECT p.id, p.codigo, p.nombre, p.clienteId, p.estadoCodigo, p.codigoAnterior, p.fechaExpiracionCodigoAnterior, e.nombre as estado, c.codigo as clienteCod, c.nombre as cliente';
 const selectTables = 'FROM Proyectos p ' +
                      'LEFT JOIN ProyectosEstado e ON p.estadoCodigo = e.codigo ' +
                      'LEFT JOIN Clientes c ON p.clienteId = c.id';
@@ -201,4 +203,120 @@ export default class ProyectosService {
             throw dbErrorMsg(error.status, error.sqlMessage || error.message);
         }
     }
+
+    static async validarRenumeracion (payload) {
+        try {
+            return await getRenumeracionPreview(pool, payload);
+        } catch (error) {
+            throw dbErrorMsg(error.status, error.sqlMessage || error.message);
+        }
+    }
+
+    static async renumerar (payload) {
+        const conn = await pool.getConnection();
+        try {
+            await conn.beginTransaction();
+
+            const preview = await getRenumeracionPreview(conn, payload, true);
+            if (!preview.canAplicar) {
+                throw dbErrorMsg(409, preview.motivosBloqueo[0] || 'La renumeracion no puede aplicarse.');
+            }
+
+            await conn.query(`
+                UPDATE Proyectos
+                   SET codigo = ?,
+                       codigoAnterior = ?,
+                       fechaExpiracionCodigoAnterior = ?
+                 WHERE id = ?
+            `, [payload.nuevoCodigo, preview.proyecto.codigoActual, payload.fechaExpiracionCodigoAnterior, payload.proyectoId]);
+
+            const [subproyectosUpdate] = await conn.query(`
+                UPDATE Subproyectos
+                   SET codigo = CONCAT(?, SUBSTRING(codigo, 7))
+                 WHERE proyectoId = ?
+                   AND LEFT(codigo, 6) = ?
+            `, [payload.nuevoCodigo, payload.proyectoId, preview.proyecto.codigoActual]);
+
+            await conn.commit();
+
+            return {
+                ...preview,
+                aplicado: true,
+                subproyectosActualizados: subproyectosUpdate.affectedRows
+            };
+        } catch (error) {
+            await conn.rollback();
+            throw dbErrorMsg(error.status, error.sqlMessage || error.message);
+        } finally {
+            conn.release();
+        }
+    }
+}
+
+async function getRenumeracionPreview (conn, payload, lockRows = false) {
+    const lockSql = lockRows ? ' FOR UPDATE' : '';
+    const [proyectos] = await conn.query(`
+        SELECT id, codigo, nombre, codigoAnterior, fechaExpiracionCodigoAnterior
+          FROM Proyectos
+         WHERE id = ?${lockSql}
+    `, [payload.proyectoId]);
+
+    if (proyectos.length === 0) throw dbErrorMsg(404, noExiste);
+
+    const proyecto = proyectos[0];
+    const [codigoDuplicadoRows] = await conn.query(`
+        SELECT id, codigo, nombre
+          FROM Proyectos
+         WHERE codigo = ?
+           AND id <> ?
+         LIMIT 1${lockSql}
+    `, [payload.nuevoCodigo, payload.proyectoId]);
+
+    const [subproyectos] = await conn.query(`
+        SELECT id, codigo
+          FROM Subproyectos
+         WHERE proyectoId = ?${lockSql}
+    `, [payload.proyectoId]);
+
+    const subproyectosConPrefijo = subproyectos.filter(s => s.codigo?.slice(0, 6) === proyecto.codigo);
+    const subproyectosPrefijoInesperado = subproyectos.filter(s => s.codigo?.slice(0, 6) !== proyecto.codigo);
+
+    const [colisionesSubproyectos] = await conn.query(`
+        SELECT s.id, s.codigo, CONCAT(?, SUBSTRING(s.codigo, 7)) AS nuevoCodigo, otro.id AS conflictoId, otro.codigo AS conflictoCodigo
+          FROM Subproyectos s
+          JOIN Subproyectos otro
+            ON otro.codigo = CONCAT(?, SUBSTRING(s.codigo, 7))
+           AND otro.id <> s.id
+         WHERE s.proyectoId = ?
+           AND LEFT(s.codigo, 6) = ?
+    `, [payload.nuevoCodigo, payload.nuevoCodigo, payload.proyectoId, proyecto.codigo]);
+
+    const motivosBloqueo = [];
+    if (proyecto.codigo === payload.nuevoCodigo) motivosBloqueo.push('El nuevo codigo es igual al codigo actual.');
+    if (proyecto.codigo.length !== 6) motivosBloqueo.push('El codigo actual del proyecto no tiene 6 caracteres.');
+    if (codigoDuplicadoRows.length > 0) motivosBloqueo.push('Ya existe otro proyecto con el nuevo codigo.');
+    if (subproyectosPrefijoInesperado.length > 0) motivosBloqueo.push('Hay subproyectos cuyo codigo no comienza con el codigo actual del proyecto.');
+    if (colisionesSubproyectos.length > 0) motivosBloqueo.push('La renumeracion generaria codigos de subproyecto duplicados.');
+
+    return {
+        canAplicar: motivosBloqueo.length === 0,
+        motivosBloqueo,
+        proyecto: {
+            id: proyecto.id,
+            nombre: proyecto.nombre,
+            codigoActual: proyecto.codigo,
+            nuevoCodigo: payload.nuevoCodigo,
+            codigoAnterior: proyecto.codigoAnterior,
+            fechaExpiracionCodigoAnterior: payload.fechaExpiracionCodigoAnterior
+        },
+        subproyectos: {
+            total: subproyectos.length,
+            aActualizar: subproyectosConPrefijo.length,
+            prefijoInesperado: subproyectosPrefijoInesperado.length,
+            colisiones: colisionesSubproyectos.length,
+            muestrasPrefijoInesperado: subproyectosPrefijoInesperado.slice(0, 20),
+            muestrasColisiones: colisionesSubproyectos.slice(0, 20)
+        },
+        conflictoProyecto: codigoDuplicadoRows[0] || null
+    };
 }

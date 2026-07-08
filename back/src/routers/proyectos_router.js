@@ -9,6 +9,9 @@ const parseProyectosQuery = createParseDevExtremeQuery();
 proyectosRouter.get('/extended', ProyectosController.getAllowedFields, parseProyectosQuery, ProyectosController.getAllExtended);
 proyectosRouter.get('/', ProyectosController.getAllowedFields, parseProyectosQuery, ProyectosController.getAll);
 
+proyectosRouter.post('/renumerar/validar', ProyectosController.validarRenumeracion);
+proyectosRouter.post('/renumerar', ProyectosController.renumerar);
+
 proyectosRouter.get('/:id/extended', ProyectosController.getByIdExtended);
 proyectosRouter.get('/:id', ProyectosController.getById);
 

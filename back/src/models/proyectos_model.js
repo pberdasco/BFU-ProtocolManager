@@ -8,6 +8,8 @@ export default class Proyecto {
     cliente; // string(45)
     estadoCodigo; // int
     estado; // string(15)
+    codigoAnterior; // string(10)
+    fechaExpiracionCodigoAnterior; // date
 
     constructor (row) {
         this.id = row.id;
@@ -18,6 +20,8 @@ export default class Proyecto {
         this.cliente = row.cliente;
         this.estadoCodigo = row.estadoCodigo;
         this.estado = row.estado;
+        this.codigoAnterior = row.codigoAnterior;
+        this.fechaExpiracionCodigoAnterior = row.fechaExpiracionCodigoAnterior;
     }
 
     toJson () {
@@ -29,7 +33,9 @@ export default class Proyecto {
             clienteId: this.clienteId,
             clienteCod: this.clienteCod,
             estadoCodigo: this.estadoCodigo,
-            estado: this.estado
+            estado: this.estado,
+            codigoAnterior: this.codigoAnterior,
+            fechaExpiracionCodigoAnterior: this.fechaExpiracionCodigoAnterior
         };
     }
 
