@@ -1,14 +1,6 @@
-⚠ Este proyecto usa npm (NO pnpm)
-
-Motivo: dependencia winax (addon nativo COM) no funciona correctamente con pnpm.
-Usar siempre:
-
-nvm use 22.22.0 (a la fecha feb2026, winax no estaba disponible para node 24 o superiores)
-npm install (o npm ci en deploy)
-
 # Backend para Gestión de Cadenas de Custodia y Análisis de Muestras
 
-![Node.js](https://img.shields.io/badge/Node%2Ejs-v22%2Ex-blue?logo=node%2Ejs) ![Base de Datos](https://img.shields.io/badge/MySQL-v8%2Ex-blue?logo=mysql)
+![Node.js](https://img.shields.io/badge/Node%2Ejs-v26%2Ex-blue?logo=node%2Ejs) ![Base de Datos](https://img.shields.io/badge/MySQL-v8%2Ex-blue?logo=mysql)
 ![Estado](https://img.shields.io/badge/Estado-En%20desarrollo-yellow) ![MannKendall](https://img.shields.io/badge/Mann--Kendall-WinAx%20Required-orange) ![License](https://img.shields.io/badge/Licencia-Privado-lightgrey)
 
 Este es el backend de un sistema para la gestión de eventos de muestreo, cadenas de custodia, análisis de laboratorio y generación de reportes Excel. Desarrollado con Node.js y Express, sigue una estructura modular orientada a recursos REST.
@@ -34,7 +26,7 @@ src/
 - Node.js + Express
 - Base de datos: **MySQL** (vía `mysql2/promise`)
 - Arquitectura RESTful modular
-- Exportación de archivos Excel con formato personalizado (ExcelJS y Winax -solo para MannKendall-)
+- Exportación de archivos Excel con formato personalizado (ExcelJS y Winax para Mann-Kendall y gráficos de Evolución CDI)
 - Exportación de archivos Word (docx)
 
 ## 🚀 Instalación
@@ -46,18 +38,35 @@ src/
    cd tu-repo
    ```
 
-2. Instalar dependencias:
+2. Preparar Node.js **26.12.1** y pnpm **12.15.0** mediante Corepack (versiones fijadas en `.nvmrc` y `package.json`). Desde `back/`:
 
-   ```bash
-   npm install
+   ```powershell
+   nvm install 26.12.1
+   nvm use 26.12.1
+   # Node 26 no incluye Corepack; instalarlo si no está disponible.
+   npm install --global corepack@0.36.0
+   corepack enable pnpm
+   pnpm --version
    ```
 
-3. Instalación de winax (solo se utiliza para la funcionalidad Mann-Kendall)
-   ⚠️ winax requiere compilación nativa. Antes de instalarlo, asegurate de tener:
+   Corepack selecciona la versión de pnpm indicada en `packageManager`, con su hash de integridad. No instalar pnpm globalmente. Si ya tenés Corepack disponible para esta versión de Node, omití su instalación.
+
+3. Preparar winax **3.6.10**, utilizado para Mann-Kendall y gráficos de Evolución CDI.
+   ⚠️ Requiere Windows, Excel de escritorio instalado y compilación nativa. Antes de instalar las dependencias, asegurate de tener:
    - Python 3.x accesible desde consola
    - Visual Studio con herramientas de desarrollo C++ o Visual Studio Build Tools
    - Windows SDK (para la version 10 u 11 segun sea el SO)
-     > ℹ️ Podés verificar tu entorno ejecutando el script `verificarInstalacion.ps1`.
+     > ℹ️ Podés verificar tu entorno ejecutando `./VerificarWinax.ps1` desde `back/`.
+
+   Instalar las dependencias:
+
+   ```powershell
+   pnpm install --frozen-lockfile
+   ```
+
+   Usar también este comando en despliegue y versionar `pnpm-lock.yaml`; no generar `package-lock.json` ni usar `npm install` para las dependencias del proyecto.
+   `pnpm-workspace.yaml` configura únicamente este backend y autoriza los scripts de instalación de `winax` y `bcrypt`, sin habilitar scripts de todos los paquetes.
+   Al cambiar de versión mayor de Node o migrar desde npm, eliminar primero `back/node_modules` para reinstalar y recompilar los addons nativos.
 
 4. Crear el archivo `.env` con configuración de entorno:
 
@@ -85,13 +94,27 @@ src/
 
 5. Iniciar el servidor:
    ```bash
-   npm start
+    pnpm start
    ```
    o
    ```bash
    node --expose-gc src/server.js
    ```
-   dado que requiere `--expose-gc` habilitado para permitir la liberacion manual de memoria usada por WinAx
+    dado que requiere `--expose-gc` habilitado para permitir la liberacion manual de memoria usada por WinAx
+
+## Validación de la migración
+
+Desde `back/`:
+
+```powershell
+pnpm lint
+pnpm run test:native
+```
+
+La prueba nativa valida hashes de `bcrypt` y abre una instancia propia de Excel para escribir una matriz, crear un gráfico, guardar y reabrir un libro temporal. No modifica plantillas ni consulta la base de datos. Requiere Excel instalado; no reemplaza las pruebas funcionales de los reportes.
+
+Antes de desplegar, probar login, un reporte Mann-Kendall con la macro `UpdateAll` y un reporte de Evolución CDI con gráficos. Verificar que no queden instancias nuevas de Excel abiertas.
+Las demás dependencias mantienen sus rangos actuales; sus actualizaciones y las alertas de `pnpm audit` deben revisarse por separado, sin aplicar saltos mayores automáticos.
 
 ## 🔐 Autenticación (planificada)
 

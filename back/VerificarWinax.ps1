@@ -8,12 +8,12 @@ if (Get-Command node -ErrorAction SilentlyContinue) {
     Write-Host "[ERROR] Node.js no está instalado o no está en PATH"
 }
 
-# 2. Verificar NPM
-if (Get-Command npm -ErrorAction SilentlyContinue) {
-    $npmVersion = npm -v
-    Write-Host "[OK] NPM: $npmVersion"
+# 2. Verificar pnpm
+if (Get-Command pnpm -ErrorAction SilentlyContinue) {
+    $pnpmVersion = pnpm -v
+    Write-Host "[OK] pnpm: $pnpmVersion"
 } else {
-    Write-Host "[ERROR] NPM no está instalado o no está en PATH"
+    Write-Host "[ERROR] pnpm no está disponible. Habilitalo con: corepack enable pnpm (ver README.md para instalar Corepack en Node 26)"
 }
 
 # 3. Verificar Python
@@ -24,13 +24,7 @@ if (Get-Command python -ErrorAction SilentlyContinue) {
     Write-Host "[ERROR] Python no está instalado o no está en PATH"
 }
 
-# 4. Verificar node-gyp
-$gypPath = npm list -g node-gyp --depth=0 2>&1 | Select-String 'node-gyp'
-if ($gypPath) {
-    Write-Host "[OK] node-gyp está instalado globalmente (detectado vía npm)"
-} else {
-    Write-Host "[WARN] node-gyp no está global. Si winax funciona, fue usado como dependencia local."
-}
+# 4. node-gyp es provisto por pnpm al compilar winax; no requiere instalación global.
 
 # 5. Verificar herramientas de compilación (msbuild)
 $msbuildPath = Get-ChildItem "C:\Program Files*\Microsoft Visual Studio\" -Recurse -Filter msbuild.exe -ErrorAction SilentlyContinue | Select-Object -First 1
@@ -42,21 +36,17 @@ if ($msbuildPath) {
 
 # 6. Prueba winax si está presente
 Write-Host "`n--- Probando winax si está disponible... ---"
-$winaxInstalled = npm list winax --depth=0 2>&1 | Select-String 'winax'
+$winaxInstalled = Test-Path (Join-Path $PSScriptRoot 'node_modules/winax/package.json')
 
 if ($winaxInstalled) {
     Write-Host "[OK] winax está instalado en el proyecto"
-$testScript = @"
-import winaxPkg from 'winax';
-const ActiveXObject = winaxPkg.Object;
-const excel = new ActiveXObject('Excel.Application');
-excel.Visible = false;
-console.log('[TEST] winax: Excel instanciado correctamente');
-excel.Quit();
-"@
-	Set-Content -Path "testWinax.mjs" -Value $testScript -Encoding UTF8
-	node testWinax.mjs
-	Remove-Item "testWinax.mjs"
+    Push-Location $PSScriptRoot
+    try {
+        pnpm run test:native
+        if ($LASTEXITCODE -ne 0) { throw 'Falló la prueba de dependencias nativas' }
+    } finally {
+        Pop-Location
+    }
 } else {
-    Write-Host "[INFO] winax no está instalado. Ejecutá: npm install winax"
+    Write-Host "[INFO] winax no está instalado. Ejecutá: pnpm install --frozen-lockfile desde back/"
 }

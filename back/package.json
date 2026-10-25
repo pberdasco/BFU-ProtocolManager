@@ -1,38 +1,42 @@
 {
-  "name": "back",
-  "version": "1.0.0",
-  "main": "index.js",
-  "type": "module",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "node --watch --expose-gc src/server.js",
-    "start": "node --expose-gc src/server.js",
-    "lint": "npx eslint src",
-    "lint:fix": "npx eslint src --fix"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
-  "dependencies": {
-    "archiver": "^7.0.1",
-    "bcrypt": "^6.0.0",
-    "cors": "^2.8.5",
-    "docx": "^9.5.0",
-    "exceljs": "^4.4.0",
-    "express": "^4.21.2",
-    "jsonwebtoken": "^9.0.2",
-    "mysql2": "^3.11.5",
-    "winax": "^3.6.2",
-    "winston": "^3.17.0",
-    "zod": "^3.24.1"
-  },
-  "esLintConfig": {
-    "extends": "semistandard"
-  },
-  "devDependencies": {
-    "eslint": "^8.57.1",
-    "semistandard": "^17.0.0"
-  },
-  "packageManager": "npm@10.9.4"
+    "name": "back",
+    "version": "1.0.0",
+    "main": "index.js",
+    "type": "module",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "test:native": "node --expose-gc --test --test-timeout=60000 test/native.test.js",
+        "dev": "node --watch --watch-path=src --expose-gc src/server.js",
+        "start": "node --expose-gc src/server.js",
+        "lint": "eslint src",
+        "lint:fix": "eslint src --fix"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "description": "",
+    "dependencies": {
+        "archiver": "^7.0.1",
+        "bcrypt": "^6.0.0",
+        "cors": "^2.8.5",
+        "docx": "^9.5.0",
+        "exceljs": "^4.4.0",
+        "express": "^4.21.2",
+        "jsonwebtoken": "^9.0.2",
+        "mysql2": "^3.11.5",
+        "winax": "3.6.10",
+        "winston": "^3.17.0",
+        "zod": "^3.24.1"
+    },
+    "esLintConfig": {
+        "extends": "semistandard"
+    },
+    "devDependencies": {
+        "eslint": "^8.57.1",
+        "semistandard": "^17.0.0"
+    },
+    "engines": {
+        "node": ">=26.12.1 <27"
+    },
+    "packageManager": "pnpm@12.15.0+sha512.b3951d6d6ff4a9f13dc7cf56cd28d2b8eb37dbcc9c68e52e1e1191873ea9f82a017287ab50baadc5ccc494f036c67c0e47eb13608c2fa36f47711b61ea128e61"
 }
