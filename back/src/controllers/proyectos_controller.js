@@ -2,7 +2,7 @@ import ProyectosService from '../services/proyectos_service.js';
 import { showError } from '../middleware/controllerErrors.js';
 import { proyectoCreateSchema, proyectoUpdateSchema, proyectoCreateExtendedSchema, proyectoRenumeracionSchema } from '../models/proyectos_schema.js';
 // import { proyectoUpdateExtendedSchema } from '../models/proyectos_schema.js';
-import { z } from 'zod';
+import { bodyValidations as validateBody } from './validations.js';
 
 export default class ProyectosController {
     static getAllowedFields (req, res, next) {
@@ -161,30 +161,11 @@ export default class ProyectosController {
      * @returns [Array, Object] - [errores, proyecto] el array de errores de validacion y el objeto filtrado
      */
     static bodyValidations (record, method) {
-        let errores = [];
-        let proyecto = null;
-        try {
-            if (method === 'update') {
-                proyecto = proyectoUpdateSchema.parse(record);
-            } else if (method === 'create') {
-                proyecto = proyectoCreateSchema.parse(record);
-            } else if (method === 'updateExtended') {
-                proyecto = proyectoCreateExtendedSchema.parse(record);
-            } else if (method === 'createExtended') {
-                proyecto = proyectoCreateExtendedSchema.parse(record);
-            } else if (method === 'renumeracion') {
-                proyecto = proyectoRenumeracionSchema.parse(record);
-            }
-        } catch (error) {
-            if (error instanceof z.ZodError) {
-                errores = error.errors.map(issue => ({
-                    field: issue.path.join('.'),
-                    message: issue.message
-                }));
-            } else {
-                throw error;
-            }
-        }
-        return [errores, proyecto];
+        if (method === 'update') return validateBody(record, proyectoUpdateSchema);
+        if (method === 'create') return validateBody(record, proyectoCreateSchema);
+        // Conservar el esquema actual de updateExtended durante este refactor.
+        if (method === 'updateExtended' || method === 'createExtended') return validateBody(record, proyectoCreateExtendedSchema);
+        if (method === 'renumeracion') return validateBody(record, proyectoRenumeracionSchema);
+        return [[], null];
     }
 }

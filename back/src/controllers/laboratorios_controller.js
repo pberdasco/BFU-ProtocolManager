@@ -1,7 +1,7 @@
 import LaboratoriosService from '../services/laboratorios_service.js';
 import { showError } from '../middleware/controllerErrors.js';
 import { laboratorioCreateSchema, laboratorioUpdateSchema } from '../models/laboratorios_schema.js';
-import { z } from 'zod';
+import { bodyValidations as validateBody } from './validations.js';
 
 export default class LaboratoriosController {
     static getAllowedFields (req, res, next) {
@@ -76,24 +76,8 @@ export default class LaboratoriosController {
      * @returns [Array, Object] - [errores, laboratorio] el array de errores de validacion y el objeto filtrado
      */
     static bodyValidations (record, method) {
-        let errores = [];
-        let laboratorio = null;
-        try {
-            if (method === 'update') {
-                laboratorio = laboratorioUpdateSchema.parse(record);
-            } else if (method === 'create') {
-                laboratorio = laboratorioCreateSchema.parse(record);
-            }
-        } catch (error) {
-            if (error instanceof z.ZodError) {
-                errores = error.errors.map(issue => ({
-                    field: issue.path.join('.'),
-                    message: issue.message
-                }));
-            } else {
-                throw error;
-            }
-        }
-        return [errores, laboratorio];
+        if (method === 'update') return validateBody(record, laboratorioUpdateSchema);
+        if (method === 'create') return validateBody(record, laboratorioCreateSchema);
+        return [[], null];
     }
 }

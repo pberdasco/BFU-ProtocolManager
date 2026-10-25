@@ -1,7 +1,7 @@
 import GraficosGruposService from '../services/reportes/evolucionCDI/configGrupos_service.js';
 import { showError } from '../middleware/controllerErrors.js';
 import { graficoGrupoCreateSchema, graficoGrupoUpdateSchema } from '../models/graficosGrupos_schema.js';
-import { z } from 'zod';
+import { bodyValidations as validateBody } from './validations.js';
 
 export default class GraficosGruposController {
     static getAllowedFields (req, res, next) {
@@ -66,18 +66,7 @@ export default class GraficosGruposController {
     }
 
     static bodyValidations (record, method) {
-        let errors = [];
-        let group = null;
-        try {
-            if (method === 'create') group = graficoGrupoCreateSchema.parse(record);
-            else group = graficoGrupoUpdateSchema.parse(record);
-        } catch (err) {
-            if (err instanceof z.ZodError) {
-                errors = err.errors.map(issue => ({ field: issue.path.join('.'), message: issue.message }));
-            } else {
-                throw err;
-            }
-        }
-        return [errors, group];
+        const schema = method === 'create' ? graficoGrupoCreateSchema : graficoGrupoUpdateSchema;
+        return validateBody(record, schema);
     }
 }

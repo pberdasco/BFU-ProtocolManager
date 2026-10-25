@@ -1,7 +1,7 @@
 import MetodosService from '../services/metodos_service.js';
 import { showError } from '../middleware/controllerErrors.js';
 import { metodoCreateSchema, metodoUpdateSchema } from '../models/metodos_schema.js';
-import { z } from 'zod';
+import { bodyValidations as validateBody } from './validations.js';
 
 export default class MetodosController {
     static getAllowedFields (req, res, next) {
@@ -76,24 +76,8 @@ export default class MetodosController {
      * @returns [Array, Object] - [errores, entity] el array de errores de validacion y el objeto filtrado
      */
     static bodyValidations (record, method) {
-        let errores = [];
-        let entity = null;
-        try {
-            if (method === 'update') {
-                entity = metodoUpdateSchema.parse(record);
-            } else if (method === 'create') {
-                entity = metodoCreateSchema.parse(record);
-            }
-        } catch (error) {
-            if (error instanceof z.ZodError) {
-                errores = error.errors.map(issue => ({
-                    field: issue.path.join('.'),
-                    message: issue.message
-                }));
-            } else {
-                throw error;
-            }
-        }
-        return [errores, entity];
+        if (method === 'update') return validateBody(record, metodoUpdateSchema);
+        if (method === 'create') return validateBody(record, metodoCreateSchema);
+        return [[], null];
     }
 }

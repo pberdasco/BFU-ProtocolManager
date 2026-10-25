@@ -1,7 +1,7 @@
 import SinonimosCompuestosService from '../services/sinonimosCompuestos_service.js';
 import { showError } from '../middleware/controllerErrors.js';
 import { sinonimoCompuestoCreateSchema, sinonimoCompuestoUpdateSchema, compuestosOriginalesSchema } from '../models/sinonimosCompuesto_schema.js';
-import { z } from 'zod';
+import { bodyValidations as validateBody } from './validations.js';
 
 export default class SinonimosCompuestosController {
     static getAllowedFields (req, res, next) {
@@ -81,26 +81,9 @@ export default class SinonimosCompuestosController {
     }
 
     static bodyValidations (record, method) {
-        let errores = [];
-        let validBody = null;
-        try {
-            if (method === 'update') {
-                validBody = sinonimoCompuestoUpdateSchema.parse(record);
-            } else if (method === 'create') {
-                validBody = sinonimoCompuestoCreateSchema.parse(record);
-            } else if (method === 'getLista') {
-                validBody = compuestosOriginalesSchema.parse(record);
-            }
-        } catch (error) {
-            if (error instanceof z.ZodError) {
-                errores = error.errors.map(issue => ({
-                    field: issue.path.join('.'),
-                    message: issue.message
-                }));
-            } else {
-                throw error;
-            }
-        }
-        return [errores, validBody];
+        if (method === 'update') return validateBody(record, sinonimoCompuestoUpdateSchema);
+        if (method === 'create') return validateBody(record, sinonimoCompuestoCreateSchema);
+        if (method === 'getLista') return validateBody(record, compuestosOriginalesSchema);
+        return [[], null];
     }
 }

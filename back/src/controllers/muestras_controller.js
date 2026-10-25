@@ -1,7 +1,7 @@
 import MuestrasService from '../services/muestras_service.js';
 import { showError } from '../middleware/controllerErrors.js';
 import { muestrasCreateSchema, muestrasUpdateSchema } from '../models/muestras_schema.js';
-import { z } from 'zod';
+import { bodyValidations as validateBody } from './validations.js';
 
 export default class MuestrasController {
     static getAllowedFields (req, res, next) {
@@ -69,24 +69,8 @@ export default class MuestrasController {
     }
 
     static bodyValidations (record, method) {
-        let errores = [];
-        let muestras = null;
-        try {
-            if (method === 'update') {
-                muestras = muestrasUpdateSchema.parse(record);
-            } else if (method === 'create') {
-                muestras = muestrasCreateSchema.parse(record);
-            }
-        } catch (error) {
-            if (error instanceof z.ZodError) {
-                errores = error.errors.map(issue => ({
-                    field: issue.path.join('.'),
-                    message: issue.message
-                }));
-            } else {
-                throw error;
-            }
-        }
-        return [errores, muestras];
+        if (method === 'update') return validateBody(record, muestrasUpdateSchema);
+        if (method === 'create') return validateBody(record, muestrasCreateSchema);
+        return [[], null];
     }
 }

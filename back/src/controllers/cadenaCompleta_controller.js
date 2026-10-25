@@ -2,7 +2,7 @@
 import CadenaCompletaService from '../services/cadenaCompleta_service.js';
 import { showError } from '../middleware/controllerErrors.js';
 import { bodyCadenaCompletaSchema } from '../models/cadenaCompleta_schema.js';
-import { z } from 'zod';
+import { bodyValidations as validateBody } from './validations.js';
 
 export default class CadenaCompletaController {
     static async create (req, res, next) {
@@ -59,22 +59,7 @@ export default class CadenaCompletaController {
     }
 
     static bodyValidations (record, method) {
-        let errores = [];
-        let validData = null;
-        try {
-            if (method === 'create') {
-                validData = bodyCadenaCompletaSchema.parse(record);
-            }
-        } catch (error) {
-            if (error instanceof z.ZodError) {
-                errores = error.errors.map(issue => ({
-                    field: issue.path.join('.'),
-                    message: issue.message
-                }));
-            } else {
-                throw error;
-            }
-        }
-        return [errores, validData];
+        if (method === 'create') return validateBody(record, bodyCadenaCompletaSchema);
+        return [[], null];
     }
 }

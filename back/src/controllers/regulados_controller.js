@@ -1,7 +1,7 @@
 import ReguladosService from '../services/regulados_service.js';
 import { showError } from '../middleware/controllerErrors.js';
 import { reguladoCreateSchema, reguladoUpdateSchema } from '../models/regulado_schema.js';
-import { z } from 'zod';
+import { bodyValidations as validateBody } from './validations.js';
 
 export default class ReguladosController {
     static getAllowedFields (req, res, next) {
@@ -69,24 +69,8 @@ export default class ReguladosController {
     }
 
     static bodyValidations (record, method) {
-        let errores = [];
-        let regulacion = null;
-        try {
-            if (method === 'update') {
-                regulacion = reguladoUpdateSchema.parse(record);
-            } else if (method === 'create') {
-                regulacion = reguladoCreateSchema.parse(record);
-            }
-        } catch (error) {
-            if (error instanceof z.ZodError) {
-                errores = error.errors.map(issue => ({
-                    field: issue.path.join('.'),
-                    message: issue.message
-                }));
-            } else {
-                throw error;
-            }
-        }
-        return [errores, regulacion];
+        if (method === 'update') return validateBody(record, reguladoUpdateSchema);
+        if (method === 'create') return validateBody(record, reguladoCreateSchema);
+        return [[], null];
     }
 }

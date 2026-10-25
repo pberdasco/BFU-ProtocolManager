@@ -1,7 +1,7 @@
 import SubproyectosService from '../services/subproyectos_service.js';
 import { showError } from '../middleware/controllerErrors.js';
 import { subproyectoCreateSchema, subproyectoUpdateSchema } from '../models/subproyectos_schema.js';
-import { z } from 'zod';
+import { bodyValidations as validateBody } from './validations.js';
 
 export default class SubproyectosController {
     static getAllowedFields (req, res, next) {
@@ -69,24 +69,8 @@ export default class SubproyectosController {
     }
 
     static bodyValidations (record, method) {
-        let errores = [];
-        let subproyecto = null;
-        try {
-            if (method === 'update') {
-                subproyecto = subproyectoUpdateSchema.parse(record);
-            } else if (method === 'create') {
-                subproyecto = subproyectoCreateSchema.parse(record);
-            }
-        } catch (error) {
-            if (error instanceof z.ZodError) {
-                errores = error.errors.map(issue => ({
-                    field: issue.path.join('.'),
-                    message: issue.message
-                }));
-            } else {
-                throw error;
-            }
-        }
-        return [errores, subproyecto];
+        if (method === 'update') return validateBody(record, subproyectoUpdateSchema);
+        if (method === 'create') return validateBody(record, subproyectoCreateSchema);
+        return [[], null];
     }
 }

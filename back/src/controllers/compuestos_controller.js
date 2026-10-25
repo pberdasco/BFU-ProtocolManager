@@ -1,7 +1,7 @@
 import CompuestosService from '../services/compuestos_service.js';
 import { showError } from '../middleware/controllerErrors.js';
 import { compuestoCreateSchema, compuestoUpdateSchema } from '../models/compuestos_schema.js';
-import { z } from 'zod';
+import { bodyValidations as validateBody } from './validations.js';
 
 export default class CompuestosController {
     static getAllowedFields (req, res, next) {
@@ -75,24 +75,8 @@ export default class CompuestosController {
      * @returns [Array, Object] - [errores, compuesto] el array de errores de validacion y el objeto filtrado
      */
     static bodyValidations (record, method) {
-        let errores = [];
-        let compuesto = null;
-        try {
-            if (method === 'update') {
-                compuesto = compuestoUpdateSchema.parse(record);
-            } else if (method === 'create') {
-                compuesto = compuestoCreateSchema.parse(record);
-            }
-        } catch (error) {
-            if (error instanceof z.ZodError) {
-                errores = error.errors.map(issue => ({
-                    field: issue.path.join('.'),
-                    message: issue.message
-                }));
-            } else {
-                throw error;
-            }
-        }
-        return [errores, compuesto];
+        if (method === 'update') return validateBody(record, compuestoUpdateSchema);
+        if (method === 'create') return validateBody(record, compuestoCreateSchema);
+        return [[], null];
     }
 }

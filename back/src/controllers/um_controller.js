@@ -1,7 +1,7 @@
 import UMService from '../services/um_service.js';
 import { showError } from '../middleware/controllerErrors.js';
 import { umCreateSchema, umUpdateSchema } from '../models/um_schema.js';
-import { z } from 'zod';
+import { bodyValidations as validateBody } from './validations.js';
 
 export default class UMController {
     static getAllowedFields (req, res, next) {
@@ -76,24 +76,8 @@ export default class UMController {
      * @returns [Array, Object] - [errores, um] el array de errores de validacion y el objeto filtrado
      */
     static bodyValidations (record, method) {
-        let errores = [];
-        let entidad = null;
-        try {
-            if (method === 'update') {
-                entidad = umUpdateSchema.parse(record);
-            } else if (method === 'create') {
-                entidad = umCreateSchema.parse(record);
-            }
-        } catch (error) {
-            if (error instanceof z.ZodError) {
-                errores = error.errors.map(issue => ({
-                    field: issue.path.join('.'),
-                    message: issue.message
-                }));
-            } else {
-                throw error;
-            }
-        }
-        return [errores, entidad];
+        if (method === 'update') return validateBody(record, umUpdateSchema);
+        if (method === 'create') return validateBody(record, umCreateSchema);
+        return [[], null];
     }
 }

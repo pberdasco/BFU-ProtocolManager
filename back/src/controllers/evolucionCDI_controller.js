@@ -1,7 +1,7 @@
 import EvolucionCDIService from '../services/reportes/evolucionCDI/evolucionCDI_service.js';
 import { showError } from '../middleware/controllerErrors.js';
 import { configSchema } from '../models/evolucionCDI_schema.js';
-import { z } from 'zod';
+import { bodyValidations as validateBody } from './validations.js';
 
 export default class EvolucionCDIController {
     static async create (req, res, next) {
@@ -42,23 +42,7 @@ export default class EvolucionCDIController {
      * @returns [Array, Object] - [errores, autaplicacion] el array de errores de validacion y el objeto filtrado
      */
     static bodyValidations (record, method) {
-        let errores = [];
-        let config = null;
-        try {
-            if (method === 'create') {
-                config = configSchema.parse(record);
-            }
-        } catch (error) {
-            if (error instanceof z.ZodError) {
-                errores = error.errors.map(issue => ({
-                    field: issue.path.join('.'),
-                    message: issue.message
-                }));
-            } else {
-                throw error;
-            }
-        }
-
-        return [errores, config];
+        if (method === 'create') return validateBody(record, configSchema);
+        return [[], null];
     }
 }

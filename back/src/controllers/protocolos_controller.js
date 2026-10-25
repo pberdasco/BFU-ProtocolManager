@@ -1,7 +1,7 @@
 import ProtocolosService from '../services/protocolos_service.js';
 import { showError } from '../middleware/controllerErrors.js';
 import { formDataSchema, adelantoDataSchema } from '../models/protocolos_schema.js';
-import { z } from 'zod';
+import { bodyValidations as validateBody } from './validations.js';
 
 export default class ProtocolosController {
     static getAllowedFields (req, res, next) {
@@ -85,26 +85,12 @@ export default class ProtocolosController {
     // }
 
     static bodyValidations (record, method) {
-        let errores = [];
-        let validData = null;
-        try {
-            if (method === 'create') {
-                // Debe contener `formData` y `adelantoData`
-                const parsedFormData = formDataSchema.parse(record.formData);
-                const parsedAdelantoData = adelantoDataSchema.parse(record.adelantoData);
-
-                validData = { formData: parsedFormData, adelantoData: parsedAdelantoData };
-            }
-        } catch (error) {
-            if (error instanceof z.ZodError) {
-                errores = error.errors.map(issue => ({
-                    field: issue.path.join('.'),
-                    message: issue.message
-                }));
-            } else {
-                throw error;
-            }
-        }
-        return [errores, validData];
+        if (method !== 'create') return [[], null];
+        // Mantener el orden de validación y las rutas sin prefijos de cada esquema.
+        const [formErrors, formData] = validateBody(record.formData, formDataSchema);
+        if (formErrors.length) return [formErrors, null];
+        const [dataErrors, adelantoData] = validateBody(record.adelantoData, adelantoDataSchema);
+        if (dataErrors.length) return [dataErrors, null];
+        return [[], { formData, adelantoData }];
     }
 }

@@ -1,7 +1,7 @@
 import LqsService from '../services/lqs_service.js';
 import { showError } from '../middleware/controllerErrors.js';
 import { lqCreateSchema, lqUpdateSchema } from '../models/lqs_schema.js';
-import { z } from 'zod';
+import { bodyValidations as validateBody } from './validations.js';
 
 export default class LqsController {
     static getAllowedFields (req, res, next) {
@@ -69,24 +69,8 @@ export default class LqsController {
     }
 
     static bodyValidations (record, method) {
-        let errores = [];
-        let lqs = null;
-        try {
-            if (method === 'update') {
-                lqs = lqUpdateSchema.parse(record);
-            } else if (method === 'create') {
-                lqs = lqCreateSchema.parse(record);
-            }
-        } catch (error) {
-            if (error instanceof z.ZodError) {
-                errores = error.errors.map(issue => ({
-                    field: issue.path.join('.'),
-                    message: issue.message
-                }));
-            } else {
-                throw error;
-            }
-        }
-        return [errores, lqs];
+        if (method === 'update') return validateBody(record, lqUpdateSchema);
+        if (method === 'create') return validateBody(record, lqCreateSchema);
+        return [[], null];
     }
 }

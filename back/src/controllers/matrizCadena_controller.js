@@ -11,7 +11,7 @@ export default class MatrizCadenaController {
             res.status(200).json(result);
         } catch (error) {
             if (error instanceof z.ZodError) {
-                const fields = error.errors.map(issue => ({
+                const fields = error.issues.map(issue => ({
                     field: issue.path.join('.'),
                     message: issue.message
                 }));

@@ -3,3 +3,8 @@ allowBuilds:
   winax: true
 
 engineStrict: true
+
+# ExcelJS 4.4 uses only uuid.v4(); 11.1.1 retains its CommonJS API.
+# Covered by the conditional-formatting round-trip in test/dependencies.test.js.
+overrides:
+  exceljs>uuid: 11.1.1

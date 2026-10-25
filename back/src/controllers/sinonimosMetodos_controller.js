@@ -1,7 +1,7 @@
 import SinonimosMetodosService from '../services/sinonimosMetodos_service.js';
 import { showError } from '../middleware/controllerErrors.js';
 import { sinonimoMetodoCreateSchema, sinonimoMetodoUpdateSchema, metodosOriginalesSchema } from '../models/sinonimosMetodo_schema.js';
-import { z } from 'zod';
+import { bodyValidations as validateBody } from './validations.js';
 
 export default class SinonimosMetodosController {
     static getAllowedFields (req, res, next) {
@@ -80,26 +80,9 @@ export default class SinonimosMetodosController {
     }
 
     static bodyValidations (record, method) {
-        let errores = [];
-        let validBody = null;
-        try {
-            if (method === 'update') {
-                validBody = sinonimoMetodoUpdateSchema.parse(record);
-            } else if (method === 'create') {
-                validBody = sinonimoMetodoCreateSchema.parse(record);
-            } else if (method === 'getLista') {
-                validBody = metodosOriginalesSchema.parse(record);
-            }
-        } catch (error) {
-            if (error instanceof z.ZodError) {
-                errores = error.errors.map(issue => ({
-                    field: issue.path.join('.'),
-                    message: issue.message
-                }));
-            } else {
-                throw error;
-            }
-        }
-        return [errores, validBody];
+        if (method === 'update') return validateBody(record, sinonimoMetodoUpdateSchema);
+        if (method === 'create') return validateBody(record, sinonimoMetodoCreateSchema);
+        if (method === 'getLista') return validateBody(record, metodosOriginalesSchema);
+        return [[], null];
     }
 }

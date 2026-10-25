@@ -1,7 +1,7 @@
 import MkCompuestosService from '../services/reportes/mannKendall/mkCompuestos_service.js';
 import { showError } from '../middleware/controllerErrors.js';
 import { mkCompuestosCreateSchema, mkCompuestosUpdateSchema, mkCompuestosReplaceSchema } from '../models/mkCompuestos_schema.js';
-import { z } from 'zod';
+import { bodyValidations as validateBody } from './validations.js';
 
 export default class MkCompuestosController {
     static getAllowedFields (req, res, next) {
@@ -83,26 +83,9 @@ export default class MkCompuestosController {
     }
 
     static bodyValidations (record, method) {
-        let errores = [];
-        let resultado = null;
-        try {
-            if (method === 'update') {
-                resultado = mkCompuestosUpdateSchema.parse(record);
-            } else if (method === 'create') {
-                resultado = mkCompuestosCreateSchema.parse(record);
-            } else if (method === 'replace') {
-                resultado = mkCompuestosReplaceSchema.parse(record);
-            }
-        } catch (error) {
-            if (error instanceof z.ZodError) {
-                errores = error.errors.map(issue => ({
-                    field: issue.path.join('.'),
-                    message: issue.message
-                }));
-            } else {
-                throw error;
-            }
-        }
-        return [errores, resultado];
+        if (method === 'update') return validateBody(record, mkCompuestosUpdateSchema);
+        if (method === 'create') return validateBody(record, mkCompuestosCreateSchema);
+        if (method === 'replace') return validateBody(record, mkCompuestosReplaceSchema);
+        return [[], null];
     }
 }

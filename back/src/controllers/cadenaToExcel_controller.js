@@ -1,7 +1,7 @@
 import CadenaToExcelService from '../services/cadenaToExcel_service.js';
 import { showError } from '../middleware/controllerErrors.js';
 import { bodyCadenaSchema } from '../models/cadenaToExcel_schema.js';
-import { z } from 'zod';
+import { bodyValidations as validateBody } from './validations.js';
 
 export default class CadenaToExcelController {
     /**
@@ -53,22 +53,7 @@ export default class CadenaToExcelController {
     }
 
     static bodyValidations (record, method) {
-        let errores = [];
-        let validData = null;
-        try {
-            if (method === 'create') {
-                validData = bodyCadenaSchema.parse(record);
-            }
-        } catch (error) {
-            if (error instanceof z.ZodError) {
-                errores = error.errors.map(issue => ({
-                    field: issue.path.join('.'),
-                    message: issue.message
-                }));
-            } else {
-                throw error;
-            }
-        }
-        return [errores, validData];
+        if (method === 'create') return validateBody(record, bodyCadenaSchema);
+        return [[], null];
     }
 }

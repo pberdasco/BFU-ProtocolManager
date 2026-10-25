@@ -108,13 +108,17 @@ Desde `back/`:
 
 ```powershell
 pnpm lint
+pnpm run test:dependencies
+pnpm run test:validation
 pnpm run test:native
 ```
 
 La prueba nativa valida hashes de `bcrypt` y abre una instancia propia de Excel para escribir una matriz, crear un gráfico, guardar y reabrir un libro temporal. No modifica plantillas ni consulta la base de datos. Requiere Excel instalado; no reemplaza las pruebas funcionales de los reportes.
 
 Antes de desplegar, probar login, un reporte Mann-Kendall con la macro `UpdateAll` y un reporte de Evolución CDI con gráficos. Verificar que no queden instancias nuevas de Excel abiertas.
-Las demás dependencias mantienen sus rangos actuales; sus actualizaciones y las alertas de `pnpm audit` deben revisarse por separado, sin aplicar saltos mayores automáticos.
+`test:dependencies` valida generación DOCX con la distribución oficial, escritura/lectura XLSX con formatos condicionales y procesamiento JSON/formularios de Express, sin consultar la base de datos.
+`test:validation` comprueba esquemas y controladores con Zod 4, fechas/números, claves dinámicas y defaults de altas frente a modificaciones parciales, sin consultar la base de datos.
+Consultar [DEPENDENCIES.md](DEPENDENCIES.md) para el warning conocido de docx, el override de ExcelJS y la revisión de seguridad. No aplicar saltos mayores automáticos.
 
 ## 🔐 Autenticación (planificada)
 

@@ -1,7 +1,7 @@
 import AutaplicacionService from '../services/autaplicacion_service.js';
 import { showError } from '../middleware/controllerErrors.js';
 import { autaplicacionCreateSchema, autaplicacionUpdateSchema } from '../models/autaplicacion_schema.js';
-import { z } from 'zod';
+import { bodyValidations as validateBody } from './validations.js';
 
 export default class AutaplicacionController {
     static getAllowedFields (req, res, next) {
@@ -76,24 +76,8 @@ export default class AutaplicacionController {
      * @returns [Array, Object] - [errores, autaplicacion] el array de errores de validacion y el objeto filtrado
      */
     static bodyValidations (record, method) {
-        let errores = [];
-        let autaplicacion = null;
-        try {
-            if (method === 'update') {
-                autaplicacion = autaplicacionUpdateSchema.parse(record);
-            } else if (method === 'create') {
-                autaplicacion = autaplicacionCreateSchema.parse(record);
-            }
-        } catch (error) {
-            if (error instanceof z.ZodError) {
-                errores = error.errors.map(issue => ({
-                    field: issue.path.join('.'),
-                    message: issue.message
-                }));
-            } else {
-                throw error;
-            }
-        }
-        return [errores, autaplicacion];
+        if (method === 'update') return validateBody(record, autaplicacionUpdateSchema);
+        if (method === 'create') return validateBody(record, autaplicacionCreateSchema);
+        return [[], null];
     }
 }

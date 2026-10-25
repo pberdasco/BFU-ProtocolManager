@@ -1,7 +1,7 @@
 import SinonimosUMsService from '../services/SinonimosUMs_service.js';
 import { showError } from '../middleware/controllerErrors.js';
 import { sinonimoUmCreateSchema, sinonimoUmUpdateSchema, umsOriginalesSchema } from '../models/sinonimosUM_schema.js';
-import { z } from 'zod';
+import { bodyValidations as validateBody } from './validations.js';
 
 export default class SinonimosUMsController {
     static getAllowedFields (req, res, next) {
@@ -80,26 +80,9 @@ export default class SinonimosUMsController {
     }
 
     static bodyValidations (record, method) {
-        let errores = [];
-        let validBody = null;
-        try {
-            if (method === 'update') {
-                validBody = sinonimoUmUpdateSchema.parse(record);
-            } else if (method === 'create') {
-                validBody = sinonimoUmCreateSchema.parse(record);
-            } else if (method === 'getLista') {
-                validBody = umsOriginalesSchema.parse(record);
-            }
-        } catch (error) {
-            if (error instanceof z.ZodError) {
-                errores = error.errors.map(issue => ({
-                    field: issue.path.join('.'),
-                    message: issue.message
-                }));
-            } else {
-                throw error;
-            }
-        }
-        return [errores, validBody];
+        if (method === 'update') return validateBody(record, sinonimoUmUpdateSchema);
+        if (method === 'create') return validateBody(record, sinonimoUmCreateSchema);
+        if (method === 'getLista') return validateBody(record, umsOriginalesSchema);
+        return [[], null];
     }
 }

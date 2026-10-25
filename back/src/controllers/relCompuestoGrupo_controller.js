@@ -1,7 +1,7 @@
 import RelCompuestoGrupoService from '../services/relCompuestoGrupo_service.js';
 import { showError } from '../middleware/controllerErrors.js';
 import { relCompuestoGrupoCreateSchema, relCompuestoGrupoUpdateSchema } from '../models/relCompuestoGrupo_schema.js';
-import { z } from 'zod';
+import { bodyValidations as validateBody } from './validations.js';
 
 export default class RelCompuestoGrupoController {
     static getAllowedFields (req, res, next) {
@@ -76,24 +76,8 @@ export default class RelCompuestoGrupoController {
      * @returns [Array, Object] - [errores, compuesto] el array de errores de validacion y el objeto filtrado
      */
     static bodyValidations (record, method) {
-        let errores = [];
-        let relCG = null;
-        try {
-            if (method === 'update') {
-                relCG = relCompuestoGrupoUpdateSchema.parse(record);
-            } else if (method === 'create') {
-                relCG = relCompuestoGrupoCreateSchema.parse(record);
-            }
-        } catch (error) {
-            if (error instanceof z.ZodError) {
-                errores = error.errors.map(issue => ({
-                    field: issue.path.join('.'),
-                    message: issue.message
-                }));
-            } else {
-                throw error;
-            }
-        }
-        return [errores, relCG];
+        if (method === 'update') return validateBody(record, relCompuestoGrupoUpdateSchema);
+        if (method === 'create') return validateBody(record, relCompuestoGrupoCreateSchema);
+        return [[], null];
     }
 }

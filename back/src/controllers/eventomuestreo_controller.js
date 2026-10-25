@@ -1,7 +1,7 @@
 import EventomuestreoService from '../services/eventomuestreo_service.js';
 import { showError } from '../middleware/controllerErrors.js';
 import { eventomuestreoCreateSchema, eventomuestreoUpdateSchema, eventomuestreoDuplicateSchema } from '../models/eventomuestreo_schema.js';
-import { z } from 'zod';
+import { bodyValidations as validateBody } from './validations.js';
 
 export default class EventomuestreoController {
     static getAllowedFields (req, res, next) {
@@ -88,19 +88,15 @@ export default class EventomuestreoController {
             if (isNaN(id)) throw Object.assign(new Error('El id debe ser numérico.'), { status: 400 });
 
             // Validar body
-            const result = eventomuestreoDuplicateSchema.safeParse(req.body);
-            if (!result.success) {
-                const errores = result.error.errors.map(issue => ({
-                    field: issue.path.join('.'),
-                    message: issue.message
-                }));
+            const [errores, data] = validateBody(req.body, eventomuestreoDuplicateSchema);
+            if (errores.length) {
                 throw Object.assign(new Error('Problemas con el req.body'), { status: 400, fields: errores });
             }
 
             const nuevoId = await EventomuestreoService.duplicarEvento({
                 eventoId: id,
-                nuevaFecha: result.data.fecha,
-                nuevoNombre: result.data.nombre
+                nuevaFecha: data.fecha,
+                nuevoNombre: data.nombre
             });
 
             const eventoDuplicado = await EventomuestreoService.getById(nuevoId);
@@ -111,24 +107,8 @@ export default class EventomuestreoController {
     }
 
     static bodyValidations (record, method) {
-        let errores = [];
-        let eventomuestreo = null;
-        try {
-            if (method === 'update') {
-                eventomuestreo = eventomuestreoUpdateSchema.parse(record);
-            } else if (method === 'create') {
-                eventomuestreo = eventomuestreoCreateSchema.parse(record);
-            }
-        } catch (error) {
-            if (error instanceof z.ZodError) {
-                errores = error.errors.map(issue => ({
-                    field: issue.path.join('.'),
-                    message: issue.message
-                }));
-            } else {
-                throw error;
-            }
-        }
-        return [errores, eventomuestreo];
+        if (method === 'update') return validateBody(record, eventomuestreoUpdateSchema);
+        if (method === 'create') return validateBody(record, eventomuestreoCreateSchema);
+        return [[], null];
     }
 }

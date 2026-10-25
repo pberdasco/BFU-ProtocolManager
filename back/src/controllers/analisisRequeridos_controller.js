@@ -1,7 +1,7 @@
 import AnalisisRequeridosService from '../services/analisisRequeridos_service.js';
 import { showError } from '../middleware/controllerErrors.js';
 import { analisisRequeridoCreateSchema, analisisRequeridoUpdateSchema } from '../models/analisisrequeridos_schema.js';
-import { z } from 'zod';
+import { bodyValidations as validateBody } from './validations.js';
 
 export default class AnalisisRequeridosController {
     static getAllowedFields (req, res, next) {
@@ -76,24 +76,8 @@ export default class AnalisisRequeridosController {
      * @returns [Array, Object] - [errores, compuesto] el array de errores de validacion y el objeto filtrado
      */
     static bodyValidations (record, method) {
-        let errores = [];
-        let entity = null;
-        try {
-            if (method === 'update') {
-                entity = analisisRequeridoUpdateSchema.parse(record);
-            } else if (method === 'create') {
-                entity = analisisRequeridoCreateSchema.parse(record);
-            }
-        } catch (error) {
-            if (error instanceof z.ZodError) {
-                errores = error.errors.map(issue => ({
-                    field: issue.path.join('.'),
-                    message: issue.message
-                }));
-            } else {
-                throw error;
-            }
-        }
-        return [errores, entity];
+        if (method === 'update') return validateBody(record, analisisRequeridoUpdateSchema);
+        if (method === 'create') return validateBody(record, analisisRequeridoCreateSchema);
+        return [[], null];
     }
 }

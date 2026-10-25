@@ -6,6 +6,8 @@
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "test:native": "node --expose-gc --test --test-timeout=60000 test/native.test.js",
+        "test:dependencies": "node --test --test-timeout=30000 test/dependencies.test.js",
+        "test:validation": "node --test --test-timeout=30000 test/validation.test.js",
         "dev": "node --watch --watch-path=src --expose-gc src/server.js",
         "start": "node --expose-gc src/server.js",
         "lint": "eslint src",
@@ -18,15 +20,15 @@
     "dependencies": {
         "archiver": "^7.0.1",
         "bcrypt": "^6.0.0",
-        "cors": "^2.8.5",
-        "docx": "^9.5.0",
+        "cors": "^2.8.6",
+        "docx": "^9.14.0",
         "exceljs": "^4.4.0",
-        "express": "^4.21.2",
-        "jsonwebtoken": "^9.0.2",
-        "mysql2": "^3.11.5",
+        "express": "^4.22.3",
+        "jsonwebtoken": "^9.0.3",
+        "mysql2": "^3.24.6",
         "winax": "3.6.10",
-        "winston": "^3.17.0",
-        "zod": "^3.24.1"
+        "winston": "^3.19.0",
+        "zod": "^4.6.7"
     },
     "esLintConfig": {
         "extends": "semistandard"

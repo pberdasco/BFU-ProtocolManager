@@ -1,7 +1,7 @@
 import CadenasCustodiaService from '../services/cadenasCustodia_service.js';
 import { showError } from '../middleware/controllerErrors.js';
 import { cadenasCustodiaCreateSchema, cadenasCustodiaUpdateSchema } from '../models/cadenasCustodia_schema.js';
-import { z } from 'zod';
+import { bodyValidations as validateBody } from './validations.js';
 
 export default class CadenasCustodiaController {
     static getAllowedFields (req, res, next) {
@@ -71,24 +71,8 @@ export default class CadenasCustodiaController {
     }
 
     static bodyValidations (record, method) {
-        let errores = [];
-        let cadenaCustodia = null;
-        try {
-            if (method === 'update') {
-                cadenaCustodia = cadenasCustodiaUpdateSchema.parse(record);
-            } else if (method === 'create') {
-                cadenaCustodia = cadenasCustodiaCreateSchema.parse(record);
-            }
-        } catch (error) {
-            if (error instanceof z.ZodError) {
-                errores = error.errors.map(issue => ({
-                    field: issue.path.join('.'),
-                    message: issue.message
-                }));
-            } else {
-                throw error;
-            }
-        }
-        return [errores, cadenaCustodia];
+        if (method === 'update') return validateBody(record, cadenasCustodiaUpdateSchema);
+        if (method === 'create') return validateBody(record, cadenasCustodiaCreateSchema);
+        return [[], null];
     }
 }

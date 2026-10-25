@@ -14,7 +14,15 @@ export const subproyectoCreateSchema = z.object({
     autAplicacionFLNAId: z.number().positive()
 });
 
-export const subproyectoUpdateSchema = subproyectoCreateSchema.partial();
+// Zod 4 aplica defaults dentro de campos opcionales. En updates, un campo
+// omitido debe conservar su valor en la base, no reemplazarse por ''.
+export const subproyectoUpdateSchema = subproyectoCreateSchema.partial().extend({
+    nombreLocacion: subproyectoCreateSchema.shape.nombreLocacion.removeDefault().optional(),
+    ubicacion: subproyectoCreateSchema.shape.ubicacion.removeDefault().optional(),
+    apies: subproyectoCreateSchema.shape.apies.removeDefault().optional(),
+    objetivo: subproyectoCreateSchema.shape.objetivo.removeDefault().optional(),
+    notas: subproyectoCreateSchema.shape.notas.removeDefault().optional()
+});
 
 // Analizar si truncar en lugar de rechazar
 // codigo: z.string().max(10).transform((val) => val.slice(0, 10))

@@ -1,7 +1,7 @@
 import CadenaToDocTablaService from '../services/reportes/tablasAnaliticas/cadenaToDOCTabla_service.js';
 import { showError } from '../middleware/controllerErrors.js';
 import { cadenaToDOCTablaSchema } from '../models/cadenaToDOCTabla_schema.js';
-import { z } from 'zod';
+import { bodyValidations as validateBody } from './validations.js';
 
 export default class CadenaToDOCTablaController {
     /**
@@ -43,22 +43,7 @@ export default class CadenaToDOCTablaController {
     }
 
     static bodyValidations (record, method) {
-        let errores = [];
-        let validData = null;
-        try {
-            if (method === 'create') {
-                validData = cadenaToDOCTablaSchema.parse(record);
-            }
-        } catch (error) {
-            if (error instanceof z.ZodError) {
-                errores = error.errors.map(issue => ({
-                    field: issue.path.join('.'),
-                    message: issue.message
-                }));
-            } else {
-                throw error;
-            }
-        }
-        return [errores, validData];
+        if (method === 'create') return validateBody(record, cadenaToDOCTablaSchema);
+        return [[], null];
     }
 }

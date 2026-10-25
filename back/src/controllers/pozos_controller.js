@@ -1,7 +1,7 @@
 import PozosService from '../services/pozos_service.js';
 import { showError } from '../middleware/controllerErrors.js';
 import { pozosCreateSchema, pozosUpdateSchema } from '../models/pozos_schema.js';
-import { z } from 'zod';
+import { bodyValidations as validateBody } from './validations.js';
 
 export default class PozosController {
     static getAllowedFields (req, res, next) {
@@ -69,24 +69,8 @@ export default class PozosController {
     }
 
     static bodyValidations (record, method) {
-        let errores = [];
-        let pozos = null;
-        try {
-            if (method === 'update') {
-                pozos = pozosUpdateSchema.parse(record);
-            } else if (method === 'create') {
-                pozos = pozosCreateSchema.parse(record);
-            }
-        } catch (error) {
-            if (error instanceof z.ZodError) {
-                errores = error.errors.map(issue => ({
-                    field: issue.path.join('.'),
-                    message: issue.message
-                }));
-            } else {
-                throw error;
-            }
-        }
-        return [errores, pozos];
+        if (method === 'update') return validateBody(record, pozosUpdateSchema);
+        if (method === 'create') return validateBody(record, pozosCreateSchema);
+        return [[], null];
     }
 }

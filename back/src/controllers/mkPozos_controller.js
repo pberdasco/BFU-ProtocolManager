@@ -1,7 +1,7 @@
 import MkPozosService from '../services/reportes/mannKendall/mkPozos_service.js';
 import { showError } from '../middleware/controllerErrors.js';
 import { mkPozosCreateSchema, mkPozosUpdateSchema, mkPozosReplaceSchema } from '../models/mkPozos_schema.js';
-import { z } from 'zod';
+import { bodyValidations as validateBody } from './validations.js';
 
 export default class MkPozosController {
     static getAllowedFields (req, res, next) {
@@ -84,26 +84,9 @@ export default class MkPozosController {
     }
 
     static bodyValidations (record, method) {
-        let errores = [];
-        let resultado = null;
-        try {
-            if (method === 'update') {
-                resultado = mkPozosUpdateSchema.parse(record);
-            } else if (method === 'create') {
-                resultado = mkPozosCreateSchema.parse(record);
-            } else if (method === 'replace') {
-                resultado = mkPozosReplaceSchema.parse(record);
-            }
-        } catch (error) {
-            if (error instanceof z.ZodError) {
-                errores = error.errors.map(issue => ({
-                    field: issue.path.join('.'),
-                    message: issue.message
-                }));
-            } else {
-                throw error;
-            }
-        }
-        return [errores, resultado];
+        if (method === 'update') return validateBody(record, mkPozosUpdateSchema);
+        if (method === 'create') return validateBody(record, mkPozosCreateSchema);
+        if (method === 'replace') return validateBody(record, mkPozosReplaceSchema);
+        return [[], null];
     }
 }

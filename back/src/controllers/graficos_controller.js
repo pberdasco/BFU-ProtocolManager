@@ -1,7 +1,7 @@
 import GraficosService from '../services/reportes/evolucionCDI/configGraficos_service.js';
 import { showError } from '../middleware/controllerErrors.js';
 import { graficoCreateSchema, graficoUpdateSchema } from '../models/graficos_schema.js';
-import { z } from 'zod';
+import { bodyValidations as validateBody } from './validations.js';
 
 export default class GraficosController {
     static getAllowedFields (req, res, next) {
@@ -69,18 +69,7 @@ export default class GraficosController {
     }
 
     static bodyValidations (record, method) {
-        let errors = [];
-        let grafico = null;
-        try {
-            if (method === 'create') grafico = graficoCreateSchema.parse(record);
-            else grafico = graficoUpdateSchema.parse(record);
-        } catch (err) {
-            if (err instanceof z.ZodError) {
-                errors = err.errors.map(issue => ({ field: issue.path.join('.'), message: issue.message }));
-            } else {
-                throw err;
-            }
-        }
-        return [errors, grafico];
+        const schema = method === 'create' ? graficoCreateSchema : graficoUpdateSchema;
+        return validateBody(record, schema);
     }
 }

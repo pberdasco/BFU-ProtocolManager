@@ -1,7 +1,7 @@
 import UMConvertService from '../services/umConvert_service.js';
 import { showError } from '../middleware/controllerErrors.js';
 import { umConvertCreateSchema, umConvertUpdateSchema } from '../models/umconvert_schema.js';
-import { z } from 'zod';
+import { bodyValidations as validateBody } from './validations.js';
 
 export default class UMConvertController {
     static getAllowedFields (req, res, next) {
@@ -88,24 +88,8 @@ export default class UMConvertController {
     }
 
     static bodyValidations (record, method) {
-        let errores = [];
-        let umconvert = null;
-        try {
-            if (method === 'update') {
-                umconvert = umConvertUpdateSchema.parse(record);
-            } else if (method === 'create') {
-                umconvert = umConvertCreateSchema.parse(record);
-            }
-        } catch (error) {
-            if (error instanceof z.ZodError) {
-                errores = error.errors.map(issue => ({
-                    field: issue.path.join('.'),
-                    message: issue.message
-                }));
-            } else {
-                throw error;
-            }
-        }
-        return [errores, umconvert];
+        if (method === 'update') return validateBody(record, umConvertUpdateSchema);
+        if (method === 'create') return validateBody(record, umConvertCreateSchema);
+        return [[], null];
     }
 }

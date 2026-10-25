@@ -1,7 +1,7 @@
 import GrupoCompuestosService from '../services/grupoCompuestos_service.js';
 import { showError } from '../middleware/controllerErrors.js';
 import { grupoCompuestoCreateSchema, grupoCompuestoUpdateSchema } from '../models/grupoCompuestos_schema.js';
-import { z } from 'zod';
+import { bodyValidations as validateBody } from './validations.js';
 
 export default class GrupoCompuestosController {
     static getAllowedFields (req, res, next) {
@@ -76,24 +76,8 @@ export default class GrupoCompuestosController {
      * @returns [Array, Object] - [errores, compuesto] el array de errores de validacion y el objeto filtrado
      */
     static bodyValidations (record, method) {
-        let errores = [];
-        let compuesto = null;
-        try {
-            if (method === 'update') {
-                compuesto = grupoCompuestoUpdateSchema.parse(record);
-            } else if (method === 'create') {
-                compuesto = grupoCompuestoCreateSchema.parse(record);
-            }
-        } catch (error) {
-            if (error instanceof z.ZodError) {
-                errores = error.errors.map(issue => ({
-                    field: issue.path.join('.'),
-                    message: issue.message
-                }));
-            } else {
-                throw error;
-            }
-        }
-        return [errores, compuesto];
+        if (method === 'update') return validateBody(record, grupoCompuestoUpdateSchema);
+        if (method === 'create') return validateBody(record, grupoCompuestoCreateSchema);
+        return [[], null];
     }
 }

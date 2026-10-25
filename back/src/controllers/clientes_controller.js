@@ -1,7 +1,7 @@
 import ClientesService from '../services/clientes_service.js';
 import { showError } from '../middleware/controllerErrors.js';
 import { clienteCreateSchema, clienteUpdateSchema } from '../models/clientes_schema.js';
-import { z } from 'zod';
+import { bodyValidations as validateBody } from './validations.js';
 
 export default class ClientesController {
     static getAllowedFields (req, res, next) {
@@ -76,24 +76,8 @@ export default class ClientesController {
      * @returns [Array, Object] - [errores, cliente] el array de errores de validacion y el objeto filtrado
      */
     static bodyValidations (record, method) {
-        let errores = [];
-        let cliente = null;
-        try {
-            if (method === 'update') {
-                cliente = clienteUpdateSchema.parse(record);
-            } else if (method === 'create') {
-                cliente = clienteCreateSchema.parse(record);
-            }
-        } catch (error) {
-            if (error instanceof z.ZodError) {
-                errores = error.errors.map(issue => ({
-                    field: issue.path.join('.'),
-                    message: issue.message
-                }));
-            } else {
-                throw error;
-            }
-        }
-        return [errores, cliente];
+        if (method === 'update') return validateBody(record, clienteUpdateSchema);
+        if (method === 'create') return validateBody(record, clienteCreateSchema);
+        return [[], null];
     }
 }
