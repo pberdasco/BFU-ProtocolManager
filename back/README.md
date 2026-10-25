@@ -56,7 +56,7 @@ src/
    - Python 3.x accesible desde consola
    - Visual Studio con herramientas de desarrollo C++ o Visual Studio Build Tools
    - Windows SDK (para la version 10 u 11 segun sea el SO)
-     > ℹ️ Podés verificar tu entorno ejecutando `./VerificarWinax.ps1` desde `back/`.
+     > ℹ️ Para diagnosticar el entorno, consultar [Verificación del entorno winax](#verificación-del-entorno-winax).
 
    Instalar las dependencias:
 
@@ -101,6 +101,20 @@ src/
    node --expose-gc src/server.js
    ```
     dado que requiere `--expose-gc` habilitado para permitir la liberacion manual de memoria usada por WinAx
+
+## Verificación del entorno winax
+
+`VerificarWinax.ps1` es un script de diagnóstico para Windows. Ejecutarlo en PowerShell desde `back/`:
+
+```powershell
+.\VerificarWinax.ps1
+```
+
+- Informa las versiones disponibles de Node.js, pnpm y Python, y busca `MSBuild.exe` en las instalaciones de Visual Studio.
+- Si encuentra winax instalado en el proyecto, ejecuta `pnpm run test:native`: comprueba bcrypt y abre una instancia propia de Excel para escribir una matriz, crear un gráfico, guardar y reabrir un libro temporal.
+- Si winax todavía no está instalado, informa cómo instalar las dependencias; no ejecuta la prueba nativa.
+
+El script **no instala herramientas ni dependencias**. La prueba nativa requiere Excel de escritorio instalado; no modifica plantillas ni consulta la base de datos. Las comprobaciones del entorno son orientativas: no garantizan que todos los componentes de C++/Windows SDK estén instalados ni reemplazan las pruebas funcionales de los reportes.
 
 ## Validación de la migración
 
