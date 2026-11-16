@@ -5,3 +5,4 @@ back/logs/
 public/*
 !public/.gitkeep
 !public/index.html
+deploy-local/
